@@ -1,2 +1,2 @@
-# PDFJS-Wrapper
-PDFJS-Wrapper for tags-notes-highlights
+# PDF-Wrapper
+PDF-Wrapper for tags-notes-highlights
