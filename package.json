@@ -1,5 +1,5 @@
 {
-  "name": "@modusoperandi/mo-pdf-viewer",
+  "name": "@modusoperandi/pdf-viewer",
   "version": "1.0.0",
   "scripts": {
     "ng": "ng",
