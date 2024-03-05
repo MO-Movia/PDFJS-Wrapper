@@ -37,7 +37,7 @@ import { Nullable } from './types/types';
   styleUrls: [ './mo-pdf-viewer.component.scss' ]
 })
 export class MoPdfViewerComponent {
-  @Input({ required: true }) public  pdfSrc = '';
+  @Input({ required: true }) public  pdfSrc: string | Uint8Array = '';
   @Input() public  documentTitle = '';
   @Input() public  documentClassification = 'Unclassified';
   @Input() public  documentAuthor = '';
