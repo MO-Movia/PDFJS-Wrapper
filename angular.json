@@ -28,10 +28,22 @@
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
             "tsConfig": "projects/mo-pdf-viewer/tsconfig.spec.json",
+            "karmaConfig": "projects/mo-pdf-viewer/karma.conf.js",
             "polyfills": [
               "zone.js",
               "zone.js/testing"
             ]
+          },
+          "configurations": {
+            "jenkins": {
+              "browsers": "ChromeHeadless",
+              "codeCoverage": true,
+              "progress": false,
+              "reporters": [
+                "junit"
+              ],
+              "watch": false
+            }
           }
         },
         "lint": {

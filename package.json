@@ -8,7 +8,13 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint",
-    "lint:fix": "ng lint --fix"
+    "lint:fix": "ng lint --fix",
+    "ci:build": "ng build mo-pdf-viewer --configuration production",
+    "ci:test": "ng test mo-pdf-viewer -c jenkins",
+    "ci:lint": "ng lint",
+    "test:unit": "ng test mo-pdf-viewer --watch=false",
+    "test:coverage": "ng test mo-pdf-viewer -c jenkins --code-coverage",
+    "ci:bom": "cyclonedx-npm --ignore-npm-errors --output-format XML --output-file dist/mo-pdf-viewer/bom.xml"
   },
   "private": true,
   "dependencies": {
@@ -38,6 +44,7 @@
     "@angular-eslint/template-parser": "16.3.1",
     "@angular/cli": "^16.2.12",
     "@angular/compiler-cli": "^16.2.12",
+    "@cyclonedx/cyclonedx-npm": "^1.14.0",
     "@stylistic/eslint-plugin": "^1.5.4",
     "@types/jasmine": "~5.1.0",
     "@typescript-eslint/eslint-plugin": "^6.4.0",
@@ -54,6 +61,7 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "karma-junit-reporter": "^2.0.1",
     "ng-packagr": "^16.2.0",
     "typescript": "^5.1.6"
   }
