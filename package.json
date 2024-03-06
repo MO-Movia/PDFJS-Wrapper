@@ -1,6 +1,6 @@
 {
   "name": "@modusoperandi/pdf-viewer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -9,22 +9,22 @@
     "test": "ng test",
     "lint": "ng lint",
     "lint:fix": "ng lint --fix",
-    "ci:build": "ng build mo-pdf-viewer --configuration production",
-    "ci:test": "ng test mo-pdf-viewer -c jenkins",
+    "ci:build": "ng build --configuration production",
+    "ci:test": "ng test -c jenkins",
     "ci:lint": "ng lint",
-    "test:unit": "ng test mo-pdf-viewer --watch=false",
-    "test:coverage": "ng test mo-pdf-viewer -c jenkins --code-coverage",
-    "ci:bom": "cyclonedx-npm --ignore-npm-errors --output-format XML --output-file dist/mo-pdf-viewer/bom.xml"
+    "test:unit": "ng test --watch=false",
+    "test:coverage": "ng test -c jenkins --code-coverage",
+    "ci:bom": "cyclonedx-npm --ignore-npm-errors --output-format XML --output-file dist/bom.xml"
   },
   "private": true,
-  "dependencies": {
+  "peerDependencies": {
+    "@angular/platform-browser": "^16.2.12",
+    "@angular/platform-browser-dynamic": "^16.2.12",
     "@angular/animations": "^16.2.12",
     "@angular/common": "^16.2.12",
     "@angular/compiler": "^16.2.12",
     "@angular/core": "^16.2.12",
     "@angular/forms": "^16.2.12",
-    "@angular/platform-browser": "^16.2.12",
-    "@angular/platform-browser-dynamic": "^16.2.12",
     "@angular/router": "^16.2.12",
     "@fortawesome/angular-fontawesome": "^0.13.0",
     "@fortawesome/fontawesome-svg-core": "^6.4.2",
@@ -32,8 +32,10 @@
     "@fortawesome/free-solid-svg-icons": "^6.4.2",
     "ng2-pdf-viewer": "^10.0.0",
     "rxjs": "~7.8.0",
-    "tslib": "^2.3.0",
     "zone.js": "~0.13.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^16.2.12",
@@ -64,5 +66,6 @@
     "karma-junit-reporter": "^2.0.1",
     "ng-packagr": "^16.2.0",
     "typescript": "^5.1.6"
-  }
+  },
+  "sideEffects": false
 }

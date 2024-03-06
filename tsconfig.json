@@ -10,7 +10,7 @@
     "noImplicitReturns": true,
     "paths": {
       "mo-pdf-viewer": [
-        "./dist/mo-pdf-viewer"
+        "./dist"
       ]
     },
     "noFallthroughCasesInSwitch": true,
