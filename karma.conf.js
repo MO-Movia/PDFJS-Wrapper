@@ -14,13 +14,13 @@ module.exports = function (config) {
         clearContext: false // leave Jasmine Spec Runner output visible in browser
       },
       coverageReporter: {
-        dir: require('path').join(__dirname, '../../coverage/mo-pdf-viewer'),
+        dir: require('path').join(__dirname, './coverage/mo-pdf-viewer'),
         subdir: '.',
         reporters: [{type:'html'}, {type:'lcovonly'}, {type:'text-summary'}, {type:'cobertura'}],
         fixWebpackSourcePaths: true
       },
       junitReporter: {
-        outputDir: require('path').join(__dirname, '../../coverage/mo-pdf-viewer'),
+        outputDir: require('path').join(__dirname, './coverage/mo-pdf-viewer'),
         useBrowserName: false
       },
       reporters: ['progress', 'kjhtml'],

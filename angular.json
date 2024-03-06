@@ -5,21 +5,21 @@
   "projects": {
     "mo-pdf-viewer": {
       "projectType": "library",
-      "root": "projects/mo-pdf-viewer",
-      "sourceRoot": "projects/mo-pdf-viewer/src",
+      "root": ".",
+      "sourceRoot": "src",
       "prefix": "lib",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
-            "project": "projects/mo-pdf-viewer/ng-package.json"
+            "project": "ng-package.json"
           },
           "configurations": {
             "production": {
-              "tsConfig": "projects/mo-pdf-viewer/tsconfig.lib.prod.json"
+              "tsConfig": "tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/mo-pdf-viewer/tsconfig.lib.json"
+              "tsConfig": "tsconfig.lib.json"
             }
           },
           "defaultConfiguration": "production"
@@ -27,8 +27,8 @@
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "tsConfig": "projects/mo-pdf-viewer/tsconfig.spec.json",
-            "karmaConfig": "projects/mo-pdf-viewer/karma.conf.js",
+            "tsConfig": "tsconfig.spec.json",
+            "karmaConfig": "karma.conf.js",
             "polyfills": [
               "zone.js",
               "zone.js/testing"
@@ -50,8 +50,8 @@
           "builder": "@angular-eslint/builder:lint",
           "options": {
             "lintFilePatterns": [
-              "projects/mo-pdf-viewer/**/*.ts",
-              "projects/mo-pdf-viewer/**/*.html"
+              "**/*.ts",
+              "**/*.html"
             ]
           }
         }
@@ -61,6 +61,7 @@
   "cli": {
     "schematicCollections": [
       "@angular-eslint/schematics"
-    ]
+    ],
+    "analytics": false
   }
 }
