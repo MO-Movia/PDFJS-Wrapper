@@ -16,7 +16,7 @@
     "test:coverage": "ng test -c jenkins --code-coverage",
     "ci:bom": "cyclonedx-npm --ignore-npm-errors --output-format XML --output-file dist/bom.xml"
   },
-  "private": true,
+  "private": false,
   "peerDependencies": {
     "@angular/platform-browser": "^16.2.12",
     "@angular/platform-browser-dynamic": "^16.2.12",
