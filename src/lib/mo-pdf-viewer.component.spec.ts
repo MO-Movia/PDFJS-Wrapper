@@ -18,7 +18,7 @@ describe('MoPdfViewerComponent', () => {
   beforeEach(() => {
     params = {};
     TestBed.configureTestingModule({
-      declarations: [MoPdfViewerComponent, FaIconComponent],
+      declarations: [MoPdfViewerComponent],
       imports: [ FontAwesomeModule ],
       providers: [
         {
