@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MoPdfViewerComponent } from './mo-pdf-viewer.component';
 import { ComponentRef, EventEmitter } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FaIconComponent, FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { PdfViewerComponent } from 'ng2-pdf-viewer';
 import { DynamicComponent } from './components/text-options/text-options.component';
 import { CommentSelection } from './models/comment-selection.model';
