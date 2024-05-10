@@ -5,20 +5,21 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { AngularSplitModule } from 'angular-split';
+import { NgbNavModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
-  declarations: [
-    MoPdfViewerComponent
-  ],
+  declarations: [MoPdfViewerComponent],
   imports: [
     CommonModule,
     PdfViewerModule,
     FontAwesomeModule,
-    FormsModule
+    FormsModule,
+    AngularSplitModule,
+    NgbNavModule,
+    NgbTooltipModule,
   ],
-  exports: [
-    MoPdfViewerComponent
-  ],
-  providers: [ provideAnimations() ]
+  exports: [MoPdfViewerComponent],
+  providers: [provideAnimations()],
 })
 export class MoPdfViewerModule {}

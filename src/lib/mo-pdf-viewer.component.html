@@ -1,79 +1,169 @@
 <div class="container-fluid h-100">
-  <div class="row h-100">
-    <div *ngIf="!minimalView" class="col-4 section-container-left ps-3 d-flex flex-column h-100">
-      <div class="row mb-5">
-        <div class="col-auto me-auto mt-5 ms-3">
-          <h1>PDF Viewer</h1>
-        </div>
+  <as-split direction="horizontal">
+    <as-split-area [size]="70" style="scrollbar-width: none">
+      <div class="row h-100">
+        <div
+          [ngClass]="
+            minimalView ? 'preview-full-view' : 'section-container-right'
+          "
+          style="position: relative"
+        >
+          <nav class="navbar navbar-inverse">
+            <div class="container-fluid nav-container">
+              <div class="navbar-header" style="display: flex">
+                <div class="col-auto d-flex flex-column">
+                  <button
+                    class="btn btn-sm btn-outline-secondary py-0 my-auto"
+                    style="border: none"
+                    (click)="selectSearchCategory('Highlights')"
+                  >
+                    {{ highlights.length }}
+                    <fa-icon
+                      class="mx-auto my-auto"
+                      [icon]="I.faHighlighter"
+                    ></fa-icon>
+                  </button>
+                </div>
 
-        <div class="col-auto ms-auto">
-          <div class="icon-circle d-flex rounded-circle mt-3 me-2">
-            <fa-icon class="mx-auto my-auto" [icon]="I.faUser" />
-          </div>
-        </div>
-      </div>
+                <div class="col-auto d-flex flex-column">
+                  <button
+                    class="btn btn-sm btn-outline-secondary py-0 my-auto"
+                    style="border: none"
+                    (click)="selectSearchCategory('Tags')"
+                  >
+                    {{ tags.length }}
+                    <fa-icon class="mx-auto my-auto" [icon]="I.faTag"></fa-icon>
+                  </button>
+                </div>
 
-      <ng-container *ngIf="selectedSearchCategory === 'Text'">
-        <div class="row mb-3">
-          <div class="col-auto d-flex pe-0">
-            <button type="button" title="search" class="btn btn-sm btn-secondary-outline" (click)="search(searchText)">
-              <fa-icon class="mx-auto my-auto" [icon]="I.faFile" />
-            </button>
-          </div>
-
-          <div class="col-auto d-flex p-0">
-            <div class="my-auto">
-              <div ngbDropdown class="d-flex align-items-center">
-                <button type="button" title="search category" ngbDropdownToggle class="btn btn-secondary-outline btn-sm">
-                  <!-- intentionally empty -->
-                </button>
-
-                <div ngbDropdownMenu>
-                  <button ngbDropdownItem class="btn btn-secondary-outline"
-                  *ngFor="let category of searchCategories">
-                    <fa-icon class="mx-auto my-auto" [icon]="category.icon" />
-                    {{category.label}}
+                <div class="col-auto d-flex flex-column">
+                  <button
+                    class="btn btn-sm btn-outline-secondary py-0 my-auto"
+                    style="border: none"
+                    (click)="selectSearchCategory('Comments')"
+                  >
+                    {{ comments.length }}
+                    <fa-icon
+                      class="mx-auto my-auto"
+                      [icon]="I.faMessage"
+                    ></fa-icon>
                   </button>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <div class="col-auto d-flex pe-2">
-            <div class="input-group input-group-sm my-auto">
-              <div class="input-group-prepend">
-                <span class="input-group-text" id="inputGroup-sizing-sm">Find me anything labelled with</span>
+              <div class="nav navbar-nav">
+                <div class="col-auto d-flex flex-column">
+                  <div class="my-auto" id="my-auto-page">
+                    Page {{ page }} of 4
+                  </div>
+                </div>
               </div>
-
-              <input type="text"
-                class="form-control"
-                aria-label="Small"
-                aria-describedby="inputGroup-sizing-sm"
-                [(ngModel)]="searchText"
-                (keyup.enter)="search(searchText)">
+              <div
+                class="col-auto d-flex flex-column nav navbar-nav navbar-right"
+                style="margin-left: 2px"
+              >
+                <div class="col-auto d-flex flex-column pe-2 my-2 my-lg-0">
+                  <div class="input-group input-group-sm my-auto">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 512 512"
+                      id="search_svg_icon"
+                    >
+                      <path
+                        d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"
+                      />
+                    </svg>
+                    <div
+                      class="nav navbar-nav navbar-right"
+                      style="display: -webkit-inline-box"
+                    >
+                      <div class="col-auto d-flex pe-2 my-2 my-lg-0">
+                        <div class="input-group input-group-sm my-auto">
+                          <input
+                            type="text"
+                            aria-label="Small"
+                            aria-describedby="inputGroup-sizing-sm"
+                            placeholder="Search"
+                            [(ngModel)]="searchText"
+                            (keyup)="onKeyUp($event)"
+                            class="form-control mr-sm-2 ng-untouched ng-pristine ng-valid search-box"
+                          />
+                        </div>
+                      </div>
+                      <div
+                        class="col-auto d-flex flex-column my-auto_count"
+                        id="my-auto_count"
+                        *ngIf="searchText"
+                      ></div>
+                      <div class="col-auto d-flex flex-column">
+                        <button
+                          class="down_btn btn-outline-secondary"
+                          (click)="searchDown(searchText)"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 448 512"
+                            style="margin-top: -4px"
+                          >
+                            <path
+                              d="M201.4 137.4c12.5-12.5 32.8-12.5 45.3 0l160 160c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L224 205.3 86.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l160-160z"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                      <div class="col-auto d-flex flex-column">
+                        <button
+                          class="up_btn btn-outline-secondary"
+                          (click)="searchUp(searchText)"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 448 512"
+                          >
+                            <path
+                              d="M201.4 137.4c12.5-12.5 32.8-12.5 45.3 0l160 160c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L224 205.3 86.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l160-160z"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                      <!-- <div class="ms-auto col-auto">
+                        <button class="btn btn-sm btn-outline-secondary">
+                          x
+                        </button>
+                      </div> -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </nav>
+          <div class="row flex-grow-1">
+            <div class="col h-100">
+              <pdf-viewer
+                *ngIf="pdfSrc"
+                [src]="pdfSrc"
+                [original-size]="true"
+                [render-text]="true"
+                [fit-to-page]="false"
+                [show-borders]="true"
+                [(page)]="page"
+                (mouseup)="showOptions($event)"
+                (pages-initialized)="afterLoadComplete()"
+                class="h-100 w-100"
+                style="
+                  position: absolute;
+                  background: lightgrey;
+                  overflow: scroll;
+                  scrollbar-width: thin;
+                "
+              ></pdf-viewer>
             </div>
           </div>
-
-          <div class="col-auto d-flex px-0">
-            <button class="btn btn-sm btn-secondary-outline">
-              <fa-icon class="mx-auto my-auto" [icon]="I.faSliders" />
-              Filter
-            </button>
-          </div>
         </div>
-
-        <div *ngFor="let result of results" class="row mb-2 ms-5">
-          <div class="col-auto">
-            <fa-icon class="mx-auto my-auto" [icon]="I.faFile" />
-          </div>
-
-          <div class="col">
-            {{result.label}}
-          </div>
-        </div>
-      </ng-container>
-
-      <ng-container *ngIf="selectedSearchCategory === 'Highlights'">
+      </div>
+    </as-split-area>
+    <as-split-area [size]="30" class="right-panel">
+      <div *ngIf="selectedSearchCategory === 'Highlights'">
         <div class="row ms-2">
           <div class="col">
             <h3>Highlights:</h3>
@@ -81,43 +171,50 @@
         </div>
 
         <div class="row flex-grow-1 overflow-auto">
-          <div class="col h-100">
-            <div *ngFor="let highlight of highlights" class="row mb-5 border border-secondary mx-2"
+          <div class="col h-100" style="margin-top: 7px">
+            <div
+              *ngFor="let highlight of highlights"
+              class="row mx-2"
+              style="border: 1px solid grey"
               (click)="selectSelection(highlight)"
-              [attr.tabindex]="0"
-              (keyup)="selectSelection(highlight)">
+              (keyup)="selectSelection(highlight)"
+              tabindex="-1"
+            >
               <div class="col">
-                <div class="row light-gray-background">
-                  <div class="col-auto ms-2">
-                    Page: {{getFirstPage(highlight)}}
+                <div class="row row_highlight" style="position: relative">
+                  <div
+                    class="col-auto ms-3 highlight-col"
+                  >
+                    <span
+                      (click)="goToSelection(highlight)"
+                      (keyup)="goToSelection(highlight)"
+                      tabindex="-1"
+                      id="highlight-span"
+                      >{{ highlight.text | slice : 0 : 62
+                      }}{{ highlight.text.length > 62 ? "..." : "" }}</span
+                    >
                   </div>
-
-                  <div class="col-auto ms-auto">
-                    <button (click)="goToSelection(highlight)"
-                    class="btn btn-outline-secondary btn-sm">
-                      Go
-                    </button>
-                  </div>
-
-                  <div class="col-auto auto">
-                    <button type="button" title="Remove Highlight" (click)="removeHighlight(highlight)" class="btn btn-danger btn-sm">
-                      <fa-icon class="mx-auto my-auto" [icon]="I.faTrash" />
-                    </button>
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="col-auto ms-3">
-                    {{highlight.text}}
-                  </div>
+                  <button
+                    type="button"
+                    title="Remove Highlight"
+                    (click)="removeHighlight(highlight)"
+                    class="btn btn-danger btn-sm"
+                    id="trash_button"
+                  >
+                    <fa-icon
+                      class="mx-auto my-auto"
+                      id="trash_icon_highlight"
+                      [icon]="I.faTrash"
+                    />
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </ng-container>
+      </div>
 
-      <ng-container *ngIf="selectedSearchCategory === 'Tags'">
+      <div *ngIf="selectedSearchCategory === 'Tags'">
         <div class="row ms-2">
           <div class="col">
             <h3>Tags:</h3>
@@ -125,42 +222,48 @@
         </div>
 
         <div class="row flex-grow-1 overflow-auto">
-          <div class="col h-100">
-            <div *ngFor="let tag of tags" class="row mb-5 border border-secondary mx-2"
+          <div class="col h-100" style="margin-top: 7px">
+            <div
+              *ngFor="let tag of tags"
+              class="row mx-2"
               (click)="selectSelection(tag)"
               [attr.tabindex]="0"
-              (keyup)="selectSelection(tag)">
+              (keyup)="selectSelection(tag)"
+              style="border: 1px solid grey"
+            >
               <div class="col">
-                <div class="row light-gray-background">
-                  <div class="col-auto ms-2">
-                    Page: {{getFirstPage(tag)}}
+                <div class="row row_tag" style="position: relative">
+                  <div
+                    class="col-auto"
+                    (click)="goToSelection(tag)"
+                    (keyup)="goToSelection(tag)"
+                    tabindex="-1"
+                    id="tag-box"
+                  >
+                    {{ tag.text | slice : 0 : 62
+                    }}{{ tag.text.length > 62 ? "..." : "" }}
                   </div>
-
-                  <div class="col-auto ms-auto">
-                    <button (click)="goToSelection(tag)" class="btn btn-outline-secondary btn-sm">
-                      Go
-                    </button>
-                  </div>
-
-                  <div class="col-auto auto">
-                    <button type="button" title="Remove Tag" (click)="removeTag(tag)" class="btn btn-danger btn-sm">
-                      <fa-icon class="mx-auto my-auto" [icon]="I.faTrash" />
-                    </button>
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="col-auto ms-3">
-                    {{tag.text}}
-                  </div>
+                  <button
+                    type="button"
+                    title="Remove Tag"
+                    (click)="removeTag(tag)"
+                    class="btn btn-danger btn-sm"
+                    id="trash_button_tag"
+                  >
+                    <fa-icon
+                      class="mx-auto my-auto"
+                      [icon]="I.faTrash"
+                      id="trash_icon_tag"
+                    />
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </ng-container>
+      </div>
 
-      <ng-container *ngIf="selectedSearchCategory === 'Comments'">
+      <div *ngIf="selectedSearchCategory === 'Comments'">
         <div class="row ms-2">
           <div class="col">
             <h3>Comments:</h3>
@@ -168,171 +271,109 @@
         </div>
 
         <div class="row flex-grow-1 overflow-auto">
-          <div class="col h-100">
-            <div *ngFor="let comment of comments" class="row mb-5 border border-secondary mx-2"
+          <div class="col h-100" style="margin-top: 7px">
+            <div
+              *ngFor="let comment of comments"
+              class="row mx-2 clickable"
+              id="comment-row"
               (click)="selectSelection(comment)"
               [attr.tabindex]="0"
-              (keyup)="selectSelection(comment)">
+              (keyup)="selectSelection(comment)"
+              tabindex="-1"
+            >
               <div class="col">
-                <div class="row light-gray-background">
-                  <div class="col-auto ms-2">
-                    Page: {{getFirstPage(comment)}}
+                <div class="col-auto auto"></div>
+                <div class="row row_comments" style="position: relative">
+                  <div
+                    class="col-auto"
+                    id="comment-box"
+                    (click)="goToSelection(comment)"
+                    (keyup)="goToSelection(comment)"
+                    tabindex="-1"
+                  >
+                    {{ comment.text | slice : 0 : 62
+                    }}{{ comment.text.length > 62 ? "..." : "" }}
                   </div>
-
-                  <div class="col-auto ms-auto">
-                    <button (click)="goToSelection(comment)" class="btn btn-outline-secondary btn-sm">
-                      Go
-                    </button>
-                  </div>
-
-                  <div class="col-auto auto">
-                    <button type="button" title="Remove Comment" (click)="removeComment(comment)" class="btn btn-danger btn-sm">
-                      <fa-icon class="mx-auto my-auto" [icon]="I.faTrash" />
-                    </button>
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="col-auto ms-3">
-                    {{comment.text}}
-                  </div>
+                  <button
+                    type="button"
+                    title="Remove Comment"
+                    (click)="removeComment(comment)"
+                    class="btn btn-danger btn-sm"
+                    id="trash_button_comment"
+                  >
+                    <fa-icon
+                      class="mx-auto my-auto"
+                      [icon]="I.faTrash"
+                      id="trash_icon_comment"
+                    />
+                  </button>
+                  <button
+                    type="button"
+                    title="edit Comment"
+                    id="edit_button_comment"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 576 512"
+                      class="edit_comment_svg"
+                    >
+                      <path
+                        d="M402.3 344.9l32-32c5-5 13.7-1.5 13.7 5.7V464c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V112c0-26.5 21.5-48 48-48h273.5c7.1 0 10.7 8.6 5.7 13.7l-32 32c-1.5 1.5-3.5 2.3-5.7 2.3H48v352h352V350.5c0-2.1 .8-4.1 2.3-5.6zm156.6-201.8L296.3 405.7l-90.4 10c-26.2 2.9-48.5-19.2-45.6-45.6l10-90.4L432.9 17.1c22.9-22.9 59.9-22.9 82.7 0l43.2 43.2c22.9 22.9 22.9 60 .1 82.8zM460.1 174L402 115.9 216.2 301.8l-7.3 65.3 65.3-7.3L460.1 174zm64.8-79.7l-43.2-43.2c-4.1-4.1-10.8-4.1-14.8 0L436 82l58.1 58.1 30.9-30.9c4-4.2 4-10.8-.1-14.9z"
+                      />
+                    </svg>
+                  </button>
                 </div>
 
                 <div class="row w-100">
                   <div class="col-auto w-100 ms-3">
-                    <textarea title="Comment" class="w-100" [(ngModel)]="comment.comment"></textarea>
+                    <textarea
+                      title="Comment"
+                      class="w-100"
+                      id="comments-textarea"
+                      [(ngModel)]="comment.comment"
+                    ></textarea>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </ng-container>
-    </div>
-
-    <div class="col-8 h-100 d-flex flex-column" [ngClass]="minimalView ? 'preview-full-view' : 'section-container-right'">
-      <div class="row info-row mt-2 text-secondary">
-        <div class="col-auto d-flex">
-          <fa-icon class="mx-auto my-auto" [icon]="I.faFile"></fa-icon>
-        </div>
-
-        <div class="col-auto d-flex">
-          <div class="my-auto doc-name">
-            {{documentTitle}}
-          </div>
-        </div>
-
-        <div class="col-auto d-flex">
-          <div class="my-auto">
-            {{documentClassification}}
-          </div>
-        </div>
-
-        <div class="col-auto d-flex">
-          <div class="my-auto">
-            {{documentAuthor}}
-          </div>
-        </div>
-
-        <div class="col-auto d-flex flex-column">
-          <button class="btn btn-sm btn-outline-secondary py-0 my-auto">
-            -- <fa-icon class="mx-auto my-auto" [icon]="I.faArrowTrendUp"></fa-icon>
-          </button>
-        </div>
-
-        <div class="col-auto d-flex flex-column">
-          <button class="btn btn-sm btn-outline-secondary py-0 my-auto">
-            -- <fa-icon class="mx-auto my-auto" [icon]="I.faThumbsUp"></fa-icon>
-          </button>
-        </div>
-
-        <div class="col-auto d-flex flex-column">
-          <button class="btn btn-sm btn-outline-secondary py-0 my-auto">
-            -- <fa-icon class="mx-auto my-auto" [icon]="I.faTag"></fa-icon>
-          </button>
-        </div>
-
-        <div class="col-auto d-flex">
-          <div class="my-auto">
-            Viewed
-          </div>
-        </div>
-
-        <div class="col-auto d-flex">
-          <div class="my-auto">
-            Page: {{page}}
-          </div>
-        </div>
-
-        <div *ngIf="!minimalView" class="ms-auto col-auto">
-          <button class="btn btn-sm btn-outline-secondary"
-          (click)="closeSource()">
-            x
-          </button>
-        </div>
       </div>
 
       <div *ngIf="!minimalView" class="row ms-2">
-        <div class="col-auto clickable"
-          (click)="deleteAllComponentRef()"
-          (keyup.enter)="deleteAllComponentRef()"
-          [attr.tabindex]="0">
-          <div class="row d-flex my-2">
-            <div class="col-auto mx-auto">
-              <fa-icon class="mx-auto my-auto"
-              size="2x"
-              [icon]="I.faBookOpenReader"></fa-icon>
-            </div>
-          </div>
-
-          <div class="row d-flex">
-            <div class="col-auto mx-auto">
-              <h6>
-                Add to Library
-              </h6>
-            </div>
-          </div>
-        </div>
-
-        <div *ngFor="let category of searchCategories"
-          class="col-auto clickable top-category"
-          (click)="selectSearchCategory(category.label)"
-          (keyup.enter)="selectSearchCategory(category.label)"
-          [attr.tabindex]="0"
-          [class.active-top-category]="selectedSearchCategory === category.label">
-          <div class="row d-flex my-2">
-            <div class="col-auto mx-auto">
-              <fa-icon class="mx-auto my-auto"
-              size="2x"
-              [icon]="category.icon"></fa-icon>
-            </div>
-          </div>
-
-          <div class="row d-flex">
-            <div class="col-auto mx-auto">
-              <h6>
-                {{category.label}}
-              </h6>
-            </div>
-          </div>
-        </div>
+        <ul
+          ngbNav
+          #nav="ngbNav"
+          class="nav nav-pills nav-tabs"
+          orientation="vertical"
+          tabindex="-1"
+        >
+          <ng-container *ngFor="let category of searchCategories">
+            <li
+              class="ccc clickable top-category"
+              [class.active-top-category]="
+                selectedSearchCategory === category.label
+              "
+              (click)="selectSearchCategory(category.label)"
+              (keyup.enter)="selectSearchCategory(category.label)"
+              [ngbTooltip]="category.label"
+              tabindex="-1"
+            >
+              <a class="nav-link">
+                <div class="row d-flex my-2">
+                  <div class="col-auto mx-auto right-icons">
+                    <fa-icon
+                      class="mx-auto my-auto"
+                      size="2x"
+                      [icon]="category.icon"
+                    ></fa-icon>
+                  </div>
+                </div>
+              </a>
+            </li>
+          </ng-container>
+        </ul>
       </div>
-
-      <div class="row flex-grow-1">
-        <div class="col h-100">
-          <pdf-viewer
-          *ngIf="pdfSrc"
-          [src]="pdfSrc"
-          [original-size]="true"
-          [render-text]="true"
-          [fit-to-page]="false"
-          [show-borders]="true"
-          [(page)]="page"
-          (mouseup)="showOptions($event)"
-          (pages-initialized)="afterLoadComplete()"
-          class="h-100 w-100"></pdf-viewer>
-        </div>
-      </div>
-    </div>
-  </div>
+    </as-split-area>
+  </as-split>
 </div>

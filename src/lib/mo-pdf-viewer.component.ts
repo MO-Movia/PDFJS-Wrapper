@@ -1,16 +1,18 @@
 import {
   Component,
   ComponentRef,
+  EventEmitter,
   Input,
+  Output,
   ViewChild,
-  ViewContainerRef
+  ViewContainerRef,
 } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import {
   faFile,
   faUser,
   faMessage,
-  faThumbsUp
+  faThumbsUp,
 } from '@fortawesome/free-regular-svg-icons';
 import {
   faSliders,
@@ -19,8 +21,7 @@ import {
   faArrowTrendUp,
   faTag,
   faTrash,
-  faMagnifyingGlass,
-  faHighlighter
+  faHighlighter,
 } from '@fortawesome/free-solid-svg-icons';
 import { PdfViewerComponent } from 'ng2-pdf-viewer';
 import { DynamicComponent } from './components/text-options/text-options.component';
@@ -30,20 +31,22 @@ import { HighlightSelection } from './models/highlight.model';
 import { TagSelection } from './models/tag-selection.model';
 import { HighlightPipe } from './pipes/highlight.pipe';
 import { Nullable } from './types/types';
-
+import { RIGHT_PANE_NAV } from './models/view.model';
+import { v4 as uuidv4 } from 'uuid';
 @Component({
   selector: 'mo-pdf-viewer',
   templateUrl: './mo-pdf-viewer.component.html',
-  styleUrls: [ './mo-pdf-viewer.component.scss' ]
+  styleUrls: ['./mo-pdf-viewer.component.scss'],
 })
 export class MoPdfViewerComponent {
-  @Input({ required: true }) public  pdfSrc: string | Uint8Array = '';
-  @Input() public  documentTitle = '';
-  @Input() public  documentClassification = 'Unclassified';
-  @Input() public  documentAuthor = '';
-  @Input() public  minimalView = false;
-  @ViewChild(PdfViewerComponent) public  pdfComponent!: PdfViewerComponent;
-
+  @Input({ required: true }) public pdfSrc: string | Uint8Array = '';
+  @Input() public documentTitle = '';
+  @Input() public documentClassification = 'Unclassified';
+  @Input() public documentAuthor = '';
+  @Input() public minimalView = false;
+  @ViewChild(PdfViewerComponent) public pdfComponent!: PdfViewerComponent;
+  public currentSearchIndex: number = 1;
+  public totalMatchesCount: number = 0;
   public I = {
     faFile,
     faUser,
@@ -54,22 +57,23 @@ export class MoPdfViewerComponent {
     faArrowTrendUp,
     faThumbsUp,
     faTag,
-    faTrash
+    faTrash,
+    faHighlighter,
   };
   public searchText = '';
   public results = [
     {
-      label: 'Source Name And Results'
+      label: 'Source Name And Results',
     },
     {
-      label: 'Source Name And Results'
+      label: 'Source Name And Results',
     },
     {
-      label: 'Source Name And Results'
+      label: 'Source Name And Results',
     },
     {
-      label: 'Source Name And Results'
-    }
+      label: 'Source Name And Results',
+    },
   ];
   public comments: CommentSelection[] = [];
   public spanCommentsMap = new Map<Element, Set<string>>();
@@ -80,24 +84,31 @@ export class MoPdfViewerComponent {
 
   public searchCategories = [
     {
-      label: 'Text',
-      icon: faMagnifyingGlass
-    },
-    {
       label: 'Highlights',
-      icon: faHighlighter
+      icon: faHighlighter,
     },
     {
       label: 'Tags',
-      icon: faTag
+      icon: faTag,
     },
     {
       label: 'Comments',
-      icon: faMessage
-    }
+      icon: faMessage,
+    },
   ];
 
-  public selectedSearchCategory = 'Text';
+  public navs = Object.values(RIGHT_PANE_NAV);
+
+  @Input()
+  public activeNav = this.navs[0];
+
+  @Output()
+  public closePane = new EventEmitter();
+
+  @Output()
+  public activeNavChange = new EventEmitter<string>();
+
+  public selectedSearchCategory = 'Highlights';
   public page = 1;
   public highlightPipe = new HighlightPipe();
   public componentRefs: ComponentRef<DynamicComponent>[] = [];
@@ -119,9 +130,85 @@ export class MoPdfViewerComponent {
     this.selectedSearchCategory = category;
   }
 
+  public onKeyUp(event: KeyboardEvent): void {
+    if (event.key === 'Enter') {
+      this.searchDown(this.searchText);
+    } else {
+      this.search(this.searchText);
+    }
+  }
+
   public search(stringToSearch: string): void {
+    this.currentSearchIndex = 1;
+    if (this.currentSearchIndex > 1) {
+      this.currentSearchIndex--;
+    }
     this.pdfComponent.eventBus.dispatch('find', {
-      query: stringToSearch, type: 'again', caseSensitive: false, findPrevious: undefined, highlightAll: true, phraseSearch: true
+      query: stringToSearch,
+      type: 'again',
+      caseSensitive: false,
+      findPrevious: false,
+      highlightAll: true,
+      phraseSearch: true,
+    });
+    this.pdfComponent.eventBus.on('updatefindmatchescount',
+      (event: {
+        matchesCount: { current: number; total: number };
+        currentSearchIndex: number;
+      }) => {
+        this.totalMatchesCount = event.matchesCount.total;
+        const searchResultsDiv = document.getElementById('my-auto_count');
+        if (searchResultsDiv) {
+          searchResultsDiv.innerText = `${this.currentSearchIndex}/${this.totalMatchesCount}`;
+        }
+      });
+  }
+
+  public searchUp(stringToSearch: string): void {
+    if (this.currentSearchIndex > 1) {
+      this.currentSearchIndex--;
+    } else if (this.currentSearchIndex === 1) {
+      this.currentSearchIndex = this.totalMatchesCount;
+    }
+    this.updateSearchup(stringToSearch);
+    const searchResultsDiv = document.getElementById('my-auto_count');
+    if (searchResultsDiv) {
+      searchResultsDiv.innerText = `${this.currentSearchIndex}/${this.totalMatchesCount}`;
+    }
+  }
+
+  public searchDown(stringToSearch: string): void {
+    if (this.currentSearchIndex < this.totalMatchesCount) {
+      this.currentSearchIndex++;
+    } else if (this.currentSearchIndex === this.totalMatchesCount) {
+      this.currentSearchIndex = 1;
+    }
+    this.updateSearchdown(stringToSearch);
+    const searchResultsDiv = document.getElementById('my-auto_count');
+    if (searchResultsDiv) {
+      searchResultsDiv.innerText = `${this.currentSearchIndex}/${this.totalMatchesCount}`;
+    }
+  }
+
+  public updateSearchup(stringToSearch: string): void {
+    this.pdfComponent.eventBus.dispatch('find', {
+      query: stringToSearch,
+      type: 'again',
+      caseSensitive: false,
+      findPrevious: true,
+      highlightAll: true,
+      phraseSearch: true,
+    });
+  }
+
+  public updateSearchdown(stringToSearch: string): void {
+    this.pdfComponent.eventBus.dispatch('find', {
+      query: stringToSearch,
+      type: 'again',
+      caseSensitive: false,
+      findPrevious: false,
+      highlightAll: true,
+      phraseSearch: true,
     });
   }
 
@@ -130,9 +217,11 @@ export class MoPdfViewerComponent {
   }
 
   public showOptions(event: MouseEvent): void {
-    if (event.composedPath().find(e => {
-      return this.componentRefs.find(e2 => e === e2.location.nativeElement);
-    })) {
+    if (
+      event.composedPath().find((e) => {
+        return this.componentRefs.find((e2) => e === e2.location.nativeElement);
+      })
+    ) {
       return;
     }
     this.deleteAllComponentRef();
@@ -142,11 +231,13 @@ export class MoPdfViewerComponent {
       const page = target.parentElement as HTMLElement;
       const left = event.clientX - page.getBoundingClientRect().left;
       const top = event.clientY - page.getBoundingClientRect().top;
-      const dynamicComponent = this.viewContainerRef.createComponent(DynamicComponent);
+      const dynamicComponent =
+        this.viewContainerRef.createComponent(DynamicComponent);
       dynamicComponent.location.nativeElement.style.top = `${top}px`;
       dynamicComponent.location.nativeElement.style.left = `${left}px`;
       dynamicComponent.location.nativeElement.classList.add('position-absolute');
-      target.parentElement?.parentElement?.insertAdjacentElement('beforeend', dynamicComponent.location.nativeElement);
+      target.parentElement?.parentElement?.insertAdjacentElement('beforeend',
+        dynamicComponent.location.nativeElement);
       this.componentRefs.push(dynamicComponent);
       dynamicComponent.instance.highlightClicked.subscribe(this.setClassesForHighlights.bind(this));
       dynamicComponent.instance.tagClicked.subscribe(this.setClassesForTags.bind(this));
@@ -163,16 +254,17 @@ export class MoPdfViewerComponent {
     }
     const text = selection?.toString();
     const comment = {
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       spanLocations: [],
       comment: '',
-      text
+      text,
     };
     this.setClassesForItem(
       comment,
       this.comments,
       'match-comment',
-      this.spanCommentsMap, selection
+      this.spanCommentsMap,
+      selection
     );
   }
 
@@ -182,9 +274,9 @@ export class MoPdfViewerComponent {
 
     const text = selection?.toString();
     const highlight = {
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       spanLocations: [],
-      text
+      text,
     };
 
     this.setClassesForItem(
@@ -202,10 +294,10 @@ export class MoPdfViewerComponent {
 
     const text = selection?.toString();
     const tagSelection = {
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       spanLocations: [],
       text,
-      tags: []
+      tags: [],
     };
     this.setClassesForItem(
       tagSelection,
@@ -217,7 +309,7 @@ export class MoPdfViewerComponent {
   }
 
   public deleteAllComponentRef(): void {
-    this.componentRefs.forEach(ref => {
+    this.componentRefs.forEach((ref) => {
       ref.destroy();
     });
     this.componentRefs = [];
@@ -239,16 +331,24 @@ export class MoPdfViewerComponent {
     return locations;
   }
 
-  public getFirstPage(selection: { spanLocations: SpanLocation[] }): Nullable<number> {
-    return selection.spanLocations.length > 0 ? selection.spanLocations[0].pageNumber : null;
+  public getFirstPage(selection: {
+    spanLocations: SpanLocation[];
+  }): Nullable<number> {
+    return selection.spanLocations.length > 0
+      ? selection.spanLocations[0].pageNumber
+      : null;
   }
 
-  public getFirstSpan(selection: { spanLocations: SpanLocation[] }): Nullable<number> {
-    return selection.spanLocations.length > 0 ? selection.spanLocations[0].spanIndex : null;
+  public getFirstSpan(selection: {
+    spanLocations: SpanLocation[];
+  }): Nullable<number> {
+    return selection.spanLocations.length > 0
+      ? selection.spanLocations[0].spanIndex
+      : null;
   }
 
   public removeHighlight(highlight: HighlightSelection): void {
-    const index = this.highlights.findIndex(c => c.id === highlight.id);
+    const index = this.highlights.findIndex((c) => c.id === highlight.id);
     if (index > -1) {
       this.highlights.splice(index, 1);
     }
@@ -261,8 +361,8 @@ export class MoPdfViewerComponent {
   }
 
   public setClassesForItem(
-    item: { id: string, spanLocations: SpanLocation[] },
-    list: { id: string, spanLocations: SpanLocation[] }[],
+    item: { id: string; spanLocations: SpanLocation[] },
+    list: { id: string; spanLocations: SpanLocation[] }[],
     htmlClass: string,
     selectionMap: Map<Element, Set<string>>,
     selection: Selection
@@ -284,7 +384,8 @@ export class MoPdfViewerComponent {
     list.sort(this.sortSelection.bind(this));
   }
 
-  public sortSelection(a: { spanLocations: SpanLocation[] }, b: { spanLocations: SpanLocation[] }): number {
+  public sortSelection(a: { spanLocations: SpanLocation[] },
+    b: { spanLocations: SpanLocation[] }): number {
     const res = (this.getFirstPage(a) ?? 0) - (this.getFirstPage(b) ?? 0);
     if (res === 0) {
       return (this.getFirstSpan(a) ?? 0) - (this.getFirstSpan(b) ?? 0);
@@ -293,7 +394,7 @@ export class MoPdfViewerComponent {
   }
 
   public removeComment(comment: CommentSelection): void {
-    const index = this.comments.findIndex(c => c.id === comment.id);
+    const index = this.comments.findIndex((c) => c.id === comment.id);
     if (index > -1) {
       this.comments.splice(index, 1);
     }
@@ -316,7 +417,7 @@ export class MoPdfViewerComponent {
   }
 
   public selectSelection(selection: { spanLocations: SpanLocation[] }): void {
-    document.querySelectorAll('span.match-active').forEach(s => {
+    document.querySelectorAll('span.match-active').forEach((s) => {
       s.classList.remove('match-active');
     });
     for (const location of selection.spanLocations) {
@@ -341,15 +442,12 @@ export class MoPdfViewerComponent {
   }
 
   public removeTag(tag: TagSelection): void {
-    const index = this.tags.findIndex(c => c.id === tag.id);
+    const index = this.tags.findIndex((c) => c.id === tag.id);
     if (index > -1) {
       this.tags.splice(index, 1);
     }
     this.removeSelection(
-      tag,
-      'match-tag',
-      tag.id,
-      this.spanTagMap
+      tag, 'match-tag', tag.id, this.spanTagMap
     );
   }
 
@@ -384,11 +482,12 @@ export class MoPdfViewerComponent {
     }
   }
 
-  public setSpanClassFromLocation(location: SpanLocation, htmlClass: string): void {
+  public setSpanClassFromLocation(location: SpanLocation,
+    htmlClass: string): void {
     const textLayer = this.getTextLayerFromLocation(location.pageNumber);
     if (textLayer && location.spanIndex > -1) {
       const spans = Array.from(textLayer?.querySelectorAll('span:not(.inner-span)'));
-      const span = spans[location.spanIndex];
+      const span = spans[location.spanIndex] as HTMLElement;
       span.classList.add(htmlClass);
     }
   }
@@ -408,14 +507,14 @@ export class MoPdfViewerComponent {
         spanSet.delete(selectionId);
         if (spanSet.size < 1) {
           span.classList.remove(htmlClass);
-          document.querySelectorAll('span.match-active').forEach(s => {
+          document.querySelectorAll('span.match-active').forEach((s) => {
             s.classList.remove('match-active');
           });
           selectionMap.delete(span);
         }
       } else {
         span.classList.remove(htmlClass);
-        document.querySelectorAll('span.match-active').forEach(s => {
+        document.querySelectorAll('span.match-active').forEach((s) => {
           s.classList.remove('match-active');
         });
       }
@@ -425,12 +524,13 @@ export class MoPdfViewerComponent {
   public getSpanLocation(startContainer: Node): SpanLocation {
     const startPage = this.getPageParent(startContainer);
     const startSpan = this.getSpan(startContainer);
-    const location: { pageNumber: number, spanIndex: number } = {
+    const location: { pageNumber: number; spanIndex: number } = {
       pageNumber: -1,
-      spanIndex: -1
+      spanIndex: -1,
     };
     if (startPage && startSpan) {
-      const startPageNumberAttr = startPage.attributes.getNamedItem('data-page-number');
+      const startPageNumberAttr =
+        startPage.attributes.getNamedItem('data-page-number');
       const pageNumber = startPageNumberAttr?.value;
       if (pageNumber) {
         location.pageNumber = +pageNumber;
@@ -438,14 +538,15 @@ export class MoPdfViewerComponent {
       const textLayer = startPage.querySelector('div.textLayer');
       if (textLayer) {
         const spans = Array.from(textLayer.querySelectorAll('span:not(.inner-span)'));
-        const spanIndex = spans.findIndex(s => s == startSpan);
+        const spanIndex = spans.findIndex((s) => s == startSpan);
         location.spanIndex = spanIndex;
       }
     }
     return location;
   }
 
-  public getInterveningTextLayers(startPage: number, endPage: number): Element[] {
+  public getInterveningTextLayers(startPage: number,
+    endPage: number): Element[] {
     const pages: Element[] = [];
     for (let p = startPage + 1; p < endPage; p++) {
       const page = this.getTextLayerFromLocation(p);
@@ -456,7 +557,8 @@ export class MoPdfViewerComponent {
     return pages;
   }
 
-  public getInterveningLocations(startLocation: SpanLocation, endLocation: SpanLocation):SpanLocation[] {
+  public getInterveningLocations(startLocation: SpanLocation,
+    endLocation: SpanLocation): SpanLocation[] {
     const locations: SpanLocation[] = [];
     if (startLocation.pageNumber === endLocation.pageNumber) {
       if (startLocation.spanIndex === endLocation.spanIndex) {
@@ -470,11 +572,16 @@ export class MoPdfViewerComponent {
     return locations;
   }
 
-  public getAllNonSamePageLocations(startLocation: SpanLocation, endLocation: SpanLocation): SpanLocation[] {
+  public getAllNonSamePageLocations(startLocation: SpanLocation,
+    endLocation: SpanLocation): SpanLocation[] {
     const locations: SpanLocation[] = [];
     locations.push(...this.getStartPageLocations(startLocation));
     if (startLocation.pageNumber && endLocation.pageNumber) {
-      for (let p = startLocation.pageNumber + 1; p < endLocation.pageNumber; p++) {
+      for (
+        let p = startLocation.pageNumber + 1;
+        p < endLocation.pageNumber;
+        p++
+      ) {
         locations.push(...this.getAllLocationsOnPage(p));
       }
     }
@@ -490,7 +597,7 @@ export class MoPdfViewerComponent {
       for (let s = startLocation.spanIndex; s < allSpans.length; s++) {
         locations.push({
           pageNumber: startLocation.pageNumber,
-          spanIndex: s
+          spanIndex: s,
         });
       }
     }
@@ -505,7 +612,7 @@ export class MoPdfViewerComponent {
       for (let s = 0; s < allSpans.length; s++) {
         locations.push({
           pageNumber,
-          spanIndex: s
+          spanIndex: s,
         });
       }
     }
@@ -518,21 +625,30 @@ export class MoPdfViewerComponent {
       for (let s = 0; s <= endLocation.spanIndex; s++) {
         locations.push({
           pageNumber: endLocation.pageNumber,
-          spanIndex: s
+          spanIndex: s,
         });
       }
     }
     return locations;
   }
 
-  public getSamePageLocations(startLocation: SpanLocation, endLocation: SpanLocation): SpanLocation[] {
+  public getSamePageLocations(startLocation: SpanLocation,
+    endLocation: SpanLocation): SpanLocation[] {
     const locations: SpanLocation[] = [];
     locations.push(startLocation);
-    if (startLocation.spanIndex > -1 && endLocation.spanIndex > -1 && startLocation.pageNumber) {
-      for (let s = startLocation.spanIndex + 1; s < endLocation.spanIndex; s++) {
+    if (
+      startLocation.spanIndex > -1 &&
+      endLocation.spanIndex > -1 &&
+      startLocation.pageNumber
+    ) {
+      for (
+        let s = startLocation.spanIndex + 1;
+        s < endLocation.spanIndex;
+        s++
+      ) {
         locations.push({
           pageNumber: startLocation.pageNumber,
-          spanIndex: s
+          spanIndex: s,
         });
       }
     }
@@ -541,17 +657,20 @@ export class MoPdfViewerComponent {
   }
 
   public getTextLayerFromLocation(pageNumber: number): Nullable<Element> | undefined {
-    return this.pdfComponent.pdfViewerContainer
-      .nativeElement
+    return this.pdfComponent.pdfViewerContainer.nativeElement
       .querySelector(`[data-page-number="${pageNumber}"]`)
       ?.querySelector('div.textLayer');
   }
 
-  public getMiddlePages(startPage: HTMLElement | null, endPage: HTMLElement | null): HTMLElement[] {
+  public getMiddlePages(startPage: HTMLElement | null,
+    endPage: HTMLElement | null): HTMLElement[] {
     let siblingElement = startPage?.nextElementSibling as HTMLElement;
     const pages: HTMLElement[] = [];
     while (siblingElement && siblingElement !== endPage) {
-      if (siblingElement.nodeName === 'DIV' && siblingElement.classList.contains('page')) {
+      if (
+        siblingElement.nodeName === 'DIV' &&
+        siblingElement.classList.contains('page')
+      ) {
         pages.push(siblingElement);
       }
       siblingElement = siblingElement.nextElementSibling as HTMLElement;
@@ -563,8 +682,7 @@ export class MoPdfViewerComponent {
     const parent = node.parentElement;
     if (!parent) {
       return null;
-    }
-    else if (parent.nodeName === 'DIV') {
+    } else if (parent.nodeName === 'DIV') {
       if (parent.classList.contains('page')) {
         return parent;
       } else {

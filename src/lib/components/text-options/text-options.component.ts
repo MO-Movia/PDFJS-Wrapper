@@ -1,25 +1,27 @@
 import {
   Component,
   EventEmitter,
+  OnInit,
   Output,
   ViewContainerRef,
-  inject
+  inject,
 } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
   faMessage,
   faHighlighter,
   faTag,
-  faUserTag
+  faUserTag,
 } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   standalone: true,
   selector: 'mo-dynamic',
   templateUrl: './text-options.component.html',
-  imports: [FontAwesomeModule]
+  imports: [FontAwesomeModule],
 })
-export class DynamicComponent {
+export class DynamicComponent implements OnInit {
+
   @Output() public highlightClicked = new EventEmitter<void>();
   @Output() public tagClicked = new EventEmitter<void>();
   @Output() public privateTagClicked = new EventEmitter<void>();
@@ -31,8 +33,22 @@ export class DynamicComponent {
     faHighlighter,
     faMessage,
     faTag,
-    faUserTag
+    faUserTag,
   };
+
+  public ngOnInit(): void {
+    document.addEventListener('mouseup', () => {
+      const selectedText = window.getSelection()?.toString().trim(); 
+      const btnGroup = document.getElementById('btnGroup') as HTMLElement;
+      
+      if (selectedText) {
+        btnGroup.style.display = 'block'; 
+      } else {
+        btnGroup.style.display = 'none'; 
+      }
+    });
+
+  }
 
   public onHighlightClicked(): void {
     this.highlightClicked.emit();
