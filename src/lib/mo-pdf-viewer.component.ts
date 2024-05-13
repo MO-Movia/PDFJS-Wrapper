@@ -151,7 +151,8 @@ export class MoPdfViewerComponent {
       highlightAll: true,
       phraseSearch: true,
     });
-    this.pdfComponent.eventBus.on('updatefindmatchescount',
+    this.pdfComponent.eventBus.on(
+      'updatefindmatchescount',
       (event: {
         matchesCount: { current: number; total: number };
         currentSearchIndex: number;
@@ -161,7 +162,8 @@ export class MoPdfViewerComponent {
         if (searchResultsDiv) {
           searchResultsDiv.innerText = `${this.currentSearchIndex}/${this.totalMatchesCount}`;
         }
-      });
+      }
+    );
   }
 
   public searchUp(stringToSearch: string): void {
@@ -235,15 +237,29 @@ export class MoPdfViewerComponent {
         this.viewContainerRef.createComponent(DynamicComponent);
       dynamicComponent.location.nativeElement.style.top = `${top}px`;
       dynamicComponent.location.nativeElement.style.left = `${left}px`;
-      dynamicComponent.location.nativeElement.classList.add('position-absolute');
-      target.parentElement?.parentElement?.insertAdjacentElement('beforeend',
-        dynamicComponent.location.nativeElement);
+      dynamicComponent.location.nativeElement.classList.add(
+        'position-absolute'
+      );
+      target.parentElement?.parentElement?.insertAdjacentElement(
+        'beforeend',
+        dynamicComponent.location.nativeElement
+      );
       this.componentRefs.push(dynamicComponent);
-      dynamicComponent.instance.highlightClicked.subscribe(this.setClassesForHighlights.bind(this));
-      dynamicComponent.instance.tagClicked.subscribe(this.setClassesForTags.bind(this));
-      dynamicComponent.instance.privateTagClicked.subscribe(this.setClassesForTags.bind(this));
-      dynamicComponent.instance.commentClicked.subscribe(this.setClassesForComments.bind(this));
-      dynamicComponent.instance.removeRequested.subscribe(this.deleteAllComponentRef.bind(this));
+      dynamicComponent.instance.highlightClicked.subscribe(
+        this.setClassesForHighlights.bind(this)
+      );
+      dynamicComponent.instance.tagClicked.subscribe(
+        this.setClassesForTags.bind(this)
+      );
+      dynamicComponent.instance.privateTagClicked.subscribe(
+        this.setClassesForTags.bind(this)
+      );
+      dynamicComponent.instance.commentClicked.subscribe(
+        this.setClassesForComments.bind(this)
+      );
+      dynamicComponent.instance.removeRequested.subscribe(
+        this.deleteAllComponentRef.bind(this)
+      );
     }
   }
 
@@ -384,8 +400,10 @@ export class MoPdfViewerComponent {
     list.sort(this.sortSelection.bind(this));
   }
 
-  public sortSelection(a: { spanLocations: SpanLocation[] },
-    b: { spanLocations: SpanLocation[] }): number {
+  public sortSelection(
+    a: { spanLocations: SpanLocation[] },
+    b: { spanLocations: SpanLocation[] }
+  ): number {
     const res = (this.getFirstPage(a) ?? 0) - (this.getFirstPage(b) ?? 0);
     if (res === 0) {
       return (this.getFirstSpan(a) ?? 0) - (this.getFirstSpan(b) ?? 0);
@@ -411,7 +429,11 @@ export class MoPdfViewerComponent {
     if (selection.spanLocations.length > 0) {
       const span = this.getSpanFromLocation(selection.spanLocations[0]);
       if (span) {
-        span.scrollIntoView();
+        let scrollIntoViewOptions: ScrollIntoViewOptions = {
+          block: 'center',
+          inline: 'center',
+        };
+        span.scrollIntoView(scrollIntoViewOptions);
       }
     }
   }
@@ -446,15 +468,15 @@ export class MoPdfViewerComponent {
     if (index > -1) {
       this.tags.splice(index, 1);
     }
-    this.removeSelection(
-      tag, 'match-tag', tag.id, this.spanTagMap
-    );
+    this.removeSelection(tag, 'match-tag', tag.id, this.spanTagMap);
   }
 
   public getSpanFromLocation(location: SpanLocation): Nullable<Element> {
     const textLayer = this.getTextLayerFromLocation(location.pageNumber);
     if (textLayer && location.spanIndex > -1) {
-      const spans = Array.from(textLayer?.querySelectorAll('span:not(.inner-span)'));
+      const spans = Array.from(
+        textLayer?.querySelectorAll('span:not(.inner-span)')
+      );
       return spans[location.spanIndex];
     }
     return null;
@@ -468,7 +490,9 @@ export class MoPdfViewerComponent {
   ): void {
     const textLayer = this.getTextLayerFromLocation(location.pageNumber);
     if (textLayer && location.spanIndex > -1) {
-      const spans = Array.from(textLayer?.querySelectorAll('span:not(.inner-span)'));
+      const spans = Array.from(
+        textLayer?.querySelectorAll('span:not(.inner-span)')
+      );
       const span = spans[location.spanIndex];
       if (span) {
         let spanSet = selectionMap.get(span);
@@ -482,11 +506,15 @@ export class MoPdfViewerComponent {
     }
   }
 
-  public setSpanClassFromLocation(location: SpanLocation,
-    htmlClass: string): void {
+  public setSpanClassFromLocation(
+    location: SpanLocation,
+    htmlClass: string
+  ): void {
     const textLayer = this.getTextLayerFromLocation(location.pageNumber);
     if (textLayer && location.spanIndex > -1) {
-      const spans = Array.from(textLayer?.querySelectorAll('span:not(.inner-span)'));
+      const spans = Array.from(
+        textLayer?.querySelectorAll('span:not(.inner-span)')
+      );
       const span = spans[location.spanIndex] as HTMLElement;
       span.classList.add(htmlClass);
     }
@@ -500,7 +528,9 @@ export class MoPdfViewerComponent {
   ): void {
     const textLayer = this.getTextLayerFromLocation(location.pageNumber);
     if (textLayer && location.spanIndex > -1) {
-      const spans = Array.from(textLayer?.querySelectorAll('span:not(.inner-span)'));
+      const spans = Array.from(
+        textLayer?.querySelectorAll('span:not(.inner-span)')
+      );
       const span = spans[location.spanIndex];
       const spanSet = selectionMap.get(span);
       if (spanSet) {
@@ -537,7 +567,9 @@ export class MoPdfViewerComponent {
       }
       const textLayer = startPage.querySelector('div.textLayer');
       if (textLayer) {
-        const spans = Array.from(textLayer.querySelectorAll('span:not(.inner-span)'));
+        const spans = Array.from(
+          textLayer.querySelectorAll('span:not(.inner-span)')
+        );
         const spanIndex = spans.findIndex((s) => s == startSpan);
         location.spanIndex = spanIndex;
       }
@@ -545,8 +577,10 @@ export class MoPdfViewerComponent {
     return location;
   }
 
-  public getInterveningTextLayers(startPage: number,
-    endPage: number): Element[] {
+  public getInterveningTextLayers(
+    startPage: number,
+    endPage: number
+  ): Element[] {
     const pages: Element[] = [];
     for (let p = startPage + 1; p < endPage; p++) {
       const page = this.getTextLayerFromLocation(p);
@@ -557,23 +591,31 @@ export class MoPdfViewerComponent {
     return pages;
   }
 
-  public getInterveningLocations(startLocation: SpanLocation,
-    endLocation: SpanLocation): SpanLocation[] {
+  public getInterveningLocations(
+    startLocation: SpanLocation,
+    endLocation: SpanLocation
+  ): SpanLocation[] {
     const locations: SpanLocation[] = [];
     if (startLocation.pageNumber === endLocation.pageNumber) {
       if (startLocation.spanIndex === endLocation.spanIndex) {
         locations.push(startLocation);
       } else {
-        locations.push(...this.getSamePageLocations(startLocation, endLocation));
+        locations.push(
+          ...this.getSamePageLocations(startLocation, endLocation)
+        );
       }
     } else {
-      locations.push(...this.getAllNonSamePageLocations(startLocation, endLocation));
+      locations.push(
+        ...this.getAllNonSamePageLocations(startLocation, endLocation)
+      );
     }
     return locations;
   }
 
-  public getAllNonSamePageLocations(startLocation: SpanLocation,
-    endLocation: SpanLocation): SpanLocation[] {
+  public getAllNonSamePageLocations(
+    startLocation: SpanLocation,
+    endLocation: SpanLocation
+  ): SpanLocation[] {
     const locations: SpanLocation[] = [];
     locations.push(...this.getStartPageLocations(startLocation));
     if (startLocation.pageNumber && endLocation.pageNumber) {
@@ -593,7 +635,9 @@ export class MoPdfViewerComponent {
     const textLayer = this.getTextLayerFromLocation(startLocation.pageNumber);
     const locations: SpanLocation[] = [];
     if (textLayer && startLocation.spanIndex > -1 && startLocation.pageNumber) {
-      const allSpans = Array.from(textLayer.querySelectorAll('span:not(.inner-span)'));
+      const allSpans = Array.from(
+        textLayer.querySelectorAll('span:not(.inner-span)')
+      );
       for (let s = startLocation.spanIndex; s < allSpans.length; s++) {
         locations.push({
           pageNumber: startLocation.pageNumber,
@@ -608,7 +652,9 @@ export class MoPdfViewerComponent {
     const textLayer = this.getTextLayerFromLocation(pageNumber);
     const locations: SpanLocation[] = [];
     if (textLayer) {
-      const allSpans = Array.from(textLayer.querySelectorAll('span:not(.inner-span)'));
+      const allSpans = Array.from(
+        textLayer.querySelectorAll('span:not(.inner-span)')
+      );
       for (let s = 0; s < allSpans.length; s++) {
         locations.push({
           pageNumber,
@@ -632,8 +678,10 @@ export class MoPdfViewerComponent {
     return locations;
   }
 
-  public getSamePageLocations(startLocation: SpanLocation,
-    endLocation: SpanLocation): SpanLocation[] {
+  public getSamePageLocations(
+    startLocation: SpanLocation,
+    endLocation: SpanLocation
+  ): SpanLocation[] {
     const locations: SpanLocation[] = [];
     locations.push(startLocation);
     if (
@@ -656,14 +704,18 @@ export class MoPdfViewerComponent {
     return locations;
   }
 
-  public getTextLayerFromLocation(pageNumber: number): Nullable<Element> | undefined {
+  public getTextLayerFromLocation(
+    pageNumber: number
+  ): Nullable<Element> | undefined {
     return this.pdfComponent.pdfViewerContainer.nativeElement
       .querySelector(`[data-page-number="${pageNumber}"]`)
       ?.querySelector('div.textLayer');
   }
 
-  public getMiddlePages(startPage: HTMLElement | null,
-    endPage: HTMLElement | null): HTMLElement[] {
+  public getMiddlePages(
+    startPage: HTMLElement | null,
+    endPage: HTMLElement | null
+  ): HTMLElement[] {
     let siblingElement = startPage?.nextElementSibling as HTMLElement;
     const pages: HTMLElement[] = [];
     while (siblingElement && siblingElement !== endPage) {
