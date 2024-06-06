@@ -1,338 +1,38 @@
 <div class="container-fluid h-100">
-  <div class="row h-100">
-    <div *ngIf="!minimalView" class="col-4 section-container-left ps-3 d-flex flex-column h-100">
-      <div class="row mb-5">
-        <div class="col-auto me-auto mt-5 ms-3">
-          <h1>PDF Viewer</h1>
-        </div>
-
-        <div class="col-auto ms-auto">
-          <div class="icon-circle d-flex rounded-circle mt-3 me-2">
-            <fa-icon class="mx-auto my-auto" [icon]="I.faUser" />
-          </div>
-        </div>
-      </div>
-
-      <ng-container *ngIf="selectedSearchCategory === 'Text'">
-        <div class="row mb-3">
-          <div class="col-auto d-flex pe-0">
-            <button type="button" title="search" class="btn btn-sm btn-secondary-outline" (click)="search(searchText)">
-              <fa-icon class="mx-auto my-auto" [icon]="I.faFile" />
-            </button>
-          </div>
-
-          <div class="col-auto d-flex p-0">
-            <div class="my-auto">
-              <div ngbDropdown class="d-flex align-items-center">
-                <button type="button" title="search category" ngbDropdownToggle class="btn btn-secondary-outline btn-sm">
-                  <!-- intentionally empty -->
-                </button>
-
-                <div ngbDropdownMenu>
-                  <button ngbDropdownItem class="btn btn-secondary-outline"
-                  *ngFor="let category of searchCategories">
-                    <fa-icon class="mx-auto my-auto" [icon]="category.icon" />
-                    {{category.label}}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-auto d-flex pe-2">
-            <div class="input-group input-group-sm my-auto">
-              <div class="input-group-prepend">
-                <span class="input-group-text" id="inputGroup-sizing-sm">Find me anything labelled with</span>
-              </div>
-
-              <input type="text"
-                class="form-control"
-                aria-label="Small"
-                aria-describedby="inputGroup-sizing-sm"
-                [(ngModel)]="searchText"
-                (keyup.enter)="search(searchText)">
-            </div>
-          </div>
-
-          <div class="col-auto d-flex px-0">
-            <button class="btn btn-sm btn-secondary-outline">
-              <fa-icon class="mx-auto my-auto" [icon]="I.faSliders" />
-              Filter
-            </button>
-          </div>
-        </div>
-
-        <div *ngFor="let result of results" class="row mb-2 ms-5">
-          <div class="col-auto">
-            <fa-icon class="mx-auto my-auto" [icon]="I.faFile" />
-          </div>
-
-          <div class="col">
-            {{result.label}}
-          </div>
-        </div>
-      </ng-container>
-
-      <ng-container *ngIf="selectedSearchCategory === 'Highlights'">
-        <div class="row ms-2">
-          <div class="col">
-            <h3>Highlights:</h3>
-          </div>
-        </div>
-
-        <div class="row flex-grow-1 overflow-auto">
+  <as-split direction="horizontal">
+    <as-split-area [size]="70" style="scrollbar-width: none">
+      <div class="row h-100">
+        <div class="row flex-grow-1">
           <div class="col h-100">
-            <div *ngFor="let highlight of highlights" class="row mb-5 border border-secondary mx-2"
-              (click)="selectSelection(highlight)"
-              [attr.tabindex]="0"
-              (keyup)="selectSelection(highlight)">
-              <div class="col">
-                <div class="row light-gray-background">
-                  <div class="col-auto ms-2">
-                    Page: {{getFirstPage(highlight)}}
-                  </div>
-
-                  <div class="col-auto ms-auto">
-                    <button (click)="goToSelection(highlight)"
-                    class="btn btn-outline-secondary btn-sm">
-                      Go
-                    </button>
-                  </div>
-
-                  <div class="col-auto auto">
-                    <button type="button" title="Remove Highlight" (click)="removeHighlight(highlight)" class="btn btn-danger btn-sm">
-                      <fa-icon class="mx-auto my-auto" [icon]="I.faTrash" />
-                    </button>
-                  </div>
+            <ngx-extended-pdf-viewer
+              #pdfViewer
+              [minifiedJSLibraries]="false"
+              [customToolbar]="additionalButtons"
+              [src]="pdfSrc"
+              [textLayer]="true"
+            >
+            </ngx-extended-pdf-viewer>
+            <ng-template #additionalButtons>
+              <div id="toolbarViewer">
+                <div id="toolbarViewerLeft">
+                  <pdf-toggle-sidebar></pdf-toggle-sidebar>
+                  <div class="toolbarButtonSpacer"></div>
+                  <pdf-find-button
+                    [showFindButton]="true"
+                    [textLayer]="true"
+                  ></pdf-find-button>
+                  <pdf-paging-area></pdf-paging-area>
                 </div>
-
-                <div class="row">
-                  <div class="col-auto ms-3">
-                    {{highlight.text}}
-                  </div>
+                <pdf-zoom-toolbar></pdf-zoom-toolbar>
+                <div id="toolbarViewerRight">
+                  <pdf-highlight-editor></pdf-highlight-editor>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </ng-container>
-
-      <ng-container *ngIf="selectedSearchCategory === 'Tags'">
-        <div class="row ms-2">
-          <div class="col">
-            <h3>Tags:</h3>
-          </div>
-        </div>
-
-        <div class="row flex-grow-1 overflow-auto">
-          <div class="col h-100">
-            <div *ngFor="let tag of tags" class="row mb-5 border border-secondary mx-2"
-              (click)="selectSelection(tag)"
-              [attr.tabindex]="0"
-              (keyup)="selectSelection(tag)">
-              <div class="col">
-                <div class="row light-gray-background">
-                  <div class="col-auto ms-2">
-                    Page: {{getFirstPage(tag)}}
-                  </div>
-
-                  <div class="col-auto ms-auto">
-                    <button (click)="goToSelection(tag)" class="btn btn-outline-secondary btn-sm">
-                      Go
-                    </button>
-                  </div>
-
-                  <div class="col-auto auto">
-                    <button type="button" title="Remove Tag" (click)="removeTag(tag)" class="btn btn-danger btn-sm">
-                      <fa-icon class="mx-auto my-auto" [icon]="I.faTrash" />
-                    </button>
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="col-auto ms-3">
-                    {{tag.text}}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </ng-container>
-
-      <ng-container *ngIf="selectedSearchCategory === 'Comments'">
-        <div class="row ms-2">
-          <div class="col">
-            <h3>Comments:</h3>
-          </div>
-        </div>
-
-        <div class="row flex-grow-1 overflow-auto">
-          <div class="col h-100">
-            <div *ngFor="let comment of comments" class="row mb-5 border border-secondary mx-2"
-              (click)="selectSelection(comment)"
-              [attr.tabindex]="0"
-              (keyup)="selectSelection(comment)">
-              <div class="col">
-                <div class="row light-gray-background">
-                  <div class="col-auto ms-2">
-                    Page: {{getFirstPage(comment)}}
-                  </div>
-
-                  <div class="col-auto ms-auto">
-                    <button (click)="goToSelection(comment)" class="btn btn-outline-secondary btn-sm">
-                      Go
-                    </button>
-                  </div>
-
-                  <div class="col-auto auto">
-                    <button type="button" title="Remove Comment" (click)="removeComment(comment)" class="btn btn-danger btn-sm">
-                      <fa-icon class="mx-auto my-auto" [icon]="I.faTrash" />
-                    </button>
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="col-auto ms-3">
-                    {{comment.text}}
-                  </div>
-                </div>
-
-                <div class="row w-100">
-                  <div class="col-auto w-100 ms-3">
-                    <textarea title="Comment" class="w-100" [(ngModel)]="comment.comment"></textarea>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </ng-container>
-    </div>
-
-    <div class="col-8 h-100 d-flex flex-column" [ngClass]="minimalView ? 'preview-full-view' : 'section-container-right'">
-      <div class="row info-row mt-2 text-secondary">
-        <div class="col-auto d-flex">
-          <fa-icon class="mx-auto my-auto" [icon]="I.faFile"></fa-icon>
-        </div>
-
-        <div class="col-auto d-flex">
-          <div class="my-auto doc-name">
-            {{documentTitle}}
-          </div>
-        </div>
-
-        <div class="col-auto d-flex">
-          <div class="my-auto">
-            {{documentClassification}}
-          </div>
-        </div>
-
-        <div class="col-auto d-flex">
-          <div class="my-auto">
-            {{documentAuthor}}
-          </div>
-        </div>
-
-        <div class="col-auto d-flex flex-column">
-          <button class="btn btn-sm btn-outline-secondary py-0 my-auto">
-            -- <fa-icon class="mx-auto my-auto" [icon]="I.faArrowTrendUp"></fa-icon>
-          </button>
-        </div>
-
-        <div class="col-auto d-flex flex-column">
-          <button class="btn btn-sm btn-outline-secondary py-0 my-auto">
-            -- <fa-icon class="mx-auto my-auto" [icon]="I.faThumbsUp"></fa-icon>
-          </button>
-        </div>
-
-        <div class="col-auto d-flex flex-column">
-          <button class="btn btn-sm btn-outline-secondary py-0 my-auto">
-            -- <fa-icon class="mx-auto my-auto" [icon]="I.faTag"></fa-icon>
-          </button>
-        </div>
-
-        <div class="col-auto d-flex">
-          <div class="my-auto">
-            Viewed
-          </div>
-        </div>
-
-        <div class="col-auto d-flex">
-          <div class="my-auto">
-            Page: {{page}}
-          </div>
-        </div>
-
-        <div *ngIf="!minimalView" class="ms-auto col-auto">
-          <button class="btn btn-sm btn-outline-secondary"
-          (click)="closeSource()">
-            x
-          </button>
-        </div>
-      </div>
-
-      <div *ngIf="!minimalView" class="row ms-2">
-        <div class="col-auto clickable"
-          (click)="deleteAllComponentRef()"
-          (keyup.enter)="deleteAllComponentRef()"
-          [attr.tabindex]="0">
-          <div class="row d-flex my-2">
-            <div class="col-auto mx-auto">
-              <fa-icon class="mx-auto my-auto"
-              size="2x"
-              [icon]="I.faBookOpenReader"></fa-icon>
-            </div>
-          </div>
-
-          <div class="row d-flex">
-            <div class="col-auto mx-auto">
-              <h6>
-                Add to Library
-              </h6>
-            </div>
-          </div>
-        </div>
-
-        <div *ngFor="let category of searchCategories"
-          class="col-auto clickable top-category"
-          (click)="selectSearchCategory(category.label)"
-          (keyup.enter)="selectSearchCategory(category.label)"
-          [attr.tabindex]="0"
-          [class.active-top-category]="selectedSearchCategory === category.label">
-          <div class="row d-flex my-2">
-            <div class="col-auto mx-auto">
-              <fa-icon class="mx-auto my-auto"
-              size="2x"
-              [icon]="category.icon"></fa-icon>
-            </div>
-          </div>
-
-          <div class="row d-flex">
-            <div class="col-auto mx-auto">
-              <h6>
-                {{category.label}}
-              </h6>
-            </div>
+            </ng-template>
           </div>
         </div>
       </div>
-
-      <div class="row flex-grow-1">
-        <div class="col h-100">
-          <pdf-viewer
-          *ngIf="pdfSrc"
-          [src]="pdfSrc"
-          [original-size]="true"
-          [render-text]="true"
-          [fit-to-page]="false"
-          [show-borders]="true"
-          [(page)]="page"
-          (mouseup)="showOptions($event)"
-          (pages-initialized)="afterLoadComplete()"
-          class="h-100 w-100"></pdf-viewer>
-        </div>
-      </div>
-    </div>
-  </div>
+    </as-split-area>
+    <as-split-area [size]="30" class="right-panel"> </as-split-area>
+  </as-split>
 </div>
