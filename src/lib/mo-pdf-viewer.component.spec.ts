@@ -4,7 +4,7 @@ import { ComponentRef, EventEmitter } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { PdfViewerComponent } from 'ng2-pdf-viewer';
-import { DynamicComponent } from './components/text-options/text-options.component';
+import { TextOptionsComponent } from './components/text-options/text-options.component';
 import { CommentSelection } from './models/comment-selection.model';
 import { HighlightSelection } from './models/highlight.model';
 import { SpanLocation } from './models/span-location.model';
@@ -19,8 +19,7 @@ describe('MoPdfViewerComponent', () => {
   beforeEach(() => {
     params = {};
     TestBed.configureTestingModule({
-      declarations: [MoPdfViewerComponent],
-      imports: [FontAwesomeModule, AngularSplitModule],
+      imports: [MoPdfViewerComponent, FontAwesomeModule, AngularSplitModule],
       providers: [
         {
           provide: ActivatedRoute,
@@ -52,7 +51,7 @@ describe('MoPdfViewerComponent', () => {
       location: {
         nativeElement: element,
       },
-    } as ComponentRef<DynamicComponent>);
+    } as ComponentRef<TextOptionsComponent>);
     spyOn(mouseEvent, 'composedPath').and.returnValue([element as Element]);
     component.showOptions(mouseEvent as MouseEvent);
     expect(window.getSelection).toHaveBeenCalledTimes(0);
@@ -83,7 +82,9 @@ describe('MoPdfViewerComponent', () => {
     spyOn(compRef.instance.privateTagClicked, 'subscribe');
     spyOn(compRef.instance.highlightClicked, 'subscribe');
     spyOn(compRef.instance.removeRequested, 'subscribe');
-    spyOn(ref, 'createComponent').and.returnValue(compRef as ComponentRef<DynamicComponent>);
+    spyOn(ref, 'createComponent').and.returnValue(
+      compRef as ComponentRef<TextOptionsComponent>
+    );
     spyOn(window, 'getSelection');
     const mouseEvent = {
       clientX: 5,
@@ -122,17 +123,17 @@ describe('MoPdfViewerComponent', () => {
       },
     } as Selection;
     spyOn(window, 'getSelection').and.returnValue(testSelection);
-    spyOn(component, 'setClassesForItem').and.callFake((
-      item, list, htmlClass, selectionMap, selection
-    ) => {
-      const highlight = item as HighlightSelection;
-      expect(highlight.text).toEqual('testText');
-      expect(list).toBe(component.highlights);
-      expect(htmlClass).toEqual('match-highlight');
-      expect(selectionMap).toBe(component.spanHighlightsMap);
-      expect(selection).toBe(testSelection);
-      done();
-    });
+    spyOn(component, 'setClassesForItem').and.callFake(
+      (item, list, htmlClass, selectionMap, selection) => {
+        const highlight = item as HighlightSelection;
+        expect(highlight.text).toEqual('testText');
+        expect(list).toBe(component.highlights);
+        expect(htmlClass).toEqual('match-highlight');
+        expect(selectionMap).toBe(component.spanHighlightsMap);
+        expect(selection).toBe(testSelection);
+        done();
+      }
+    );
     component.setClassesForHighlights();
   });
 
@@ -151,18 +152,18 @@ describe('MoPdfViewerComponent', () => {
       },
     } as Selection;
     spyOn(window, 'getSelection').and.returnValue(testSelection);
-    spyOn(component, 'setClassesForItem').and.callFake((
-      item, list, htmlClass, selectionMap, selection
-    ) => {
-      const comment = item as CommentSelection;
-      expect(comment.text).toEqual('testText');
-      expect(comment.comment).toEqual('');
-      expect(list).toBe(component.comments);
-      expect(htmlClass).toEqual('match-comment');
-      expect(selectionMap).toBe(component.spanCommentsMap);
-      expect(selection).toBe(testSelection);
-      done();
-    });
+    spyOn(component, 'setClassesForItem').and.callFake(
+      (item, list, htmlClass, selectionMap, selection) => {
+        const comment = item as CommentSelection;
+        expect(comment.text).toEqual('testText');
+        expect(comment.comment).toEqual('');
+        expect(list).toBe(component.comments);
+        expect(htmlClass).toEqual('match-comment');
+        expect(selectionMap).toBe(component.spanCommentsMap);
+        expect(selection).toBe(testSelection);
+        done();
+      }
+    );
     component.setClassesForComments();
   });
 
@@ -181,18 +182,18 @@ describe('MoPdfViewerComponent', () => {
       },
     } as Selection;
     spyOn(window, 'getSelection').and.returnValue(testSelection);
-    spyOn(component, 'setClassesForItem').and.callFake((
-      item, list, htmlClass, selectionMap, selection
-    ) => {
-      const tag = item as TagSelection;
-      expect(tag.text).toEqual('testText');
-      expect(tag.tags).toEqual([]);
-      expect(list).toBe(component.tags);
-      expect(htmlClass).toEqual('match-tag');
-      expect(selectionMap).toBe(component.spanTagMap);
-      expect(selection).toBe(testSelection);
-      done();
-    });
+    spyOn(component, 'setClassesForItem').and.callFake(
+      (item, list, htmlClass, selectionMap, selection) => {
+        const tag = item as TagSelection;
+        expect(tag.text).toEqual('testText');
+        expect(tag.tags).toEqual([]);
+        expect(list).toBe(component.tags);
+        expect(htmlClass).toEqual('match-tag');
+        expect(selectionMap).toBe(component.spanTagMap);
+        expect(selection).toBe(testSelection);
+        done();
+      }
+    );
     component.setClassesForTags();
   });
 
@@ -220,16 +221,18 @@ describe('MoPdfViewerComponent', () => {
     expect(component.selectedSearchCategory).toEqual('testCategory');
   });
 
-  xit('should search text', () => {
+  it('should search text', () => {
     component.pdfComponent = {
       eventBus: {
         dispatch: () => {},
+        on: () => {},
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any,
     } as PdfViewerComponent;
     spyOn(component.pdfComponent.eventBus, 'dispatch');
     component.search('testSearch');
-    expect(component.pdfComponent.eventBus.dispatch).toHaveBeenCalledWith('find',
+    expect(component.pdfComponent.eventBus.dispatch).toHaveBeenCalledWith(
+      'find',
       {
         query: 'testSearch',
         type: 'again',
@@ -237,7 +240,8 @@ describe('MoPdfViewerComponent', () => {
         findPrevious: false,
         highlightAll: true,
         phraseSearch: true,
-      });
+      }
+    );
   });
 
   it('should close source', () => {
@@ -251,7 +255,7 @@ describe('MoPdfViewerComponent', () => {
     const ref = {
       destroy: (): void => {},
     };
-    component.componentRefs.push(ref as ComponentRef<DynamicComponent>);
+    component.componentRefs.push(ref as ComponentRef<TextOptionsComponent>);
     spyOn(ref, 'destroy');
     component.deleteAllComponentRef();
     expect(ref.destroy).toHaveBeenCalled();
@@ -419,7 +423,9 @@ describe('MoPdfViewerComponent', () => {
         spanIndex: 2,
       },
     ];
-    spyOn(component, 'getInterveningLocations').and.returnValue(interveningLocations);
+    spyOn(component, 'getInterveningLocations').and.returnValue(
+      interveningLocations
+    );
     const res = component.findRangeSections(selection as unknown as Selection);
     expect(res).toEqual(interveningLocations);
     expect(interveningLocations[0].startOffset).toEqual(4);
@@ -449,6 +455,7 @@ describe('MoPdfViewerComponent', () => {
       spanLocations: [],
       text: '',
       comment: '',
+      editMode: true,
     };
     component.comments = [targetComment];
     spyOn(component, 'removeSelection');
@@ -516,8 +523,10 @@ describe('MoPdfViewerComponent', () => {
       spanLocations: [location],
     });
     expect(element.classList.remove).toHaveBeenCalled();
-    expect(component.setSpanClassFromLocation).toHaveBeenCalledWith(location,
-      'match-active');
+    expect(component.setSpanClassFromLocation).toHaveBeenCalledWith(
+      location,
+      'match-active'
+    );
   });
 
   it('should get text layer from location', () => {
@@ -536,11 +545,15 @@ describe('MoPdfViewerComponent', () => {
       },
     } as PdfViewerComponent;
     component.pdfComponent = pdfComponent;
-    spyOn(pdfComponent.pdfViewerContainer.nativeElement,
-      'querySelector').and.returnValue(secondElement as Element);
+    spyOn(
+      pdfComponent.pdfViewerContainer.nativeElement,
+      'querySelector'
+    ).and.returnValue(secondElement as Element);
     spyOn(secondElement, 'querySelector');
     component.getTextLayerFromLocation(2);
-    expect(pdfComponent.pdfViewerContainer.nativeElement.querySelector).toHaveBeenCalledWith('[data-page-number="2"]');
+    expect(
+      pdfComponent.pdfViewerContainer.nativeElement.querySelector
+    ).toHaveBeenCalledWith('[data-page-number="2"]');
     expect(secondElement.querySelector).toHaveBeenCalledWith('div.textLayer');
   });
 
@@ -710,52 +723,58 @@ describe('MoPdfViewerComponent', () => {
   });
 
   it('should sort selection same page', () => {
-    const res = component.sortSelection({
-      spanLocations: [
-        {
-          pageNumber: 2,
-          spanIndex: 3,
-        },
-      ],
-    },
-    {
-      spanLocations: [
-        {
-          pageNumber: 2,
-          spanIndex: 1,
-        },
-      ],
-    });
+    const res = component.sortSelection(
+      {
+        spanLocations: [
+          {
+            pageNumber: 2,
+            spanIndex: 3,
+          },
+        ],
+      },
+      {
+        spanLocations: [
+          {
+            pageNumber: 2,
+            spanIndex: 1,
+          },
+        ],
+      }
+    );
     expect(res).toEqual(2);
   });
 
   it('should sort selection different page', () => {
-    const res = component.sortSelection({
-      spanLocations: [
-        {
-          pageNumber: 2,
-          spanIndex: 3,
-        },
-      ],
-    },
-    {
-      spanLocations: [
-        {
-          pageNumber: 3,
-          spanIndex: 1,
-        },
-      ],
-    });
+    const res = component.sortSelection(
+      {
+        spanLocations: [
+          {
+            pageNumber: 2,
+            spanIndex: 3,
+          },
+        ],
+      },
+      {
+        spanLocations: [
+          {
+            pageNumber: 3,
+            spanIndex: 1,
+          },
+        ],
+      }
+    );
     expect(res).toEqual(-1);
   });
 
   it('should sort selection handle empty', () => {
-    const res = component.sortSelection({
-      spanLocations: [],
-    },
-    {
-      spanLocations: [],
-    });
+    const res = component.sortSelection(
+      {
+        spanLocations: [],
+      },
+      {
+        spanLocations: [],
+      }
+    );
     expect(res).toEqual(0);
   });
 
@@ -826,9 +845,7 @@ describe('MoPdfViewerComponent', () => {
     };
     const selectionMap = new Map<Element, Set<string>>();
     spyOn(component, 'removeSpanClassFromLocation');
-    component.removeSelection(
-      selection, 'match-test', 'testId', selectionMap
-    );
+    component.removeSelection(selection, 'match-test', 'testId', selectionMap);
     expect(component.removeSpanClassFromLocation).toHaveBeenCalledWith(
       location,
       'match-test',
@@ -852,7 +869,9 @@ describe('MoPdfViewerComponent', () => {
     spyOn(textLayer, 'querySelectorAll').and.callThrough();
     const res = component.getSpanFromLocation(location);
     expect(component.getTextLayerFromLocation).toHaveBeenCalledWith(1);
-    expect(textLayer.querySelectorAll).toHaveBeenCalledWith('span:not(.inner-span)');
+    expect(textLayer.querySelectorAll).toHaveBeenCalledWith(
+      'span:not(.inner-span)'
+    );
     expect(res).toBe(targetSpan as Element);
   });
 
@@ -900,11 +919,17 @@ describe('MoPdfViewerComponent', () => {
       },
       endLocation,
     ];
-    spyOn(component, 'getStartPageLocations').and.returnValue(startPageLocations);
-    spyOn(component, 'getAllLocationsOnPage').and.returnValue(middlePageLocations);
+    spyOn(component, 'getStartPageLocations').and.returnValue(
+      startPageLocations
+    );
+    spyOn(component, 'getAllLocationsOnPage').and.returnValue(
+      middlePageLocations
+    );
     spyOn(component, 'getEndPageLocations').and.returnValue(endPageLocations);
-    const res = component.getAllNonSamePageLocations(startLocation,
-      endLocation);
+    const res = component.getAllNonSamePageLocations(
+      startLocation,
+      endLocation
+    );
     expect(res).toEqual([
       ...startPageLocations,
       ...middlePageLocations,
@@ -934,10 +959,14 @@ describe('MoPdfViewerComponent', () => {
         pageNumber: 3,
       },
     ];
-    spyOn(component, 'getAllNonSamePageLocations').and.returnValue(middlePageLocations);
+    spyOn(component, 'getAllNonSamePageLocations').and.returnValue(
+      middlePageLocations
+    );
     const res = component.getInterveningLocations(startLocation, endLocation);
-    expect(component.getAllNonSamePageLocations).toHaveBeenCalledWith(startLocation,
-      endLocation);
+    expect(component.getAllNonSamePageLocations).toHaveBeenCalledWith(
+      startLocation,
+      endLocation
+    );
     expect(res).toEqual(middlePageLocations);
   });
 
@@ -960,10 +989,14 @@ describe('MoPdfViewerComponent', () => {
         pageNumber: 3,
       },
     ];
-    spyOn(component, 'getSamePageLocations').and.returnValue(middlePageLocations);
+    spyOn(component, 'getSamePageLocations').and.returnValue(
+      middlePageLocations
+    );
     const res = component.getInterveningLocations(startLocation, endLocation);
-    expect(component.getSamePageLocations).toHaveBeenCalledWith(startLocation,
-      endLocation);
+    expect(component.getSamePageLocations).toHaveBeenCalledWith(
+      startLocation,
+      endLocation
+    );
     expect(res).toEqual(middlePageLocations);
   });
 
@@ -1050,7 +1083,9 @@ describe('MoPdfViewerComponent', () => {
     component.setSpanClassFromLocation(location, 'match-test');
     expect(targetSpan.classList.add).toHaveBeenCalledWith('match-test');
     expect(component.getTextLayerFromLocation).toHaveBeenCalledWith(3);
-    expect(textLayer.querySelectorAll).toHaveBeenCalledWith('span:not(.inner-span)');
+    expect(textLayer.querySelectorAll).toHaveBeenCalledWith(
+      'span:not(.inner-span)'
+    );
   });
 
   it('should set span class from location mapped', () => {
@@ -1081,7 +1116,9 @@ describe('MoPdfViewerComponent', () => {
       selectionMap
     );
     expect(targetSpan.classList.add).toHaveBeenCalledWith('match-test');
-    expect(textLayer.querySelectorAll).toHaveBeenCalledWith('span:not(.inner-span)');
+    expect(textLayer.querySelectorAll).toHaveBeenCalledWith(
+      'span:not(.inner-span)'
+    );
     expect(component.getTextLayerFromLocation).toHaveBeenCalledWith(3);
     expect(selectionMap.get(targetSpan as Element)?.has('testId')).toBeTrue();
   });
@@ -1122,7 +1159,9 @@ describe('MoPdfViewerComponent', () => {
     expect(testSet.size).toEqual(0);
     expect(testSet.delete).toHaveBeenCalledWith('testId');
     expect(component.getTextLayerFromLocation).toHaveBeenCalledWith(3);
-    expect(textLayer.querySelectorAll).toHaveBeenCalledWith('span:not(.inner-span)');
+    expect(textLayer.querySelectorAll).toHaveBeenCalledWith(
+      'span:not(.inner-span)'
+    );
     expect(targetSpan.classList.remove).toHaveBeenCalledWith('match-test');
     expect(targetSpan.classList.remove).toHaveBeenCalledWith('match-active');
   });
@@ -1157,8 +1196,251 @@ describe('MoPdfViewerComponent', () => {
       selectionMap
     );
     expect(component.getTextLayerFromLocation).toHaveBeenCalledWith(3);
-    expect(textLayer.querySelectorAll).toHaveBeenCalledWith('span:not(.inner-span)');
+    expect(textLayer.querySelectorAll).toHaveBeenCalledWith(
+      'span:not(.inner-span)'
+    );
     expect(targetSpan.classList.remove).toHaveBeenCalledWith('match-test');
     expect(targetSpan.classList.remove).toHaveBeenCalledWith('match-active');
+  });
+
+  it('should call searchDown when enter key is presed', () => {
+    spyOn(component, 'searchDown');
+    const event = new KeyboardEvent('keyup', { key: 'Enter' });
+    component.searchText = 'test';
+    component.onKeyUp(event);
+    expect(component.searchDown).toHaveBeenCalledWith('test');
+  });
+
+  it('', () => {
+    spyOn(component, 'search');
+    const event = new KeyboardEvent('keyup', { key: 'a' });
+    component.searchText = 'test';
+    component.onKeyUp(event);
+    expect(component.search).toHaveBeenCalledWith('test');
+  });
+
+  it('should set editMode to true when editComment is called', () => {
+    const comment: CommentSelection = {
+      editMode: false,
+      id: '',
+      spanLocations: [],
+      text: '',
+      comment: '',
+    };
+    component.editComment(comment);
+    expect(comment.editMode).toBe(true);
+  });
+
+  it('should disable the submit button and set editMode to false', () => {
+    const mockComment: CommentSelection = {
+      editMode: true,
+      id: '',
+      spanLocations: [],
+      text: '',
+      comment: '',
+    };
+    const submitButton = document.createElement('button');
+    submitButton.disabled = false;
+
+    component.submitComment(mockComment, submitButton);
+
+    expect(mockComment.editMode).toBeFalse();
+    expect(submitButton.disabled).toBeTrue();
+  });
+
+  it('should enable submit button when text area is not empty', () => {
+    const comment: CommentSelection = {
+      comment: 'Test comment',
+      id: '',
+      spanLocations: [],
+      text: '',
+      editMode: false,
+    };
+    const submitButton = document.createElement('button');
+    submitButton.setAttribute('disabled', 'true');
+
+    component.enableSubmitButton(comment, submitButton);
+
+    expect(submitButton.hasAttribute('disabled')).toBeFalse();
+    expect(submitButton.style.backgroundColor).toBe('rgb(84, 80, 80)');
+  });
+
+  it('should enable submit button when text area is not empty', () => {
+    const comment: CommentSelection = {
+      comment: 'Test comment',
+      id: '',
+      spanLocations: [],
+      text: '',
+      editMode: false,
+    };
+    const submitButton = document.createElement('button');
+    submitButton.setAttribute('disabled', 'true');
+    component.enableSubmitButton(comment, submitButton);
+    expect(submitButton.hasAttribute('disabled')).toBeFalse();
+    expect(submitButton.style.backgroundColor).toBe('rgb(84, 80, 80)');
+  });
+
+  it('should dispatch event with correct parameters on searchDown', () => {
+    component.pdfComponent = {
+      eventBus: {
+        dispatch: () => {},
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any,
+    } as PdfViewerComponent;
+    spyOn(component.pdfComponent.eventBus, 'dispatch');
+    component.updateSearch('example', false);
+    expect(component.pdfComponent.eventBus.dispatch).toHaveBeenCalledWith(
+      'find',
+      {
+        query: 'example',
+        type: 'again',
+        caseSensitive: false,
+        findPrevious: false,
+        highlightAll: true,
+        phraseSearch: true,
+      }
+    );
+  });
+
+  it('should dispatch event with correct parameters on searchUp', () => {
+    component.pdfComponent = {
+      eventBus: {
+        dispatch: () => {},
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any,
+    } as PdfViewerComponent;
+    spyOn(component.pdfComponent.eventBus, 'dispatch');
+    component.updateSearch('example', true);
+    expect(component.pdfComponent.eventBus.dispatch).toHaveBeenCalledWith(
+      'find',
+      {
+        query: 'example',
+        type: 'again',
+        caseSensitive: false,
+        findPrevious: true,
+        highlightAll: true,
+        phraseSearch: true,
+      }
+    );
+  });
+
+  it('should increment currentSearchIndex if less than totalMatchesCount', () => {
+    component.pdfComponent = {
+      eventBus: {
+        dispatch: () => {},
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any,
+    } as PdfViewerComponent;
+    spyOn(component.pdfComponent.eventBus, 'dispatch');
+    component.currentSearchIndex = 1;
+    component.totalMatchesCount = 3;
+    const initialIndex = component.currentSearchIndex;
+    component.searchDown('example');
+    expect(component.currentSearchIndex).toBe(initialIndex + 1);
+  });
+
+  it('should reset currentSearchIndex to 1 if equal to totalMatchesCount', () => {
+    component.pdfComponent = {
+      eventBus: {
+        dispatch: () => {},
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any,
+    } as PdfViewerComponent;
+    spyOn(component.pdfComponent.eventBus, 'dispatch');
+    component.currentSearchIndex = 3;
+    component.totalMatchesCount = 3;
+    component.searchDown('example');
+    expect(component.currentSearchIndex).toBe(1);
+  });
+
+  it('should decrement currentSearchIndex if it is greater than 1', () => {
+    component.pdfComponent = {
+      eventBus: {
+        dispatch: () => {},
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any,
+    } as PdfViewerComponent;
+    spyOn(component.pdfComponent.eventBus, 'dispatch');
+    component.currentSearchIndex = 2;
+    component.totalMatchesCount = 5;
+    component.searchUp('searchString');
+    expect(component.currentSearchIndex).toBe(1);
+  });
+
+  it('should set currentSearchIndex to totalMatchesCount if it is 1', () => {
+    component.pdfComponent = {
+      eventBus: {
+        dispatch: () => {},
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any,
+    } as PdfViewerComponent;
+    spyOn(component.pdfComponent.eventBus, 'dispatch');
+    component.currentSearchIndex = 1;
+    component.totalMatchesCount = 5;
+    component.searchUp('searchString');
+    expect(component.currentSearchIndex).toBe(5);
+  });
+
+  it('should update search results div text', () => {
+    component.pdfComponent = {
+      eventBus: {
+        dispatch: () => {},
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any,
+    } as PdfViewerComponent;
+    spyOn(component.pdfComponent.eventBus, 'dispatch');
+    component.currentSearchIndex = 2;
+    component.totalMatchesCount = 5;
+    const searchResultsDiv = document.createElement('div');
+    searchResultsDiv.id = 'my-auto_count';
+    document.body.appendChild(searchResultsDiv);
+    component.searchUp('searchString');
+    expect(searchResultsDiv.innerText).toBe('1/5');
+  });
+
+  it('should set currentSearchIndex to 1 if it is greater than 1', () => {
+    component.pdfComponent = {
+      eventBus: {
+        dispatch: () => {},
+        on: () => {},
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any,
+    } as PdfViewerComponent;
+    spyOn(component.pdfComponent.eventBus, 'dispatch');
+    component.currentSearchIndex = 1;
+    component.search('test');
+    expect(component.currentSearchIndex).toBe(1);
+  });
+
+  it('should hide all dropdowns except the one in parentSpan', () => {
+    const element = document.createElement('div');
+    element.className = 'icon-span';
+    const dropdown1 = document.createElement('div');
+    dropdown1.className = 'dropdown-content';
+    dropdown1.style.display = 'block';
+    element.appendChild(dropdown1);
+    const dropdown2 = document.createElement('div');
+    dropdown2.className = 'dropdown-content';
+    dropdown2.style.display = 'block';
+    document.body.appendChild(dropdown2);
+    document.body.appendChild(element);
+    component.commntDropdownVisible(element);
+    const allDropdowns = document.querySelectorAll('.dropdown-content');
+    expect(allDropdowns.length).toBe(2);
+  });
+
+  it('should hide dropdown when click occurs outside parentSpan', () => {
+    const element = document.createElement('div');
+    element.className = 'icon-span';
+    const dropdownContent = document.createElement('div');
+    dropdownContent.className = 'dropdown-content';
+    dropdownContent.style.display = 'block';
+    element.appendChild(dropdownContent);
+    document.body.appendChild(element);
+    component.commntDropdownVisible(element);
+    const outsideElement = document.createElement('div');
+    document.body.appendChild(outsideElement);
+    outsideElement.click();
+    expect(dropdownContent.style.display).toBe('block');
   });
 });

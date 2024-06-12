@@ -99,6 +99,7 @@
                         <button
                           class="down_btn btn-outline-secondary"
                           (click)="searchDown(searchText)"
+                          (keyup)="searchDown(searchText)"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -126,11 +127,6 @@
                           </svg>
                         </button>
                       </div>
-                      <!-- <div class="ms-auto col-auto">
-                        <button class="btn btn-sm btn-outline-secondary">
-                          x
-                        </button>
-                      </div> -->
                     </div>
                   </div>
                 </div>
@@ -163,37 +159,41 @@
       </div>
     </as-split-area>
     <as-split-area [size]="30" class="right-panel">
-      <div *ngIf="selectedSearchCategory === 'Highlights'">
+      <div
+        class="search-category"
+        *ngIf="selectedSearchCategory === 'Highlights'"
+      >
         <div class="row ms-2">
           <div class="col">
-            <h3>Highlights:</h3>
+            <h3 class="right-panel-title">Highlights:</h3>
           </div>
         </div>
-
-        <div class="row flex-grow-1 overflow-auto">
-          <div class="col h-100" style="margin-top: 7px">
+        <div class="row highlight-container">
+          <div
+            class="col-16 highlight-col"
+            style="margin-top: 7px; margin-left: 14px"
+          >
             <div
               *ngFor="let highlight of highlights"
-              class="row mx-2"
-              style="border: 1px solid grey"
+              style="width: 100%"
               (click)="selectSelection(highlight)"
               (keyup)="selectSelection(highlight)"
               tabindex="-1"
             >
-              <div class="col">
-                <div class="row row_highlight" style="position: relative">
+              <div class="row_highlight" style="position: relative">
+                <div class="highlight-col">
                   <div
-                    class="col-auto ms-3 highlight-col"
+                    class="col-auto ms-3"
+                    (click)="goToSelection(highlight)"
+                    (keyup)="goToSelection(highlight)"
+                    tabindex="-1"
+                    id="highlight-span"
                   >
-                    <span
-                      (click)="goToSelection(highlight)"
-                      (keyup)="goToSelection(highlight)"
-                      tabindex="-1"
-                      id="highlight-span"
-                      >{{ highlight.text | slice : 0 : 62
-                      }}{{ highlight.text.length > 62 ? "..." : "" }}</span
-                    >
+                    {{ highlight.text | slice : 0 : 62
+                    }}{{ highlight.text.length > 62 ? "..." : "" }}
                   </div>
+                </div>
+                <div>
                   <button
                     type="button"
                     title="Remove Highlight"
@@ -214,27 +214,26 @@
         </div>
       </div>
 
-      <div *ngIf="selectedSearchCategory === 'Tags'">
+      <div class="search-category" *ngIf="selectedSearchCategory === 'Tags'">
         <div class="row ms-2">
           <div class="col">
-            <h3>Tags:</h3>
+            <h3 class="right-panel-title">Tags:</h3>
           </div>
         </div>
 
-        <div class="row flex-grow-1 overflow-auto">
-          <div class="col h-100" style="margin-top: 7px">
+        <div class="row tag-container">
+          <div class="col h-100" style="margin-top: 7px; margin-left: 14px">
             <div
               *ngFor="let tag of tags"
-              class="row mx-2"
+              class="row tag-mx"
               (click)="selectSelection(tag)"
               [attr.tabindex]="0"
               (keyup)="selectSelection(tag)"
-              style="border: 1px solid grey"
             >
               <div class="col">
-                <div class="row row_tag" style="position: relative">
+                <div class="row col-auto row_tag" style="position: relative">
                   <div
-                    class="col-auto"
+                    class="col-auto ms-3"
                     (click)="goToSelection(tag)"
                     (keyup)="goToSelection(tag)"
                     tabindex="-1"
@@ -263,75 +262,149 @@
         </div>
       </div>
 
-      <div *ngIf="selectedSearchCategory === 'Comments'">
+      <div
+        class="search-category"
+        *ngIf="selectedSearchCategory === 'Comments'"
+      >
         <div class="row ms-2">
           <div class="col">
-            <h3>Comments:</h3>
+            <h3 class="right-panel-title">Comments:</h3>
           </div>
         </div>
-
-        <div class="row flex-grow-1 overflow-auto">
-          <div class="col h-100" style="margin-top: 7px">
-            <div
-              *ngFor="let comment of comments"
-              class="row mx-2 clickable"
-              id="comment-row"
-              (click)="selectSelection(comment)"
-              [attr.tabindex]="0"
-              (keyup)="selectSelection(comment)"
-              tabindex="-1"
-            >
-              <div class="col">
-                <div class="col-auto auto"></div>
-                <div class="row row_comments" style="position: relative">
-                  <div
-                    class="col-auto"
-                    id="comment-box"
-                    (click)="goToSelection(comment)"
-                    (keyup)="goToSelection(comment)"
-                    tabindex="-1"
-                  >
-                    {{ comment.text | slice : 0 : 62
-                    }}{{ comment.text.length > 62 ? "..." : "" }}
-                  </div>
-                  <button
-                    type="button"
-                    title="Remove Comment"
-                    (click)="removeComment(comment)"
-                    class="btn btn-danger btn-sm"
-                    id="trash_button_comment"
-                  >
-                    <fa-icon
-                      class="mx-auto my-auto"
-                      [icon]="I.faTrash"
-                      id="trash_icon_comment"
-                    />
-                  </button>
-                  <button
-                    type="button"
-                    title="edit Comment"
-                    id="edit_button_comment"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 576 512"
-                      class="edit_comment_svg"
+        <div class="container">
+          <div class="row flex-grow-1 comment-container">
+            <div class="col h-100 mt-2">
+              <div
+                *ngFor="let comment of comments"
+                class="row mx-2 clickable align-items-center"
+                id="comment-row"
+                (click)="selectSelection(comment)"
+                [attr.tabindex]="0"
+                (keyup)="selectSelection(comment)"
+                tabindex="-1"
+              >
+                <div class="col">
+                  <div class="row row_comments">
+                    <div
+                      *ngIf="!comment.editMode"
+                      class="col-12"
+                      id="comment-box"
+                      (click)="goToSelection(comment)"
+                      (keyup)="goToSelection(comment)"
+                      tabindex="-1"
                     >
-                      <path
-                        d="M402.3 344.9l32-32c5-5 13.7-1.5 13.7 5.7V464c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V112c0-26.5 21.5-48 48-48h273.5c7.1 0 10.7 8.6 5.7 13.7l-32 32c-1.5 1.5-3.5 2.3-5.7 2.3H48v352h352V350.5c0-2.1 .8-4.1 2.3-5.6zm156.6-201.8L296.3 405.7l-90.4 10c-26.2 2.9-48.5-19.2-45.6-45.6l10-90.4L432.9 17.1c22.9-22.9 59.9-22.9 82.7 0l43.2 43.2c22.9 22.9 22.9 60 .1 82.8zM460.1 174L402 115.9 216.2 301.8l-7.3 65.3 65.3-7.3L460.1 174zm64.8-79.7l-43.2-43.2c-4.1-4.1-10.8-4.1-14.8 0L436 82l58.1 58.1 30.9-30.9c4-4.2 4-10.8-.1-14.9z"
-                      />
-                    </svg>
-                  </button>
-                </div>
+                      {{ comment.comment }}
+                    </div>
 
-                <div class="row w-100">
-                  <div class="col-auto w-100 ms-3">
-                    <textarea
-                      title="Comment"
-                      class="w-100"
-                      id="comments-textarea"
-                      [(ngModel)]="comment.comment"
-                    ></textarea>
+                    <div
+                      *ngIf="comment.editMode"
+                      class="col-12 row mx-2"
+                      id="comment-box"
+                      (click)="goToSelection(comment)"
+                      (keyup)="goToSelection(comment)"
+                      tabindex="-1"
+                    >
+                      {{ comment.text | slice : 0 : 62
+                      }}{{ comment.text.length > 62 ? "..." : "" }}
+                    </div>
+
+                    <span
+                      class="icon-span"
+                      style="position: absolute; right: 0; cursor: pointer"
+                    >
+                      <i
+                        #commentDropdown
+                        (click)="commntDropdownVisible(commentDropdown)"
+                        (keyup)="commntDropdownVisible(commentDropdown)"
+                        tabindex="-1"
+                        class="material-icons"
+                        id="comment-dropdown"
+                        style="
+                          font-size: 25px;
+                          color: rgb(22, 22, 22);
+                          position: absolute;
+                          top: -3px;
+                          right: 0;
+                        "
+                        >more_vert</i
+                      >
+                      <ul
+                        class="dropdown-content"
+                        *ngIf="dropdownVisible"
+                        style="top: 16px; display: none"
+                      >
+                        <li
+                          tabindex="-1"
+                          style="height: 35px"
+                          (click)="removeComment(comment)"
+                        >
+                          Delete
+
+                          <button
+                            type="button"
+                            title="Remove Comment"
+                            (click)="removeComment(comment)"
+                            class="btn btn-danger btn-sm ms-1"
+                            id="trash_button_comment"
+                          >
+                            <fa-icon
+                              class="mx-auto my-auto"
+                              id="trash_icon_comment"
+                              [icon]="I.faTrash"
+                            />
+                          </button>
+                        </li>
+                        <li
+                          (click)="editComment(comment)"
+                          *ngIf="!comment.editMode"
+                          tabindex="-1"
+                          style="height: 35px"
+                        >
+                          Edit
+                          <button
+                            *ngIf="!comment.editMode"
+                            type="button"
+                            title="Edit Comment"
+                            (click)="editComment(comment)"
+                            class="btn btn-primary btn-sm ms-1"
+                            id="edit_button_comment"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 576 512"
+                              class="edit_comment_svg"
+                              id="edit_icon_comment"
+                            >
+                              <path
+                                d="M402.3 344.9l32-32c5-5 13.7-1.5 13.7 5.7V464c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V112c0-26.5 21.5-48 48-48h273.5c7.1 0 10.7 8.6 5.7 13.7l-32 32c-1.5 1.5-3.5 2.3-5.7 2.3H48v352h352V350.5c0-2.1 .8-4.1 2.3-5.6zm156.6-201.8L296.3 405.7l-90.4 10c-26.2 2.9-48.5-19.2-45.6-45.6l10-90.4L432.9 17.1c22.9-22.9 59.9-22.9 82.7 0l43.2 43.2c22.9 22.9 22.9 60 .1 82.8zM460.1 174L402 115.9 216.2 301.8l-7.3 65.3 65.3-7.3L460.1 174zm64.8-79.7l-43.2-43.2c-4.1-4.1-10.8-4.1-14.8 0L436 82l58.1 58.1 30.9-30.9c4-4.2 4-10.8-.1-14.9z"
+                              />
+                            </svg>
+                          </button>
+                        </li>
+                      </ul>
+                    </span>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="ms-3 w-100">
+                      <div *ngIf="comment.editMode">
+                        <textarea
+                          placeholder="Type your Reply"
+                          title="Comment"
+                          class="form-control"
+                          id="comments-textarea"
+                          [(ngModel)]="comment.comment"
+                          (input)="enableSubmitButton(comment, submitButton)"
+                        ></textarea>
+                        <button
+                          #submitButton
+                          class="comment_submit btn btn-primary btn-sm mt-1"
+                          (click)="submitComment(comment, submitButton)"
+                          disabled
+                        >
+                          Submit
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

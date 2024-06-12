@@ -5,7 +5,7 @@ PDF-Viewer is a custom wrapper around `ng2-pdf-viewer` that allows you to view, 
 
 ## Installation
 1. The the following command to install the package: `npm i @modusoperandi/pdf-viewer`.
-2. Import the `MoPdfViewerModule` in your apps module imports.
+2. Import the `MoPdfViewerComponent` in your apps module imports.
 3. Add the component anywhere in your app using the following selector: `<mo-pdf-viewer />`
 
 ## Usage

@@ -1,4 +1,8 @@
-<div class="btn-group" id="btnGroup" style="display: none">
+<div
+  class="btn-group"
+  id="btnGroup"
+  [style]="selectedText ? { display: 'block' } : { display: 'none' }"
+>
   <button
     type="button"
     title="Highlight"

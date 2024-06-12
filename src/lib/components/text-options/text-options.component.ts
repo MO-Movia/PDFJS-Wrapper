@@ -1,7 +1,7 @@
 import {
   Component,
   EventEmitter,
-  OnInit,
+  HostListener,
   Output,
   ViewContainerRef,
   inject,
@@ -20,13 +20,13 @@ import {
   templateUrl: './text-options.component.html',
   imports: [FontAwesomeModule],
 })
-export class DynamicComponent implements OnInit {
-
+export class TextOptionsComponent {
   @Output() public highlightClicked = new EventEmitter<void>();
   @Output() public tagClicked = new EventEmitter<void>();
   @Output() public privateTagClicked = new EventEmitter<void>();
   @Output() public commentClicked = new EventEmitter<void>();
   @Output() public removeRequested = new EventEmitter<void>();
+  public selectedText: string = '';
 
   public vcr: ViewContainerRef = inject(ViewContainerRef);
   public I = {
@@ -36,18 +36,12 @@ export class DynamicComponent implements OnInit {
     faUserTag,
   };
 
-  public ngOnInit(): void {
-    document.addEventListener('mouseup', () => {
-      const selectedText = window.getSelection()?.toString().trim(); 
-      const btnGroup = document.getElementById('btnGroup') as HTMLElement;
-      
-      if (selectedText) {
-        btnGroup.style.display = 'block'; 
-      } else {
-        btnGroup.style.display = 'none'; 
-      }
-    });
-
+  @HostListener('window:mouseup')
+  public onMouseUp(): void {
+    const selectedText = window.getSelection()?.toString().trim();
+    if (selectedText) {
+      this.selectedText = selectedText;
+    }
   }
 
   public onHighlightClicked(): void {
