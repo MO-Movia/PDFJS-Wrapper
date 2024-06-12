@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
-import { DynamicComponent } from './text-options.component';
+import { TextOptionsComponent } from './text-options.component';
 
-describe('DynamicComponent', () => {
-  let component: DynamicComponent;
+describe('TextOptionsComponent', () => {
+  let component: TextOptionsComponent;
 
   beforeEach(() => {
-    const fixture = TestBed.createComponent(DynamicComponent);
+    const fixture = TestBed.createComponent(TextOptionsComponent);
     component = fixture.componentInstance;
   });
 

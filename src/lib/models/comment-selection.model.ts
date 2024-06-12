@@ -5,4 +5,5 @@ export interface CommentSelection {
   spanLocations: SpanLocation[];
   text: string;
   comment: string;
+  editMode: boolean;
 }
