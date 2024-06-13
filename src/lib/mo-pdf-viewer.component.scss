@@ -1,5 +1,3 @@
-@import "https://fonts.googleapis.com/icon?family=Material+Icons";
-
 :host ::ng-deep .ng2-pdf-viewer-container {
   .match-comment {
     text-decoration: underline;
@@ -8,18 +6,15 @@
     color: black;
     opacity: 1;
   }
-
   .match-active {
     color: black;
     opacity: 0.5;
   }
-
   .match-highlight {
     background-color: yellow;
     color: black;
     opacity: 1;
   }
-
   .match-tag {
     text-decoration: underline;
     text-decoration-color: green;
@@ -27,7 +22,6 @@
     color: black;
     opacity: 2;
   }
-  
   .textLayer {
     opacity: 0.4;
   }
@@ -136,18 +130,18 @@
   font-size: 9px;
 }
 
-.nav-container {
+.nav-container{
   background-color: white;
 }
 
-.highlight-col {
-  position: relative;
-  padding-left: 0;
-  padding-right: 38px;
+.highlight-col{
+  position: relative; 
+  padding-left: 0
 }
 
 #search_svg_icon {
   width: 12px;
+ 
 }
 
 .down_btn:hover {
@@ -174,6 +168,33 @@
   color: #837a7a;
 }
 
+#search_box_pdf {
+  left: -305px;
+  width: 188px;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  border-bottom: 2px solid black;
+  top: 5px;
+}
+
+.header_bottom_bar {
+  width: 370px;
+  position: absolute;
+  top: 34px;
+  height: 1px;
+  left: -329px;
+  background: black;
+}
+
+.header_seperator {
+  height: 31px;
+  width: 1px;
+  background: black;
+  position: absolute;
+  left: -71px;
+}
+
 .down_btn {
   border: none;
   width: 24px;
@@ -187,9 +208,13 @@
   background: white;
 }
 
-.right-panel-title{
-  font-size: 23px;
-  margin-top: 16px;
+#close_button_header {
+  width: 40px;
+  font-size: 19px;
+  border: none;
+  height: 35px;
+  font-weight: 700;
+  margin-top: -3px;
 }
 
 #trash_button {
@@ -197,7 +222,7 @@
   top: 1px;
   width: 21px;
   height: 22px;
-  right:  27px;
+  right: 1px;
   z-index: 1;
   visibility: hidden;
 }
@@ -214,7 +239,7 @@
   top: 2px;
   width: 21px;
   height: 21px;
-  right: 19px;
+  right: 1px;
   z-index: 1;
   visibility: hidden;
 }
@@ -227,22 +252,8 @@
   height: 5px;
 }
 
-.row_highlight {
-  position: relative;
-  padding-bottom: 20px;
-  height: 100%;
-}
-
-.search-category{
-  width: 100%;
-}
-
-.tag-mx{
-  padding-bottom: 20px;
-}
-
-.row-tag {
-  height: 49px;
+.row_highlight{
+  position: relative
 }
 
 .row_highlight:hover #trash_button {
@@ -255,66 +266,57 @@
 
 #trash_button_comment {
   position: absolute;
-  top: 8px;
-  width: 19px;
-  height: 20px;
-  right: 10px;
+  top: 11px;
+  width: 20px;
+  height: 22px;
+  right: 3px;
   z-index: 1;
-}
-
-#comment-box:hover #trash_button_comment {
-  visibility: visible;
+  visibility: hidden;
 }
 
 #trash_icon_comment {
+  width: 5px;
+  position: absolute;
   top: -1px;
-  right: 2px;
-  position: absolute;
+  right: 10px;
+  width: 5px;
+  height: 14px;
 }
 
-#edit_icon_comment {
-  position: absolute;
-  top: 7px;
-  right: -3px;
-  width: 37px;
-  height: 19px;
-  fill: white;
-  filter: drop-shadow(2px 4px 6px black);
+#comment-row{
+  position: relative; 
+  border: 1px solid grey
 }
 
-#comment-row {
-  position: relative;
-  padding-bottom: 50px;
-  width: 100%;
+#comments-textarea{
+  margin-left: -16px
 }
 
-.row_comments {
-  width: 100%;
-}
-
-.row_comments:hover #trash_button_comment {
+#comment-row:hover #trash_button_comment,
+#comment-row:hover #edit_button_comment {
   visibility: visible;
 }
 
-.row_comments:hover #edit_button_comment {
-  visibility: visible;
+#trash_button_comment,
+#edit_button_comment {
+  visibility: hidden;
 }
 
-#comments-textarea {
-  margin-left: 6px;
-  margin-top: 5px;
-  width: 80%;
+#comment-row:hover textarea:hover + #trash_button_comment,
+#comment-row:hover textarea:hover + #edit_button_comment {
+  visibility: hidden;
 }
 
 #edit_button_comment {
   position: absolute;
-  top: 35px;
+  top: 36px;
   width: 25px;
   height: 22px;
   right: 3px;
   z-index: 1;
   background: transparent;
   border: none;
+  visibility: hidden;
 }
 
 .edit_comment_svg {
@@ -329,7 +331,6 @@
 #comment-box {
   cursor: pointer;
   padding-right: 38px;
-  margin: 1px;
 }
 
 #tag-box {
@@ -342,60 +343,3 @@
   cursor: pointer;
   padding-right: 38px;
 }
-
-.comment_submit {
-  position: relative;
-  left: 70%;
-  top: 0px;
-  margin: 6px;
-  border: none;
-  background: #b7b1b1;
-  padding: 6px;
-  border-radius: 6px;
-}
-
-textarea:focus {
-  outline: none;
-}
-.material-icons {
-  margin-top: 2px;
-  border-radius: 2px;
-}
-
-.material-icons:hover {
-  background: #aca6a6;
-  border-radius: 2px;
-}
-
-.dropdown-content {
-  border-radius: 4px;
-  position: absolute;
-  background-color: #6b6666;
-  color: #ebebeb;
-  min-width: 125px;
-  box-shadow: 0 8px 16px #0003;
-  z-index: 4;
-  top: 100%;
-  right: 0;
-  padding: 0;
-  margin: 5px 15px 0 0;
-  display: flex;
-  flex-direction: column;
-  font-weight: 400;
-  font-size: 16px;
-  font-stretch: normal;
-  letter-spacing: normal;
-}
-
-.dropdown-content li {
-  list-style-type: none;
-  padding: 0;
-  padding-left: 10px;
-  text-align: center;
-  flex: 1;
-  display: flex;
-  justify-content: left;
-  align-items: center;
-  line-height: 35px;
-}
-
