@@ -21,6 +21,21 @@ import {
 } from 'ngx-extended-pdf-viewer/lib/events/annotation-editor-layer-event';
 import { CommentPopoverComponent } from './comment-popover/comment-popover.component';
 import { TagPopoverComponent } from './tag-popover/tag-popover.component';
+import {
+  faFile,
+  faUser,
+  faMessage,
+  faThumbsUp,
+} from '@fortawesome/free-regular-svg-icons';
+import {
+  faSliders,
+  faBookOpenReader,
+  faQuoteRight,
+  faArrowTrendUp,
+  faTag,
+  faTrash,
+  faHighlighter,
+} from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   standalone: true,
@@ -68,6 +83,42 @@ export class MoPdfViewerComponent {
     private appRef: ApplicationRef,
     private elementRef: ElementRef
   ) {}
+
+  public I = {
+    faFile,
+    faUser,
+    faSliders,
+    faBookOpenReader,
+    faMessage,
+    faQuoteRight,
+    faArrowTrendUp,
+    faThumbsUp,
+    faTag,
+    faTrash,
+    faHighlighter,
+  };
+
+  public searchCategories = [
+    {
+      label: 'Highlights',
+      icon: faHighlighter,
+    },
+    {
+      label: 'Tags',
+      icon: faTag,
+    },
+    {
+      label: 'Comments',
+      icon: faMessage,
+    },
+  ];
+
+  public selectedSearchCategory = 'Highlights';
+
+  public selectSearchCategory(category: string): void {
+    this.selectedSearchCategory = category;
+  }
+
 
   public commentTagPopover(data: ShowCommentTagPopoverDetails) {
     if (data.detail.type === 'Comment') {

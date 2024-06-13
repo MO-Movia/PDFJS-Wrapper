@@ -34,6 +34,83 @@
         </div>
       </div>
     </as-split-area>
-    <as-split-area [size]="30" class="right-panel"> </as-split-area>
+    <as-split-area [size]="30" class="right-panel">
+      <div
+        class="search-category"
+        *ngIf="selectedSearchCategory === 'Highlights'"
+      >
+        <div class="row ms-2">
+          <div class="col">
+            <h3 class="right-panel-title">Highlights:</h3>
+          </div>
+        </div>
+        <div class="row highlight-container">
+         
+        </div>
+      </div>
+
+      <div class="search-category"  *ngIf="selectedSearchCategory === 'Tags'">
+        <div class="row ms-2">
+          <div class="col">
+            <h3 class="right-panel-title">Tags:</h3>
+          </div>
+        </div>
+
+        <div class="row tag-container">
+   
+        </div>
+      </div>
+
+      <div
+        class="search-category"
+        *ngIf="selectedSearchCategory === 'Comments'"
+      >
+        <div class="row ms-2">
+          <div class="col">
+            <h3 class="right-panel-title">Comments:</h3>
+          </div>
+        </div>
+        <div class="container">
+          <div class="row flex-grow-1 comment-container">
+         
+          </div>
+        </div>
+      </div>
+
+      <div class="row ms-2">
+        <ul
+          ngbNav
+          #nav="ngbNav"
+          class="nav nav-pills nav-tabs"
+          orientation="vertical"
+          tabindex="-1"
+        >
+          <ng-container *ngFor="let category of searchCategories">
+            <li
+              class="ccc clickable top-category"
+              [class.active-top-category]="
+                selectedSearchCategory === category.label
+              "
+              (click)="selectSearchCategory(category.label)"
+              (keyup.enter)="selectSearchCategory(category.label)"
+              [ngbTooltip]="category.label"
+              tabindex="-1"
+            >
+              <a class="nav-link">
+                <div class="row d-flex my-2">
+                  <div class="col-auto mx-auto right-icons">
+                    <fa-icon
+                      class="mx-auto my-auto"
+                      size="2x"
+                      [icon]="category.icon"
+                    ></fa-icon>
+                  </div>
+                </div>
+              </a>
+            </li>
+          </ng-container>
+        </ul>
+      </div>
+    </as-split-area>
   </as-split>
 </div>

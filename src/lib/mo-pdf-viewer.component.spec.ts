@@ -51,7 +51,7 @@ describe('MoPdfViewerComponent', () => {
   //     location: {
   //       nativeElement: element,
   //     },
-    } as ComponentRef<TextOptionsComponent>);
+   // } as ComponentRef<TextOptionsComponent>);
   //   spyOn(mouseEvent, 'composedPath').and.returnValue([element as Element]);
   //   component.showOptions(mouseEvent as MouseEvent);
   //   expect(window.getSelection).toHaveBeenCalledTimes(0);
