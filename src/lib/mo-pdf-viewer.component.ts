@@ -12,9 +12,16 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { CommonModule } from '@angular/common';
 import { AngularSplitModule } from 'angular-split';
-import { NgbNavModule, NgbTooltipModule, NgbModule  } from '@ng-bootstrap/ng-bootstrap';
+import {
+  NgbNavModule,
+  NgbTooltipModule,
+  NgbModule,
+} from '@ng-bootstrap/ng-bootstrap';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgxExtendedPdfViewerModule,NgxExtendedPdfViewerComponent } from 'ngx-extended-pdf-viewer';
+import {
+  NgxExtendedPdfViewerModule,
+  NgxExtendedPdfViewerComponent,
+} from 'ngx-extended-pdf-viewer';
 import {
   CommentTagEvent,
   ShowCommentTagPopoverDetails,
@@ -36,6 +43,8 @@ import {
   faTrash,
   faHighlighter,
 } from '@fortawesome/free-solid-svg-icons';
+import { UtilService } from './util.service';
+import { Highlight } from './util.service';
 
 @Component({
   standalone: true,
@@ -54,7 +63,7 @@ import {
   templateUrl: './mo-pdf-viewer.component.html',
   styleUrls: ['./mo-pdf-viewer.component.scss'],
 })
-export class MoPdfViewerComponent {
+export class MoPdfViewerComponent implements OnDestroy {
   @Input({ required: true }) public pdfSrc: string | Uint8Array = '';
   @Input() public documentTitle = '';
   @Input() public documentClassification = 'Unclassified';
@@ -76,13 +85,17 @@ export class MoPdfViewerComponent {
   private tagDetails: CommentTagEvent | null = null;
   private previousScrollTop = 0;
   private previousScrollLeft = 0;
+  private highlightList: Highlight[] = [];
 
   constructor(
     private resolver: ComponentFactoryResolver,
     private injector: Injector,
     private appRef: ApplicationRef,
-    private elementRef: ElementRef
-  ) {}
+    private elementRef: ElementRef,
+    public utilService: UtilService
+  ) {
+    this.highlightList = utilService.gethighlightText();
+  }
 
   public I = {
     faFile,
@@ -119,23 +132,20 @@ export class MoPdfViewerComponent {
     this.selectedSearchCategory = category;
   }
 
-
   public commentTagPopover(data: ShowCommentTagPopoverDetails) {
     if (data.detail.type === 'Comment') {
       this.showCommentPopover(data.detail);
-    }
-    else if (data.detail.type === 'Tag') {
+    } else if (data.detail.type === 'Tag') {
       this.showTagPopover(data.detail);
     }
   }
 
-  public showTagPopover(tagDetails: CommentTagEvent){
+  public showTagPopover(tagDetails: CommentTagEvent) {
     if (this.popoverRef) {
-      this.closeTagCommentPopover();
+      this.closeCommentPopover();
     }
-    const popoverFactory = this.resolver.resolveComponentFactory(
-      TagPopoverComponent
-    );
+    const popoverFactory =
+      this.resolver.resolveComponentFactory(TagPopoverComponent);
     this.popoverRef = popoverFactory.create(this.injector);
     this.appRef.attachView(this.popoverRef.hostView);
     const popoverElement = (this.popoverRef.hostView as any)
@@ -148,9 +158,9 @@ export class MoPdfViewerComponent {
     );
     pdfViewerElement.removeEventListener('scroll', this.onPdfViewerScroll);
     pdfViewerElement.addEventListener('scroll', this.onPdfViewerScroll);
-    setTimeout(() => {
-      document.addEventListener('click', this.onDocumentClick);
-    }, 0);
+    // setTimeout(() => {
+    //   document.addEventListener('click', this.onDocumentClick);
+    // }, 0);
   }
 
   private showCommentPopover(commentDetails: CommentTagEvent) {
@@ -181,28 +191,6 @@ export class MoPdfViewerComponent {
     pdfViewerElement.removeEventListener('scroll', this.onPdfViewerScroll);
 
     pdfViewerElement.addEventListener('scroll', this.onPdfViewerScroll);
-    
-    setTimeout(() => {
-      document.addEventListener('click', this.onDocumentClick);
-    }, 0);
-  }
-
-  private onDocumentClick = (event: MouseEvent) => {
-    if (this.popoverRef) {
-      const popoverElement = (this.popoverRef.hostView as any).rootNodes[0] as HTMLElement;
-      if (!popoverElement.contains(event.target as Node)) {
-        this.closeTagCommentPopover();
-      }
-    }
-  };
-
-  private closeTagCommentPopover(){
-    if (this.popoverRef) {
-      this.appRef.detachView(this.popoverRef.hostView);
-      this.popoverRef.destroy();
-      this.popoverRef = null;
-      document.removeEventListener('click', this.onDocumentClick);
-    }
   }
 
   private onPdfViewerScroll = () => {

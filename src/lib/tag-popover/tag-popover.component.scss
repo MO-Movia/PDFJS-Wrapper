@@ -1,63 +1,63 @@
-.tag-popover{
-    background: #4c4a4a;
-    color: white;
-    width: 230px;
-    height: 140px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 10px;
-    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
-    font-size: small;
-    position: absolute;
-    pointer-events: all;
-    color: white;
-    width: 152px;
-    height: 151px;
+.tag-popover {
+  background: #4c4a4a;
+  color: white;
+  width: 230px;
+  height: 140px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+  font-size: small;
+  position: absolute;
+  pointer-events: all;
+  color: white;
+  width: 152px;
+  height: 151px;
 }
 
-.tag-popover label{
-    margin-left: 6px;
-    font-size: 15px;
-    letter-spacing: 1px;
+.tag-popover label {
+  margin-left: 6px;
+  font-size: 15px;
+  letter-spacing: 1px;
 }
 
-input{
-    font-size: 20px;
+input {
+  font-size: 20px;
 }
 
-.border-clr{
-    border-bottom: 2px solid rgb(255, 255, 255);
+.border-clr {
+  border-bottom: 2px solid rgb(255, 255, 255);
 }
 
-.ok-button{
-    position: absolute;
-    border: none;
-    color: white;
-    width: 21px;
-    font-size: 12px;
-    height: 25px;
-    margin-top: 13px;
-    background: #00000082;
-    letter-spacing: 1px;
+.ok-button {
+  position: absolute;
+  border: none;
+  color: white;
+  width: 21px;
+  font-size: 12px;
+  height: 25px;
+  margin-top: 13px;
+  background: #00000082;
+  letter-spacing: 1px;
 }
 
-.close-button{
-    left: 84%;
-    top: 0px;
-    position: absolute;
-    border: none;
-    font-size: 17px;
-    color: white;
-    width: 16px;
-    font-weight: 600;
-    height: 24px;
-    background: transparent;
+.close-button {
+  left: 84%;
+  top: 0px;
+  position: absolute;
+  border: none;
+  font-size: 17px;
+  color: white;
+  width: 16px;
+  font-weight: 600;
+  height: 24px;
+  background: transparent;
 }
 
-#tag-public{
-    margin-top: 17px;
+#tag-public {
+  margin-top: 17px;
 }
 
-#tag-private{
-    margin-top: 13px;
+#tag-private {
+  margin-top: 13px;
 }

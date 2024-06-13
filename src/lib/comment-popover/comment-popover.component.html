@@ -1,9 +1,16 @@
 <div class="comment-popover-content">
-  <h2>ADD COMMENT</h2>
+  <div class="comment-header">
+    <h5>Add Comment</h5>
+    <span class="close-tag" (click)="closeComment()">x</span>
+  </div>
+  <div class="comment-border"></div>
   <textarea
     [(ngModel)]="newComment"
     rows="4"
     placeholder="Enter your comment"
+    class="comment-textarea"
   ></textarea>
-  <button (click)="onSubmit()">Submit</button>
+  <div class="button-container">
+    <button (click)="onSubmit()">Submit</button>
+  </div>
 </div>

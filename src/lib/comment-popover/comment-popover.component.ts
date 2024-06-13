@@ -1,5 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { UtilService } from '../util.service';
+import { Comment } from '../util.service';
 
 @Component({
   selector: 'app-comment-popover',
@@ -9,12 +11,38 @@ import { FormsModule } from '@angular/forms';
   imports: [FormsModule],
 })
 export class CommentPopoverComponent {
-  @Input() commentText: string = ''; // Existing input for initial comment
-  newComment = ''; // Property to store user input
   @Output() submitComment = new EventEmitter<string>();
+  public newComment: string = '';
+  public commentList: Comment[] = [];
+  public closePopover: boolean = false;
 
-  onSubmit() {
-    this.submitComment.emit(this.newComment);
-    this.newComment = '';
+  constructor(public utilService: UtilService) {
+    this.commentList = this.utilService.getCommentList();
+  }
+
+  public closeComment(): void {
+    const popover = document.querySelector(
+      '.comment-popover-content'
+    ) as HTMLElement;
+    if (!this.closePopover) {
+      popover.style.display = 'none';
+    }
+    this.closePopover = !this.closePopover;
+  }
+
+  public onSubmit(): void {
+    if (this.newComment) {
+      const selectedTagText = document.querySelector(
+        '.selectedEditor'
+      ) as HTMLDivElement;
+      const selectedText = selectedTagText.ariaLabel;
+      if (selectedText != null) {
+        let comment: Comment = { text: selectedText, comment: this.newComment };
+        this.utilService.updateComments(comment);
+        this.newComment = '';
+        console.log(this.commentList);
+      }
+      this.closeComment();
+    }
   }
 }
