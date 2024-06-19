@@ -1,11 +1,7 @@
 import { Injectable } from '@angular/core';
+import { CommentSelection } from './models/comment-selection.model';
 
-export interface Tag {
-  tagType: string;
-  tagText: string;
-}
-
-export interface Comment {
+export interface Comment extends CommentSelection {
   text: string;
   comment: string;
 }
@@ -17,17 +13,27 @@ export interface Highlight {
   providedIn: 'root',
 })
 export class UtilService {
-  private tagList: Tag[] = [];
+  public tagListPrivate: string[] = [];
+  public tagListPublic: string[] = [];
   private commentList: Comment[] = [];
   private highlightList: Highlight[] = [];
 
-  public updateTagList(tag: Tag) {
-    this.tagList.push(tag);
+  public updateTagListPrivate(tagPrivate: string) {
+    this.tagListPrivate.push(tagPrivate);
   }
 
-  public getTagList(): Tag[] {
-    return this.tagList;
+  public getTagListPrivate(): string[] {
+    return this.tagListPrivate;
   }
+
+  public updateTagListPublic(tagPublic: string) {
+    this.tagListPublic.push(tagPublic);
+  }
+
+  public getTagListPublic(): string[] {
+    return this.tagListPublic;
+  }
+
   public updateHighlightList(hightlight: Highlight) {
     this.highlightList.push(hightlight);
   }

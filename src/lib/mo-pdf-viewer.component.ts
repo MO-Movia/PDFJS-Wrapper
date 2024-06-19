@@ -46,6 +46,11 @@ import {
 import { UtilService } from './util.service';
 import { Highlight } from './util.service';
 
+import { Comment } from './util.service';
+import { CommentSelection } from './models/comment-selection.model';
+import { FormsModule } from '@angular/forms';
+import { SpanLocation } from './models/span-location.model';
+
 @Component({
   standalone: true,
   imports: [
@@ -57,6 +62,7 @@ import { Highlight } from './util.service';
     NgxExtendedPdfViewerModule,
     NgbModule,
     BrowserAnimationsModule,
+    FormsModule,
   ],
   providers: [provideAnimations()],
   selector: 'mo-pdf-viewer',
@@ -69,9 +75,16 @@ export class MoPdfViewerComponent implements OnDestroy {
   @Input() public documentClassification = 'Unclassified';
   @Input() public documentAuthor = '';
   @Input() public minimalView = false;
+  public tagListPublic: string[] = [];
+  public tagListPrivate: string[] = [];
+  public commentList: Comment[] = [];
+  publicListVisible: boolean = false;
+  privateListVisible: boolean = false;
 
   @ViewChild(NgxExtendedPdfViewerComponent)
   public pdfComponent!: NgxExtendedPdfViewerComponent;
+
+  @ViewChild(TagPopoverComponent) tagPopoverComponent!: TagPopoverComponent;
 
   ngOnInit() {
     const pdfViewerElement = this.elementRef.nativeElement.querySelector(
@@ -86,6 +99,7 @@ export class MoPdfViewerComponent implements OnDestroy {
   private previousScrollTop = 0;
   private previousScrollLeft = 0;
   private highlightList: Highlight[] = [];
+  dropdownVisible: any = {};
 
   constructor(
     private resolver: ComponentFactoryResolver,
@@ -95,6 +109,9 @@ export class MoPdfViewerComponent implements OnDestroy {
     public utilService: UtilService
   ) {
     this.highlightList = utilService.gethighlightText();
+    this.tagListPublic = utilService.getTagListPublic();
+    this.tagListPrivate = utilService.getTagListPrivate();
+    this.commentList = utilService.getCommentList();
   }
 
   public I = {
@@ -215,6 +232,88 @@ export class MoPdfViewerComponent implements OnDestroy {
       );
       pdfViewerElement.removeEventListener('scroll', this.onPdfViewerScroll);
     }
+  }
+
+  public commntDropdownVisible(element: HTMLElement): void {
+    const allDropdowns = document.querySelectorAll('.dropdown-content');
+    allDropdowns.forEach((dropdown) => {
+      (dropdown as HTMLElement).style.display = 'none';
+    });
+    const parentSpan = element.closest('.icon-span');
+    if (parentSpan) {
+      const dropdownContent = parentSpan.querySelector(
+        '.dropdown-content'
+      ) as HTMLElement;
+      if (dropdownContent) {
+        dropdownContent.style.display = 'block';
+        const hideDropdown = (event: MouseEvent) => {
+          if (!parentSpan.contains(event.target as Node)) {
+            dropdownContent.style.display = 'none';
+            document.removeEventListener('click', hideDropdown);
+          }
+        };
+        setTimeout(() => {
+          document.addEventListener('click', hideDropdown);
+        }, 0);
+      }
+    }
+  }
+
+  public enableSubmitButton(
+    comment: CommentSelection,
+    submitButton: HTMLButtonElement
+  ): void {
+    const textAreaValue = comment.comment && comment.comment.trim().length > 0;
+    if (submitButton) {
+      if (textAreaValue) {
+        submitButton.removeAttribute('disabled');
+        submitButton.style.background = '#545050';
+      } else {
+        submitButton.setAttribute('disabled', 'true');
+      }
+    }
+  }
+
+  public submitComment(
+    comment: CommentSelection,
+    submitButton: HTMLButtonElement
+  ): void {
+    console.log(this.commentList);
+    comment.editMode = false;
+    submitButton.setAttribute('disabled', 'true');
+  }
+
+  public editComment(comment: CommentSelection): void {
+    comment.editMode = true;
+  }
+
+  public removeComment(comment: Comment): void {
+    const index = this.commentList.findIndex(
+      (c) => c.comment === comment.comment
+    );
+    if (index > -1) {
+      this.commentList.splice(index, 1);
+    }
+  }
+
+  removeTag(type: 'public' | 'private', index: number) {
+    if (type === 'public') {
+      this.tagListPublic.splice(index, 1);
+    } else if (type === 'private') {
+      this.tagListPrivate.splice(index, 1);
+    }
+  }
+
+  public closeCommentTextarea(comment: CommentSelection) {
+    comment.editMode = false;
+  }
+
+  public tagPublicVisibility(): void {
+    this.publicListVisible = !this.publicListVisible;
+  }
+
+  public tagPrivateVisibility(): void {
+    this.privateListVisible = !this.privateListVisible;
   }
 
   ngOnDestroy() {

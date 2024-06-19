@@ -1,14 +1,15 @@
 import {
   Component,
   ElementRef,
+  EventEmitter,
   HostListener,
+  Output,
   Renderer2,
   ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgxExtendedPdfViewerComponent } from 'ngx-extended-pdf-viewer';
 import { UtilService } from '../util.service';
-import { Tag } from '../util.service';
 @Component({
   selector: 'app-tag-popover',
   templateUrl: './tag-popover.component.html',
@@ -21,10 +22,12 @@ export class TagPopoverComponent {
   public pdfComponent!: NgxExtendedPdfViewerComponent;
   public closePopover: boolean = false;
   public selectedTag: string = '';
-  public tagList: Tag[] = [];
+  public tagListPrivate: string[] = [];
+  public tagListPublic: string[] = [];
 
   constructor(public utilService: UtilService) {
-    this.tagList = this.utilService.getTagList();
+    this.tagListPrivate = this.utilService.getTagListPrivate();
+    this.tagListPublic = this.utilService.getTagListPublic();
   }
   public closeTag(): void {
     const popover = document.querySelector('.tag-popover') as HTMLElement;
@@ -41,10 +44,14 @@ export class TagPopoverComponent {
       ) as HTMLDivElement;
       const tagText = selectedTagText.ariaLabel;
       if (tagText != null) {
-        console.log(tagText);
-        let tag: Tag = { tagType: this.selectedTag, tagText: tagText };
-        this.utilService.updateTagList(tag);
-        console.log(this.tagList);
+        if (this.selectedTag == 'Private') {
+          console.log(tagText);
+          this.utilService.updateTagListPrivate(tagText);
+          console.log(this.tagListPrivate);
+        } else {
+          this.utilService.updateTagListPublic(tagText);
+          console.log(this.tagListPublic);
+        }
       }
       this.closeTag();
     }

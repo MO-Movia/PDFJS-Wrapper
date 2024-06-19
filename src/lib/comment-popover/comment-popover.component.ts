@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UtilService } from '../util.service';
 import { Comment } from '../util.service';
@@ -37,7 +37,12 @@ export class CommentPopoverComponent {
       ) as HTMLDivElement;
       const selectedText = selectedTagText.ariaLabel;
       if (selectedText != null) {
-        let comment: Comment = { text: selectedText, comment: this.newComment };
+        let comment: Comment = {
+          text: selectedText, comment: this.newComment,
+          id: '',
+          spanLocations: [],
+          editMode: false
+        };
         this.utilService.updateComments(comment);
         this.newComment = '';
         console.log(this.commentList);

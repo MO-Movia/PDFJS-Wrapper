@@ -18,5 +18,7 @@
     value="Private"
   />
   <label for="tag-private">Private</label><br />
-  <button class="ok-button" (click)="storeTag()">OK</button>
+  <button class="ok-button" [disabled]="!selectedTag" (click)="storeTag()">
+    OK
+  </button>
 </div>
