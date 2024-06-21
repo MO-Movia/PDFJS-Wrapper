@@ -3,22 +3,24 @@
   <button class="close-button" (click)="closeTag()">x</button>
   <div class="col-12 d-flex border-clr pt-1"></div>
   <input
-    type="radio"
+    type="checkbox"
     id="tag-public"
-    name="tag"
-    [(ngModel)]="selectedTag"
+    [(ngModel)]="selectedTagPublic"
     value="Public"
   />
   <label for="tag-public">Public</label><br />
   <input
-    type="radio"
+    type="checkbox"
     id="tag-private"
-    name="tag"
-    [(ngModel)]="selectedTag"
+    [(ngModel)]="selectedTagPrivate"
     value="Private"
   />
   <label for="tag-private">Private</label><br />
-  <button class="ok-button" [disabled]="!selectedTag" (click)="storeTag()">
+  <button
+    class="ok-button"
+    [disabled]="!(selectedTagPublic || selectedTagPrivate)"
+    (click)="storeTag()"
+  >
     OK
   </button>
 </div>

@@ -310,9 +310,18 @@
   filter: contrast(0.5);
 }
 
-#comment-box {
+.comment-box {
   cursor: pointer;
   padding-right: 38px;
+}
+
+.comment-box:hover,
+.comment-box:hover + .icon-span {
+  background-color: #dbd5d5;
+}
+
+.icon-span:hover {
+  background-color: #dbd5d5;
 }
 
 #tag-box {
@@ -338,11 +347,6 @@
   position: absolute;
   top: 5px;
   right: 0;
-}
-
-#comment-dropdown:hover {
-  background: #aca6a6;
-  border-radius: 2px;
 }
 
 .dropdown-content {
@@ -381,6 +385,11 @@
   width: 100%;
 }
 
+.right-panel-title {
+  font-size: 23px;
+  margin-top: 16px;
+}
+
 .button {
   margin: 10px;
   border: none;
@@ -399,13 +408,13 @@
 }
 
 .privateList .tag:hover {
-  background-color: #bbb7b7;
+  background-color: #dbd5d5;
   border-radius: 5px;
   margin-left: 2px;
 }
 
 .publicList .tag:hover {
-  background-color: #bbb7b7;
+  background-color: #dbd5d5;
   border-radius: 5px;
   margin-left: 2px;
 }
@@ -426,11 +435,11 @@
 }
 
 .publicList .public-item-close:hover {
-  background-color: #b1aaaa;
+  background-color: #a9a9a9;
 }
 
 .privateList .private-item-close:hover {
-  background-color: #b1aaaa;
+  background-color: #a9a9a9;
 }
 
 .private-item-close {

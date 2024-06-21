@@ -7,6 +7,7 @@ import {
   ApplicationRef,
   ElementRef,
   OnDestroy,
+  Renderer2,
 } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { provideAnimations } from '@angular/platform-browser/animations';
@@ -78,8 +79,11 @@ export class MoPdfViewerComponent implements OnDestroy {
   public tagListPublic: string[] = [];
   public tagListPrivate: string[] = [];
   public commentList: Comment[] = [];
+  public isOpenTag: boolean = false;
+  public isOpenComment: boolean = false;
   publicListVisible: boolean = false;
   privateListVisible: boolean = false;
+  isHovered: boolean = false;
 
   @ViewChild(NgxExtendedPdfViewerComponent)
   public pdfComponent!: NgxExtendedPdfViewerComponent;
@@ -100,17 +104,22 @@ export class MoPdfViewerComponent implements OnDestroy {
   private previousScrollLeft = 0;
   private highlightList: Highlight[] = [];
   dropdownVisible: any = {};
+  publicTagListCount: number = 0;
+  privateTagListCount: number = 0;
 
   constructor(
     private resolver: ComponentFactoryResolver,
     private injector: Injector,
     private appRef: ApplicationRef,
     private elementRef: ElementRef,
-    public utilService: UtilService
+    public utilService: UtilService,
+    public renderer: Renderer2
   ) {
     this.highlightList = utilService.gethighlightText();
     this.tagListPublic = utilService.getTagListPublic();
     this.tagListPrivate = utilService.getTagListPrivate();
+    this.publicTagListCount = this.tagListPublic.length;
+    this.privateTagListCount = this.tagListPrivate.length;
     this.commentList = utilService.getCommentList();
   }
 
@@ -158,9 +167,8 @@ export class MoPdfViewerComponent implements OnDestroy {
   }
 
   public showTagPopover(tagDetails: CommentTagEvent) {
-    if (this.popoverRef) {
-      this.closeCommentPopover();
-    }
+    this.closeCommentPopover();
+    this.isOpenTag = true;
     const popoverFactory =
       this.resolver.resolveComponentFactory(TagPopoverComponent);
     this.popoverRef = popoverFactory.create(this.injector);
@@ -175,15 +183,12 @@ export class MoPdfViewerComponent implements OnDestroy {
     );
     pdfViewerElement.removeEventListener('scroll', this.onPdfViewerScroll);
     pdfViewerElement.addEventListener('scroll', this.onPdfViewerScroll);
-    // setTimeout(() => {
-    //   document.addEventListener('click', this.onDocumentClick);
-    // }, 0);
+    this.renderer.listen('document', 'click', this.onDocumentClickTag);
   }
 
   private showCommentPopover(commentDetails: CommentTagEvent) {
-    if (this.popoverRef) {
-      this.closeCommentPopover();
-    }
+    this.closeCommentPopover();
+    this.isOpenComment = true;
 
     const popoverFactory = this.resolver.resolveComponentFactory(
       CommentPopoverComponent
@@ -192,23 +197,68 @@ export class MoPdfViewerComponent implements OnDestroy {
     this.popoverRef.instance.commentText = 'This is a comment';
 
     this.appRef.attachView(this.popoverRef.hostView);
-
     const popoverElement = (this.popoverRef.hostView as any)
       .rootNodes[0] as HTMLElement;
-
     popoverElement.style.display = 'block';
-
     commentDetails.parent.parentNode.parentElement.appendChild(popoverElement);
-
     this.commentDetails = commentDetails;
-
     const pdfViewerElement = this.elementRef.nativeElement.querySelector(
       'ngx-extended-pdf-viewer'
     );
     pdfViewerElement.removeEventListener('scroll', this.onPdfViewerScroll);
-
     pdfViewerElement.addEventListener('scroll', this.onPdfViewerScroll);
+    this.renderer.listen('document', 'click', this.onDocumentClickComment);
   }
+  private onDocumentClickTag = (event: MouseEvent) => {
+    if (this.popoverRef && this.popoverRef.hostView) {
+      const clickedInsidePopover =
+        this.popoverRef.hostView.rootNodes[0].contains(event.target as Node);
+
+      const tagElements = document.querySelectorAll('.tag');
+      let clickedInsideTag = false;
+
+      tagElements.forEach((tagElement) => {
+        if (tagElement.contains(event.target as Node)) {
+          clickedInsideTag = true;
+        }
+      });
+
+      if (!clickedInsidePopover && !clickedInsideTag) {
+        const popover = document.querySelector('.tag-popover') as HTMLElement;
+
+        if (this.isOpenTag) {
+          popover.style.display = 'none';
+        }
+        this.isOpenTag = false;
+      }
+    }
+  };
+  private onDocumentClickComment = (event: MouseEvent) => {
+    if (this.popoverRef && this.popoverRef.hostView) {
+      const clickedInsidePopover =
+        this.popoverRef.hostView.rootNodes[0].contains(event.target as Node);
+
+      const commentElements = document.querySelectorAll('.comment');
+      let clickedInsidecomment = false;
+
+      commentElements.forEach((commentElement) => {
+        if (commentElement.contains(event.target as Node)) {
+          clickedInsidecomment = true;
+        }
+      });
+
+      if (!clickedInsidePopover && !clickedInsidecomment) {
+        const popover = document.querySelector(
+          '.comment-popover-content'
+        ) as HTMLElement;
+
+        if (this.isOpenComment) {
+          popover.style.display = 'none';
+        }
+        this.isOpenTag = false;
+      }
+    }
+  };
 
   private onPdfViewerScroll = () => {
     if (this.popoverRef && this.commentDetails && this.tagDetails) {
@@ -226,7 +276,6 @@ export class MoPdfViewerComponent implements OnDestroy {
       this.popoverRef.destroy();
       this.popoverRef = null;
       this.commentDetails = null;
-
       const pdfViewerElement = this.elementRef.nativeElement.querySelector(
         'ngx-extended-pdf-viewer'
       );
@@ -314,6 +363,14 @@ export class MoPdfViewerComponent implements OnDestroy {
 
   public tagPrivateVisibility(): void {
     this.privateListVisible = !this.privateListVisible;
+  }
+
+  showMenu(comment: any) {
+    comment.isHovered = true;
+  }
+
+  hideMenu(comment: any) {
+    comment.isHovered = false;
   }
 
   ngOnDestroy() {

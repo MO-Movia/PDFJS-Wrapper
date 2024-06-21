@@ -1,7 +1,7 @@
 <div class="comment-popover-content">
   <div class="comment-header">
     <h5>Add Comment</h5>
-    <span class="close-tag" (click)="closeComment()">x</span>
+    <span class="close-comment" (click)="closeComment()">x</span>
   </div>
   <div class="comment-border"></div>
   <textarea
@@ -11,6 +11,6 @@
     class="comment-textarea"
   ></textarea>
   <div class="button-container">
-    <button (click)="onSubmit()">Submit</button>
+    <button class="submit-button" (click)="onSubmit()">Submit</button>
   </div>
 </div>

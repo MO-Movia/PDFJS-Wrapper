@@ -41,7 +41,8 @@ export class CommentPopoverComponent {
           text: selectedText, comment: this.newComment,
           id: '',
           spanLocations: [],
-          editMode: false
+          editMode: false,
+          isHovered: false
         };
         this.utilService.updateComments(comment);
         this.newComment = '';

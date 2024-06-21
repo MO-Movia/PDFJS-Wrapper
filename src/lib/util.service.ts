@@ -26,12 +26,20 @@ export class UtilService {
     return this.tagListPrivate;
   }
 
+  public getTagListPrivateCount(): number {
+    return this.tagListPrivate.length;
+  }
+
   public updateTagListPublic(tagPublic: string) {
     this.tagListPublic.push(tagPublic);
   }
 
   public getTagListPublic(): string[] {
     return this.tagListPublic;
+  }
+
+  public getTagListPublicCount(): number {
+    return this.tagListPublic.length;
   }
 
   public updateHighlightList(hightlight: Highlight) {

@@ -37,8 +37,12 @@ input {
   font-size: 12px;
   height: 25px;
   margin-top: 13px;
-  background: #00000082;
+  background: #1c1c1c82;
   letter-spacing: 1px;
+}
+
+.ok-button:hover {
+  background: #00000082;
 }
 
 .close-button {
