@@ -7,6 +7,7 @@
             <ngx-extended-pdf-viewer
               #pdfViewer
               (commentTagEvent)="commentTagPopover($event)"
+              (highlightTextEvent)="showHighlightedText($event)"
               [minifiedJSLibraries]="false"
               [customToolbar]="additionalButtons"
               [src]="pdfSrc"

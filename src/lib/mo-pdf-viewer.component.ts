@@ -26,6 +26,7 @@ import {
 import {
   CommentTagEvent,
   ShowCommentTagPopoverDetails,
+  showhighlightedtextEvent,
 } from 'ngx-extended-pdf-viewer/lib/events/annotation-editor-layer-event';
 import { CommentPopoverComponent } from './comment-popover/comment-popover.component';
 import { TagPopoverComponent } from './tag-popover/tag-popover.component';
@@ -102,7 +103,7 @@ export class MoPdfViewerComponent implements OnDestroy {
   private tagDetails: CommentTagEvent | null = null;
   private previousScrollTop = 0;
   private previousScrollLeft = 0;
-  private highlightList: Highlight[] = [];
+  public highlightList: string[] = [];
   dropdownVisible: any = {};
   publicTagListCount: number = 0;
   privateTagListCount: number = 0;
@@ -156,6 +157,10 @@ export class MoPdfViewerComponent implements OnDestroy {
 
   public selectSearchCategory(category: string): void {
     this.selectedSearchCategory = category;
+  }
+
+  public showHighlightedText(data:showhighlightedtextEvent) {
+   this.utilService.updateHighlightList(data.highlightedText);
   }
 
   public commentTagPopover(data: ShowCommentTagPopoverDetails) {
