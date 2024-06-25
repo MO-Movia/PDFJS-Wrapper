@@ -69,27 +69,37 @@
               />
             </svg>
             <h6 class="tag-type">Public</h6>
-            <div *ngIf="publicListVisible" class="publicList">
-              <ul
-                class="col"
+            <div class="tag-public-count">
+              {{ tagListPublic.length }}
+            </div>
+            <div *ngIf="publicListVisible">
+              <div
                 *ngFor="let tagPublic of tagListPublic; let i = index"
+                class="publicList"
+                (mouseenter)="onMouseEnter('public', i)"
+                (mouseleave)="onMouseLeave()"
               >
-                <li class="tag">
-                  <div>
-                    {{
-                      tagPublic.length > 40
-                        ? tagPublic.substring(0, 40) + "..."
-                        : tagPublic
-                    }}
-                    <p
-                      class="public-item-close"
-                      (click)="removeTag('public', i)"
-                    >
-                      X
-                    </p>
-                  </div>
-                </li>
-              </ul>
+                <ul class="col">
+                  <li class="tag-list">
+                    <div>
+                      {{
+                        tagPublic.length > 25
+                          ? tagPublic.substring(0, 25) + "..."
+                          : tagPublic
+                      }}
+                      <p
+                        class="public-item-close"
+                        [class.visible]="
+                          hoveredIndex === i && hoveredList === 'public'
+                        "
+                        (click)="removeTag('public', i)"
+                      >
+                        X
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
           <div class="privateList">
@@ -105,27 +115,37 @@
               />
             </svg>
             <h6 class="tag-type">Private</h6>
-            <div *ngIf="privateListVisible" class="privateList">
-              <ul
-                class="col"
+            <div class="tag-private-count">
+              {{ tagListPrivate.length }}
+            </div>
+            <div *ngIf="privateListVisible">
+              <div
                 *ngFor="let tagPrivate of tagListPrivate; let i = index"
+                class="privateList"
+                (mouseenter)="onMouseEnter('private', i)"
+                (mouseleave)="onMouseLeave()"
               >
-                <li class="tag">
-                  <div>
-                    {{
-                      tagPrivate.length > 40
-                        ? tagPrivate.substring(0, 40) + "..."
-                        : tagPrivate
-                    }}
-                    <p
-                      class="private-item-close"
-                      (click)="removeTag('private', i)"
-                    >
-                      X
-                    </p>
-                  </div>
-                </li>
-              </ul>
+                <ul class="col">
+                  <li class="tag-list">
+                    <div>
+                      {{
+                        tagPrivate.length > 25
+                          ? tagPrivate.substring(0, 25) + "..."
+                          : tagPrivate
+                      }}
+                      <p
+                        class="private-item-close"
+                        [class.visible]="
+                          hoveredIndex === i && hoveredList === 'private'
+                        "
+                        (click)="removeTag('private', i)"
+                      >
+                        X
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>

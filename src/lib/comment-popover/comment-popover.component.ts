@@ -38,11 +38,12 @@ export class CommentPopoverComponent {
       const selectedText = selectedTagText.ariaLabel;
       if (selectedText != null) {
         let comment: Comment = {
-          text: selectedText, comment: this.newComment,
+          text: selectedText,
+          comment: this.newComment,
           id: '',
           spanLocations: [],
           editMode: false,
-          isHovered: false
+          isHovered: false,
         };
         this.utilService.updateComments(comment);
         this.newComment = '';

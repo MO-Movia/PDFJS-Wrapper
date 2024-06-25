@@ -96,6 +96,8 @@ export class MoPdfViewerComponent implements OnDestroy {
       'ngx-extended-pdf-viewer'
     );
     pdfViewerElement.addEventListener('scroll', this.onPdfViewerScroll);
+
+    this.NodeObjectArray();
   }
 
   private popoverRef: any;
@@ -104,9 +106,9 @@ export class MoPdfViewerComponent implements OnDestroy {
   private previousScrollTop = 0;
   private previousScrollLeft = 0;
   public highlightList: string[] = [];
-  dropdownVisible: any = {};
-  publicTagListCount: number = 0;
-  privateTagListCount: number = 0;
+  public dropdownVisible: any = {};
+  hoveredList: 'private' | 'public' | null = null;
+  hoveredIndex: number | null = null;
 
   constructor(
     private resolver: ComponentFactoryResolver,
@@ -119,9 +121,25 @@ export class MoPdfViewerComponent implements OnDestroy {
     this.highlightList = utilService.gethighlightText();
     this.tagListPublic = utilService.getTagListPublic();
     this.tagListPrivate = utilService.getTagListPrivate();
-    this.publicTagListCount = this.tagListPublic.length;
-    this.privateTagListCount = this.tagListPrivate.length;
     this.commentList = utilService.getCommentList();
+  }
+
+  public NodeObjectArray(): void {
+    const pdfObject = {
+      tagListPrivate: this.utilService.getTagListPrivate(),
+      tagListPublic: this.utilService.getTagListPublic(),
+      commentList: this.utilService.getCommentList(),
+      highlightList: this.utilService.gethighlightText(),
+    };
+    console.log(pdfObject);
+    type objType = {
+      objId: number;
+      objValue: Object;
+    };
+
+    let objArray: Array<objType> = [{ objId: 1, objValue: pdfObject }];
+    console.log(objArray[0].objId);
+    console.log(objArray[0].objValue);
   }
 
   public I = {
@@ -159,8 +177,8 @@ export class MoPdfViewerComponent implements OnDestroy {
     this.selectedSearchCategory = category;
   }
 
-  public showHighlightedText(data:showhighlightedtextEvent) {
-   this.utilService.updateHighlightList(data.highlightedText);
+  public showHighlightedText(data: showhighlightedtextEvent) {
+    this.utilService.updateHighlightList(data.highlightedText);
   }
 
   public commentTagPopover(data: ShowCommentTagPopoverDetails) {
@@ -376,6 +394,16 @@ export class MoPdfViewerComponent implements OnDestroy {
 
   hideMenu(comment: any) {
     comment.isHovered = false;
+  }
+
+  onMouseEnter(list: 'private' | 'public', index: number): void {
+    this.hoveredIndex = index;
+    this.hoveredList = list;
+  }
+
+  onMouseLeave(): void {
+    this.hoveredIndex = null;
+    this.hoveredList = null;
   }
 
   ngOnDestroy() {

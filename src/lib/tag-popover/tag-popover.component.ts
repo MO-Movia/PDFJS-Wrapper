@@ -26,14 +26,10 @@ export class TagPopoverComponent {
   public tagListPublic: string[] = [];
   selectedTagPublic: boolean = false;
   selectedTagPrivate: boolean = false;
-  publicTagListCount: number = 0;
-  privateTagListCount: number = 0;
 
   constructor(public utilService: UtilService) {
     this.tagListPrivate = this.utilService.getTagListPrivate();
     this.tagListPublic = this.utilService.getTagListPublic();
-    this.publicTagListCount = this.tagListPublic.length;
-    this.privateTagListCount = this.tagListPrivate.length;
   }
   public closeTag(): void {
     const popover = document.querySelector('.tag-popover') as HTMLElement;
@@ -59,18 +55,8 @@ export class TagPopoverComponent {
         } else if (this.selectedTagPublic) {
           this.utilService.updateTagListPublic(tagText);
         }
-        this.updateTagCounts();
-        console.log(`Private Tags: ${this.tagListPrivate}`);
-        console.log(`Public Tags: ${this.tagListPublic}`);
-        console.log(`Private Tag Count: ${this.privateTagListCount}`);
-        console.log(`Public Tag Count: ${this.publicTagListCount}`);
       }
       this.closeTag();
     }
-  }
-
-  public updateTagCounts(): void {
-    this.publicTagListCount = this.utilService.getTagListPublic().length;
-    this.privateTagListCount = this.utilService.getTagListPrivate().length;
   }
 }
