@@ -45,6 +45,37 @@
             <h3 class="right-panel-title">Highlights:</h3>
           </div>
         </div>
+        <div class="row flex-grow-1 tag-container">
+          <div class="highlightlist">
+            <div
+              *ngFor="let highlight of highlightList; let i = index"
+              class="highlight-list"
+              (mouseenter)="onMouseEnter('highlight', i)"
+              (mouseleave)="onMouseLeave()"
+            >
+              <ul class="col">
+                <li class="highlights-list">
+                  <div>
+                    {{
+                      highlight.length > 25
+                        ? highlight.substring(0, 25) + "..."
+                        : highlight
+                    }}
+                    <p
+                      class="highlight-close"
+                      [class.visible]="
+                        hoveredIndex === i && hoveredList === 'highlight'
+                      "
+                      (click)="removeHighlight(i)"
+                    >
+                      X
+                    </p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
         <div class="row highlight-container"></div>
       </div>
 

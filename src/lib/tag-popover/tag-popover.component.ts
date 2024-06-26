@@ -10,6 +10,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { NgxExtendedPdfViewerComponent } from 'ngx-extended-pdf-viewer';
 import { UtilService } from '../util.service';
+import { MoPdfViewerComponent } from '../mo-pdf-viewer.component';
 @Component({
   selector: 'app-tag-popover',
   templateUrl: './tag-popover.component.html',
@@ -20,6 +21,8 @@ import { UtilService } from '../util.service';
 export class TagPopoverComponent {
   @ViewChild(NgxExtendedPdfViewerComponent)
   public pdfComponent!: NgxExtendedPdfViewerComponent;
+  @ViewChild(MoPdfViewerComponent) pdfViewer!: MoPdfViewerComponent;
+
   public closePopover: boolean = false;
   public selectedTag: string = '';
   public tagListPrivate: string[] = [];
@@ -47,6 +50,20 @@ export class TagPopoverComponent {
       const tagText = selectedTagText?.ariaLabel;
 
       if (tagText != null) {
+        let highlightList = this.utilService.gethighlightText();
+        const normalizedTagText = tagText.trim().toLowerCase();
+        if (
+          highlightList.some(
+            (word) => word.trim().toLowerCase() === normalizedTagText
+          )
+        ) {
+          highlightList = highlightList.filter(
+            (word) => word.trim().toLowerCase() !== normalizedTagText
+          );
+          console.log('The updated highlightList is: ', highlightList);
+          this.utilService.updatedHighlightList(highlightList);
+        }
+
         if (this.selectedTagPrivate && this.selectedTagPublic) {
           this.utilService.updateTagListPrivate(tagText);
           this.utilService.updateTagListPublic(tagText);

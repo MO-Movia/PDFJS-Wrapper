@@ -8,10 +8,9 @@ describe('CommentPopoverComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CommentPopoverComponent]
-    })
-    .compileComponents();
-    
+      imports: [CommentPopoverComponent],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(CommentPopoverComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

@@ -36,7 +36,21 @@ export class CommentPopoverComponent {
         '.selectedEditor'
       ) as HTMLDivElement;
       const selectedText = selectedTagText.ariaLabel;
+
       if (selectedText != null) {
+        let highlightList = this.utilService.gethighlightText();
+        const normalizedTagText = selectedText.trim().toLowerCase();
+        if (
+          highlightList.some(
+            (word) => word.trim().toLowerCase() === normalizedTagText
+          )
+        ) {
+          highlightList = highlightList.filter(
+            (word) => word.trim().toLowerCase() !== normalizedTagText
+          );
+          console.log('The updated highlightList is: ', highlightList);
+          this.utilService.updatedHighlightList(highlightList);
+        }
         let comment: Comment = {
           text: selectedText,
           comment: this.newComment,

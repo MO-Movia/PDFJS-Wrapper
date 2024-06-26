@@ -8,6 +8,7 @@ import {
   ElementRef,
   OnDestroy,
   Renderer2,
+  SimpleChanges,
 } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { provideAnimations } from '@angular/platform-browser/animations';
@@ -107,7 +108,7 @@ export class MoPdfViewerComponent implements OnDestroy {
   private previousScrollLeft = 0;
   public highlightList: string[] = [];
   public dropdownVisible: any = {};
-  hoveredList: 'private' | 'public' | null = null;
+  hoveredList: 'private' | 'public' | null | 'highlight' = null;
   hoveredIndex: number | null = null;
 
   constructor(
@@ -179,6 +180,7 @@ export class MoPdfViewerComponent implements OnDestroy {
 
   public showHighlightedText(data: showhighlightedtextEvent) {
     this.utilService.updateHighlightList(data.highlightedText);
+    this.highlightList = this.utilService.gethighlightText();
   }
 
   public commentTagPopover(data: ShowCommentTagPopoverDetails) {
@@ -225,6 +227,7 @@ export class MoPdfViewerComponent implements OnDestroy {
     popoverElement.style.display = 'block';
     commentDetails.parent.parentNode.parentElement.appendChild(popoverElement);
     this.commentDetails = commentDetails;
+
     const pdfViewerElement = this.elementRef.nativeElement.querySelector(
       'ngx-extended-pdf-viewer'
     );
@@ -254,6 +257,9 @@ export class MoPdfViewerComponent implements OnDestroy {
         }
         this.isOpenTag = false;
       }
+      if (clickedInsidePopover) {
+        this.highlightList = this.utilService.gethighlightText();
+      }
     }
   };
   private onDocumentClickComment = (event: MouseEvent) => {
@@ -279,6 +285,9 @@ export class MoPdfViewerComponent implements OnDestroy {
           popover.style.display = 'none';
         }
         this.isOpenTag = false;
+      }
+      if (clickedInsidePopover) {
+        this.highlightList = this.utilService.gethighlightText();
       }
     }
   };
@@ -367,7 +376,9 @@ export class MoPdfViewerComponent implements OnDestroy {
       this.commentList.splice(index, 1);
     }
   }
-
+  public removeHighlight(index: number) {
+    this.highlightList.splice(index, 1);
+  }
   removeTag(type: 'public' | 'private', index: number) {
     if (type === 'public') {
       this.tagListPublic.splice(index, 1);
@@ -396,7 +407,7 @@ export class MoPdfViewerComponent implements OnDestroy {
     comment.isHovered = false;
   }
 
-  onMouseEnter(list: 'private' | 'public', index: number): void {
+  onMouseEnter(list: 'private' | 'public' | 'highlight', index: number): void {
     this.hoveredIndex = index;
     this.hoveredList = list;
   }

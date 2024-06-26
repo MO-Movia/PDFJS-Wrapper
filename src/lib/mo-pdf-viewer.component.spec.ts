@@ -51,7 +51,7 @@ describe('MoPdfViewerComponent', () => {
   //     location: {
   //       nativeElement: element,
   //     },
-   // } as ComponentRef<TextOptionsComponent>);
+  // } as ComponentRef<TextOptionsComponent>);
   //   spyOn(mouseEvent, 'composedPath').and.returnValue([element as Element]);
   //   component.showOptions(mouseEvent as MouseEvent);
   //   expect(window.getSelection).toHaveBeenCalledTimes(0);
@@ -82,9 +82,9 @@ describe('MoPdfViewerComponent', () => {
   //   spyOn(compRef.instance.privateTagClicked, 'subscribe');
   //   spyOn(compRef.instance.highlightClicked, 'subscribe');
   //   spyOn(compRef.instance.removeRequested, 'subscribe');
-   // spyOn(ref, 'createComponent').and.returnValue(
-     // compRef as ComponentRef<TextOptionsComponent>
-    //);
+  // spyOn(ref, 'createComponent').and.returnValue(
+  // compRef as ComponentRef<TextOptionsComponent>
+  //);
   //   spyOn(window, 'getSelection');
   //   const mouseEvent = {
   //     clientX: 5,

@@ -408,16 +408,30 @@
   margin: 2px 15px -27px 14px;
   border-radius: 5px;
 }
+.highlight-list {
+  margin: 2px 15px -27px 14px;
+  border-radius: 5px;
+}
 
 .tag-list {
   width: 78%;
   margin: -25px 0 30px 0;
+}
+.highlight-list {
+  width: 78%;
+  margin: 7px 5px 30px 0;
 }
 
 .privateList .tag-list:hover {
   background-color: #dbd5d5;
   margin-left: 2px;
   cursor: pointer;
+}
+
+.highlightlist .highlights-list:hover {
+  background-color: #dbd5d5;
+  border-radius: 5px;
+  margin-left: 2px;
 }
 
 .publicList .tag-list:hover {
@@ -443,6 +457,9 @@
 .privateList .private-item-close:hover {
   color: #807d7d;
 }
+.highlightlist .highlight-close:hover {
+  color: #807d7d;
+}
 
 .private-item-close {
   cursor: pointer;
@@ -455,10 +472,19 @@
 }
 
 .private-item-close.visible,
-.public-item-close.visible {
+.public-item-close.visible .highlight-close.visible {
   visibility: visible;
 }
 .public-item-close {
+  cursor: pointer;
+  text-align: center;
+  width: 23px;
+  margin-left: 88%;
+  margin-top: -24px;
+  font-weight: 600;
+  visibility: hidden;
+}
+.highlight-close {
   cursor: pointer;
   text-align: center;
   width: 23px;
