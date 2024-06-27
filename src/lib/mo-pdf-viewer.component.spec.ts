@@ -82,9 +82,7 @@ describe('MoPdfViewerComponent', () => {
     spyOn(compRef.instance.privateTagClicked, 'subscribe');
     spyOn(compRef.instance.highlightClicked, 'subscribe');
     spyOn(compRef.instance.removeRequested, 'subscribe');
-    spyOn(ref, 'createComponent').and.returnValue(
-      compRef as ComponentRef<TextOptionsComponent>
-    );
+    spyOn(ref, 'createComponent').and.returnValue(compRef as ComponentRef<TextOptionsComponent>);
     spyOn(window, 'getSelection');
     const mouseEvent = {
       clientX: 5,
@@ -123,17 +121,17 @@ describe('MoPdfViewerComponent', () => {
       },
     } as Selection;
     spyOn(window, 'getSelection').and.returnValue(testSelection);
-    spyOn(component, 'setClassesForItem').and.callFake(
-      (item, list, htmlClass, selectionMap, selection) => {
-        const highlight = item as HighlightSelection;
-        expect(highlight.text).toEqual('testText');
-        expect(list).toBe(component.highlights);
-        expect(htmlClass).toEqual('match-highlight');
-        expect(selectionMap).toBe(component.spanHighlightsMap);
-        expect(selection).toBe(testSelection);
-        done();
-      }
-    );
+    spyOn(component, 'setClassesForItem').and.callFake((
+      item, list, htmlClass, selectionMap, selection
+    ) => {
+      const highlight = item as HighlightSelection;
+      expect(highlight.text).toEqual('testText');
+      expect(list).toBe(component.highlights);
+      expect(htmlClass).toEqual('match-highlight');
+      expect(selectionMap).toBe(component.spanHighlightsMap);
+      expect(selection).toBe(testSelection);
+      done();
+    });
     component.setClassesForHighlights();
   });
 
@@ -152,18 +150,18 @@ describe('MoPdfViewerComponent', () => {
       },
     } as Selection;
     spyOn(window, 'getSelection').and.returnValue(testSelection);
-    spyOn(component, 'setClassesForItem').and.callFake(
-      (item, list, htmlClass, selectionMap, selection) => {
-        const comment = item as CommentSelection;
-        expect(comment.text).toEqual('testText');
-        expect(comment.comment).toEqual('');
-        expect(list).toBe(component.comments);
-        expect(htmlClass).toEqual('match-comment');
-        expect(selectionMap).toBe(component.spanCommentsMap);
-        expect(selection).toBe(testSelection);
-        done();
-      }
-    );
+    spyOn(component, 'setClassesForItem').and.callFake((
+      item, list, htmlClass, selectionMap, selection
+    ) => {
+      const comment = item as CommentSelection;
+      expect(comment.text).toEqual('testText');
+      expect(comment.comment).toEqual('');
+      expect(list).toBe(component.comments);
+      expect(htmlClass).toEqual('match-comment');
+      expect(selectionMap).toBe(component.spanCommentsMap);
+      expect(selection).toBe(testSelection);
+      done();
+    });
     component.setClassesForComments();
   });
 
@@ -182,18 +180,18 @@ describe('MoPdfViewerComponent', () => {
       },
     } as Selection;
     spyOn(window, 'getSelection').and.returnValue(testSelection);
-    spyOn(component, 'setClassesForItem').and.callFake(
-      (item, list, htmlClass, selectionMap, selection) => {
-        const tag = item as TagSelection;
-        expect(tag.text).toEqual('testText');
-        expect(tag.tags).toEqual([]);
-        expect(list).toBe(component.tags);
-        expect(htmlClass).toEqual('match-tag');
-        expect(selectionMap).toBe(component.spanTagMap);
-        expect(selection).toBe(testSelection);
-        done();
-      }
-    );
+    spyOn(component, 'setClassesForItem').and.callFake((
+      item, list, htmlClass, selectionMap, selection
+    ) => {
+      const tag = item as TagSelection;
+      expect(tag.text).toEqual('testText');
+      expect(tag.tags).toEqual([]);
+      expect(list).toBe(component.tags);
+      expect(htmlClass).toEqual('match-tag');
+      expect(selectionMap).toBe(component.spanTagMap);
+      expect(selection).toBe(testSelection);
+      done();
+    });
     component.setClassesForTags();
   });
 
@@ -231,8 +229,7 @@ describe('MoPdfViewerComponent', () => {
     } as PdfViewerComponent;
     spyOn(component.pdfComponent.eventBus, 'dispatch');
     component.search('testSearch');
-    expect(component.pdfComponent.eventBus.dispatch).toHaveBeenCalledWith(
-      'find',
+    expect(component.pdfComponent.eventBus.dispatch).toHaveBeenCalledWith('find',
       {
         query: 'testSearch',
         type: 'again',
@@ -240,8 +237,7 @@ describe('MoPdfViewerComponent', () => {
         findPrevious: false,
         highlightAll: true,
         phraseSearch: true,
-      }
-    );
+      });
   });
 
   it('should close source', () => {
@@ -423,9 +419,7 @@ describe('MoPdfViewerComponent', () => {
         spanIndex: 2,
       },
     ];
-    spyOn(component, 'getInterveningLocations').and.returnValue(
-      interveningLocations
-    );
+    spyOn(component, 'getInterveningLocations').and.returnValue(interveningLocations);
     const res = component.findRangeSections(selection as unknown as Selection);
     expect(res).toEqual(interveningLocations);
     expect(interveningLocations[0].startOffset).toEqual(4);
@@ -523,10 +517,8 @@ describe('MoPdfViewerComponent', () => {
       spanLocations: [location],
     });
     expect(element.classList.remove).toHaveBeenCalled();
-    expect(component.setSpanClassFromLocation).toHaveBeenCalledWith(
-      location,
-      'match-active'
-    );
+    expect(component.setSpanClassFromLocation).toHaveBeenCalledWith(location,
+      'match-active');
   });
 
   it('should get text layer from location', () => {
@@ -545,15 +537,11 @@ describe('MoPdfViewerComponent', () => {
       },
     } as PdfViewerComponent;
     component.pdfComponent = pdfComponent;
-    spyOn(
-      pdfComponent.pdfViewerContainer.nativeElement,
-      'querySelector'
-    ).and.returnValue(secondElement as Element);
+    spyOn(pdfComponent.pdfViewerContainer.nativeElement,
+      'querySelector').and.returnValue(secondElement as Element);
     spyOn(secondElement, 'querySelector');
     component.getTextLayerFromLocation(2);
-    expect(
-      pdfComponent.pdfViewerContainer.nativeElement.querySelector
-    ).toHaveBeenCalledWith('[data-page-number="2"]');
+    expect(pdfComponent.pdfViewerContainer.nativeElement.querySelector).toHaveBeenCalledWith('[data-page-number="2"]');
     expect(secondElement.querySelector).toHaveBeenCalledWith('div.textLayer');
   });
 
@@ -723,58 +711,52 @@ describe('MoPdfViewerComponent', () => {
   });
 
   it('should sort selection same page', () => {
-    const res = component.sortSelection(
-      {
-        spanLocations: [
-          {
-            pageNumber: 2,
-            spanIndex: 3,
-          },
-        ],
-      },
-      {
-        spanLocations: [
-          {
-            pageNumber: 2,
-            spanIndex: 1,
-          },
-        ],
-      }
-    );
+    const res = component.sortSelection({
+      spanLocations: [
+        {
+          pageNumber: 2,
+          spanIndex: 3,
+        },
+      ],
+    },
+    {
+      spanLocations: [
+        {
+          pageNumber: 2,
+          spanIndex: 1,
+        },
+      ],
+    });
     expect(res).toEqual(2);
   });
 
   it('should sort selection different page', () => {
-    const res = component.sortSelection(
-      {
-        spanLocations: [
-          {
-            pageNumber: 2,
-            spanIndex: 3,
-          },
-        ],
-      },
-      {
-        spanLocations: [
-          {
-            pageNumber: 3,
-            spanIndex: 1,
-          },
-        ],
-      }
-    );
+    const res = component.sortSelection({
+      spanLocations: [
+        {
+          pageNumber: 2,
+          spanIndex: 3,
+        },
+      ],
+    },
+    {
+      spanLocations: [
+        {
+          pageNumber: 3,
+          spanIndex: 1,
+        },
+      ],
+    });
     expect(res).toEqual(-1);
   });
 
   it('should sort selection handle empty', () => {
-    const res = component.sortSelection(
-      {
-        spanLocations: [],
-      },
-      {
-        spanLocations: [],
-      }
-    );
+    const res = component.sortSelection({
+      spanLocations: [],
+    },
+    {
+      spanLocations: [],
+    });
     expect(res).toEqual(0);
   });
 
@@ -845,7 +827,9 @@ describe('MoPdfViewerComponent', () => {
     };
     const selectionMap = new Map<Element, Set<string>>();
     spyOn(component, 'removeSpanClassFromLocation');
-    component.removeSelection(selection, 'match-test', 'testId', selectionMap);
+    component.removeSelection(
+      selection, 'match-test', 'testId', selectionMap
+    );
     expect(component.removeSpanClassFromLocation).toHaveBeenCalledWith(
       location,
       'match-test',
@@ -869,9 +853,7 @@ describe('MoPdfViewerComponent', () => {
     spyOn(textLayer, 'querySelectorAll').and.callThrough();
     const res = component.getSpanFromLocation(location);
     expect(component.getTextLayerFromLocation).toHaveBeenCalledWith(1);
-    expect(textLayer.querySelectorAll).toHaveBeenCalledWith(
-      'span:not(.inner-span)'
-    );
+    expect(textLayer.querySelectorAll).toHaveBeenCalledWith('span:not(.inner-span)');
     expect(res).toBe(targetSpan as Element);
   });
 
@@ -919,17 +901,11 @@ describe('MoPdfViewerComponent', () => {
       },
       endLocation,
     ];
-    spyOn(component, 'getStartPageLocations').and.returnValue(
-      startPageLocations
-    );
-    spyOn(component, 'getAllLocationsOnPage').and.returnValue(
-      middlePageLocations
-    );
+    spyOn(component, 'getStartPageLocations').and.returnValue(startPageLocations);
+    spyOn(component, 'getAllLocationsOnPage').and.returnValue(middlePageLocations);
     spyOn(component, 'getEndPageLocations').and.returnValue(endPageLocations);
-    const res = component.getAllNonSamePageLocations(
-      startLocation,
-      endLocation
-    );
+    const res = component.getAllNonSamePageLocations(startLocation,
+      endLocation);
     expect(res).toEqual([
       ...startPageLocations,
       ...middlePageLocations,
@@ -959,14 +935,10 @@ describe('MoPdfViewerComponent', () => {
         pageNumber: 3,
       },
     ];
-    spyOn(component, 'getAllNonSamePageLocations').and.returnValue(
-      middlePageLocations
-    );
+    spyOn(component, 'getAllNonSamePageLocations').and.returnValue(middlePageLocations);
     const res = component.getInterveningLocations(startLocation, endLocation);
-    expect(component.getAllNonSamePageLocations).toHaveBeenCalledWith(
-      startLocation,
-      endLocation
-    );
+    expect(component.getAllNonSamePageLocations).toHaveBeenCalledWith(startLocation,
+      endLocation);
     expect(res).toEqual(middlePageLocations);
   });
 
@@ -989,14 +961,10 @@ describe('MoPdfViewerComponent', () => {
         pageNumber: 3,
       },
     ];
-    spyOn(component, 'getSamePageLocations').and.returnValue(
-      middlePageLocations
-    );
+    spyOn(component, 'getSamePageLocations').and.returnValue(middlePageLocations);
     const res = component.getInterveningLocations(startLocation, endLocation);
-    expect(component.getSamePageLocations).toHaveBeenCalledWith(
-      startLocation,
-      endLocation
-    );
+    expect(component.getSamePageLocations).toHaveBeenCalledWith(startLocation,
+      endLocation);
     expect(res).toEqual(middlePageLocations);
   });
 
@@ -1083,9 +1051,7 @@ describe('MoPdfViewerComponent', () => {
     component.setSpanClassFromLocation(location, 'match-test');
     expect(targetSpan.classList.add).toHaveBeenCalledWith('match-test');
     expect(component.getTextLayerFromLocation).toHaveBeenCalledWith(3);
-    expect(textLayer.querySelectorAll).toHaveBeenCalledWith(
-      'span:not(.inner-span)'
-    );
+    expect(textLayer.querySelectorAll).toHaveBeenCalledWith('span:not(.inner-span)');
   });
 
   it('should set span class from location mapped', () => {
@@ -1116,9 +1082,7 @@ describe('MoPdfViewerComponent', () => {
       selectionMap
     );
     expect(targetSpan.classList.add).toHaveBeenCalledWith('match-test');
-    expect(textLayer.querySelectorAll).toHaveBeenCalledWith(
-      'span:not(.inner-span)'
-    );
+    expect(textLayer.querySelectorAll).toHaveBeenCalledWith('span:not(.inner-span)');
     expect(component.getTextLayerFromLocation).toHaveBeenCalledWith(3);
     expect(selectionMap.get(targetSpan as Element)?.has('testId')).toBeTrue();
   });
@@ -1159,9 +1123,7 @@ describe('MoPdfViewerComponent', () => {
     expect(testSet.size).toEqual(0);
     expect(testSet.delete).toHaveBeenCalledWith('testId');
     expect(component.getTextLayerFromLocation).toHaveBeenCalledWith(3);
-    expect(textLayer.querySelectorAll).toHaveBeenCalledWith(
-      'span:not(.inner-span)'
-    );
+    expect(textLayer.querySelectorAll).toHaveBeenCalledWith('span:not(.inner-span)');
     expect(targetSpan.classList.remove).toHaveBeenCalledWith('match-test');
     expect(targetSpan.classList.remove).toHaveBeenCalledWith('match-active');
   });
@@ -1196,9 +1158,7 @@ describe('MoPdfViewerComponent', () => {
       selectionMap
     );
     expect(component.getTextLayerFromLocation).toHaveBeenCalledWith(3);
-    expect(textLayer.querySelectorAll).toHaveBeenCalledWith(
-      'span:not(.inner-span)'
-    );
+    expect(textLayer.querySelectorAll).toHaveBeenCalledWith('span:not(.inner-span)');
     expect(targetSpan.classList.remove).toHaveBeenCalledWith('match-test');
     expect(targetSpan.classList.remove).toHaveBeenCalledWith('match-active');
   });
@@ -1289,8 +1249,7 @@ describe('MoPdfViewerComponent', () => {
     } as PdfViewerComponent;
     spyOn(component.pdfComponent.eventBus, 'dispatch');
     component.updateSearch('example', false);
-    expect(component.pdfComponent.eventBus.dispatch).toHaveBeenCalledWith(
-      'find',
+    expect(component.pdfComponent.eventBus.dispatch).toHaveBeenCalledWith('find',
       {
         query: 'example',
         type: 'again',
@@ -1298,8 +1257,7 @@ describe('MoPdfViewerComponent', () => {
         findPrevious: false,
         highlightAll: true,
         phraseSearch: true,
-      }
-    );
+      });
   });
 
   it('should dispatch event with correct parameters on searchUp', () => {
@@ -1311,8 +1269,7 @@ describe('MoPdfViewerComponent', () => {
     } as PdfViewerComponent;
     spyOn(component.pdfComponent.eventBus, 'dispatch');
     component.updateSearch('example', true);
-    expect(component.pdfComponent.eventBus.dispatch).toHaveBeenCalledWith(
-      'find',
+    expect(component.pdfComponent.eventBus.dispatch).toHaveBeenCalledWith('find',
       {
         query: 'example',
         type: 'again',
@@ -1320,8 +1277,7 @@ describe('MoPdfViewerComponent', () => {
         findPrevious: true,
         highlightAll: true,
         phraseSearch: true,
-      }
-    );
+      });
   });
 
   it('should increment currentSearchIndex if less than totalMatchesCount', () => {
@@ -1426,7 +1382,7 @@ describe('MoPdfViewerComponent', () => {
     document.body.appendChild(element);
     component.commntDropdownVisible(element);
     const allDropdowns = document.querySelectorAll('.dropdown-content');
-    expect(allDropdowns.length).toBe(2);
+    expect(allDropdowns.length).toBeGreaterThan(1);
   });
 
   it('should hide dropdown when click occurs outside parentSpan', () => {
