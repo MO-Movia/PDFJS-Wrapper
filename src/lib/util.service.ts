@@ -16,7 +16,7 @@ export class UtilService {
   public tagListPrivate: string[] = [];
   public tagListPublic: string[] = [];
   private commentList: Comment[] = [];
-  private highlightList: string[] = [];
+  private highlightList: any[] = [];
 
   public updateTagListPrivate(tagPrivate: string) {
     this.tagListPrivate.push(tagPrivate);
@@ -34,11 +34,10 @@ export class UtilService {
     return this.tagListPublic;
   }
 
-  public updateHighlightList(hightlight: string) {
+  public updateHighlightList(hightlight: any) {
     this.highlightList.push(hightlight);
   }
-
-  public gethighlightText(): string[] {
+  public gethighlightText(): any[] {
     return this.highlightList;
   }
 
@@ -49,7 +48,7 @@ export class UtilService {
   public getCommentList(): Comment[] {
     return this.commentList;
   }
-  public updatedHighlightList(highlight: string[]) {
+  public updatedHighlightList(highlight: any[]) {
     this.highlightList = highlight.slice();
   }
 

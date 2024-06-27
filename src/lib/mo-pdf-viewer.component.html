@@ -7,7 +7,7 @@
             <ngx-extended-pdf-viewer
               #pdfViewer
               (commentTagEvent)="commentTagPopover($event)"
-              (highlightTextEvent)="showHighlightedText($event)"
+              (highlightArrayEvent)="showHighlightedArray($event)"
               [minifiedJSLibraries]="false"
               [customToolbar]="additionalButtons"
               [src]="pdfSrc"
@@ -56,11 +56,11 @@
               <ul class="col">
                 <li class="highlights-list">
                   <div>
-                    {{
+                    <!-- {{
                       highlight.length > 25
                         ? highlight.substring(0, 25) + "..."
                         : highlight
-                    }}
+                    }} -->
                     <p
                       class="highlight-close"
                       [class.visible]="
