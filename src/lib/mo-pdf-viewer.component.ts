@@ -8,7 +8,7 @@ import {
   ElementRef,
   OnDestroy,
   Renderer2,
-  SimpleChanges,
+  OnInit,
 } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { provideAnimations } from '@angular/platform-browser/animations';
@@ -72,7 +72,7 @@ import { SpanLocation } from './models/span-location.model';
   templateUrl: './mo-pdf-viewer.component.html',
   styleUrls: ['./mo-pdf-viewer.component.scss'],
 })
-export class MoPdfViewerComponent implements OnDestroy {
+export class MoPdfViewerComponent implements OnDestroy, OnInit {
   @Input({ required: true }) public pdfSrc: string | Uint8Array = '';
   @Input() public documentTitle = '';
   @Input() public documentClassification = 'Unclassified';
@@ -83,16 +83,21 @@ export class MoPdfViewerComponent implements OnDestroy {
   public commentList: Comment[] = [];
   public isOpenTag: boolean = false;
   public isOpenComment: boolean = false;
-  publicListVisible: boolean = false;
-  privateListVisible: boolean = false;
-  isHovered: boolean = false;
+  public publicListVisible: boolean = false;
+  public privateListVisible: boolean = false;
+  public isHovered: boolean = false;
+  highlightText: string | undefined;
+  highlightTextArray: string[] = [];
+  commentTextArray: string[] = [];
+  textType: string | undefined;
 
   @ViewChild(NgxExtendedPdfViewerComponent)
   public pdfComponent!: NgxExtendedPdfViewerComponent;
 
-  @ViewChild(TagPopoverComponent) tagPopoverComponent!: TagPopoverComponent;
+  @ViewChild(TagPopoverComponent)
+  public tagPopoverComponent!: TagPopoverComponent;
 
-  ngOnInit() {
+  public ngOnInit(): void {
     const pdfViewerElement = this.elementRef.nativeElement.querySelector(
       'ngx-extended-pdf-viewer'
     );
@@ -108,8 +113,8 @@ export class MoPdfViewerComponent implements OnDestroy {
   private previousScrollLeft = 0;
   public highlightList: null[] = [];
   public dropdownVisible: any = {};
-  hoveredList: 'private' | 'public' | null | 'highlight' = null;
-  hoveredIndex: number | null = null;
+  public hoveredList: 'private' | 'public' | null | 'highlight' = null;
+  public hoveredIndex: number | null = null;
 
   constructor(
     private resolver: ComponentFactoryResolver,
@@ -130,12 +135,12 @@ export class MoPdfViewerComponent implements OnDestroy {
       tagListPrivate: this.utilService.getTagListPrivate(),
       tagListPublic: this.utilService.getTagListPublic(),
       commentList: this.utilService.getCommentList(),
-      highlightList: this.utilService.gethighlightText(),
+      highlightList: this.highlightTextArray,
     };
     console.log(pdfObject);
     type objType = {
       objId: number;
-      objValue: Object;
+      objValue: unknown;
     };
 
     let objArray: Array<objType> = [{ objId: 1, objValue: pdfObject }];
@@ -178,13 +183,40 @@ export class MoPdfViewerComponent implements OnDestroy {
     this.selectedSearchCategory = category;
   }
 
-  public showHighlightedArray(data:showhighlightedArrayEvent) {
-   //this.utilService.updateHighlightList(data.highlightedText);
-   const highlightedArray = data.highlightedText;
-   const highlightArray = highlightedArray.editor.parent.editors;
+  public showHighlightedArray(data: showhighlightedArrayEvent) {
+    console.log('data:', data);
+    const currentEditorValues = Array.from(
+      data.highlightedText.parent.editors.values()
+    ) as { text: string }[];
+    for (const [key, value] of data.highlightedText.parent.editors.entries()) {
+      console.log('Editor key:', key);
+    }
+    if (data.highlightedText) {
+      this.highlightText = data.highlightedText.text;
+      this.textType = data.highlightedText.type;
+    } else {
+      this.highlightText = undefined;
+      this.textType = undefined;
+    }
+    if (this.highlightText !== undefined && this.textType !== undefined) {
+      if (this.textType === 'Highlight') {
+        if (!this.highlightTextArray.includes(this.highlightText)) {
+          this.highlightTextArray.push(this.highlightText);
+        }
+      } else if (this.textType === 'Comment') {
+        if (!this.commentTextArray.includes(this.highlightText)) {
+          this.commentTextArray.push(this.highlightText);
+        }
+      }
+    }
+    this.highlightTextArray = this.highlightTextArray.filter((text) =>
+      currentEditorValues.some((editor) => editor.text === text)
+    );
+    console.log('highlight array', this.highlightTextArray);
   }
 
-  public commentTagPopover(data: ShowCommentTagPopoverDetails) {
+  public commentTagPopover(data: ShowCommentTagPopoverDetails): void {
+    console.log('commentTagPopover called with data:', data);
     if (data.detail.type === 'Comment') {
       this.showCommentPopover(data.detail);
     } else if (data.detail.type === 'Tag') {
@@ -192,7 +224,8 @@ export class MoPdfViewerComponent implements OnDestroy {
     }
   }
 
-  public showTagPopover(tagDetails: CommentTagEvent) {
+  public showTagPopover(tagDetails: CommentTagEvent): void {
+    console.log('showTagPopover called with tagDetails:', tagDetails);
     this.closeCommentPopover();
     this.isOpenTag = true;
     const popoverFactory =
@@ -212,7 +245,7 @@ export class MoPdfViewerComponent implements OnDestroy {
     this.renderer.listen('document', 'click', this.onDocumentClickTag);
   }
 
-  private showCommentPopover(commentDetails: CommentTagEvent) {
+  public showCommentPopover(commentDetails: CommentTagEvent): void {
     this.closeCommentPopover();
     this.isOpenComment = true;
 
@@ -220,15 +253,12 @@ export class MoPdfViewerComponent implements OnDestroy {
       CommentPopoverComponent
     );
     this.popoverRef = popoverFactory.create(this.injector);
-    this.popoverRef.instance.commentText = 'This is a comment';
-
     this.appRef.attachView(this.popoverRef.hostView);
     const popoverElement = (this.popoverRef.hostView as any)
       .rootNodes[0] as HTMLElement;
     popoverElement.style.display = 'block';
     commentDetails.parent.parentNode.parentElement.appendChild(popoverElement);
     this.commentDetails = commentDetails;
-
     const pdfViewerElement = this.elementRef.nativeElement.querySelector(
       'ngx-extended-pdf-viewer'
     );
@@ -236,7 +266,8 @@ export class MoPdfViewerComponent implements OnDestroy {
     pdfViewerElement.addEventListener('scroll', this.onPdfViewerScroll);
     this.renderer.listen('document', 'click', this.onDocumentClickComment);
   }
-  private onDocumentClickTag = (event: MouseEvent) => {
+
+  public onDocumentClickTag = (event: MouseEvent): void => {
     if (this.popoverRef && this.popoverRef.hostView) {
       const clickedInsidePopover =
         this.popoverRef.hostView.rootNodes[0].contains(event.target as Node);
@@ -249,7 +280,6 @@ export class MoPdfViewerComponent implements OnDestroy {
           clickedInsideTag = true;
         }
       });
-
       if (!clickedInsidePopover && !clickedInsideTag) {
         const popover = document.querySelector('.tag-popover') as HTMLElement;
 
@@ -263,7 +293,7 @@ export class MoPdfViewerComponent implements OnDestroy {
       }
     }
   };
-  private onDocumentClickComment = (event: MouseEvent) => {
+  public onDocumentClickComment = (event: MouseEvent): void => {
     if (this.popoverRef && this.popoverRef.hostView) {
       const clickedInsidePopover =
         this.popoverRef.hostView.rootNodes[0].contains(event.target as Node);
@@ -293,7 +323,7 @@ export class MoPdfViewerComponent implements OnDestroy {
     }
   };
 
-  private onPdfViewerScroll = () => {
+  public onPdfViewerScroll = (): void => {
     if (this.popoverRef && this.commentDetails && this.tagDetails) {
       const pdfViewerElement = this.elementRef.nativeElement.querySelector(
         'ngx-extended-pdf-viewer'
@@ -303,7 +333,7 @@ export class MoPdfViewerComponent implements OnDestroy {
     }
   };
 
-  private closeCommentPopover() {
+  public closeCommentPopover(): void {
     if (this.popoverRef) {
       this.appRef.detachView(this.popoverRef.hostView);
       this.popoverRef.destroy();
@@ -328,7 +358,7 @@ export class MoPdfViewerComponent implements OnDestroy {
       ) as HTMLElement;
       if (dropdownContent) {
         dropdownContent.style.display = 'block';
-        const hideDropdown = (event: MouseEvent) => {
+        const hideDropdown = (event: MouseEvent): void => {
           if (!parentSpan.contains(event.target as Node)) {
             dropdownContent.style.display = 'none';
             document.removeEventListener('click', hideDropdown);
@@ -377,10 +407,8 @@ export class MoPdfViewerComponent implements OnDestroy {
       this.commentList.splice(index, 1);
     }
   }
-  public removeHighlight(index: number) {
-    this.highlightList.splice(index, 1);
-  }
-  removeTag(type: 'public' | 'private', index: number) {
+
+  public removeTag(type: 'public' | 'private', index: number): void {
     if (type === 'public') {
       this.tagListPublic.splice(index, 1);
     } else if (type === 'private') {
@@ -388,7 +416,7 @@ export class MoPdfViewerComponent implements OnDestroy {
     }
   }
 
-  public closeCommentTextarea(comment: CommentSelection) {
+  public closeCommentTextarea(comment: CommentSelection): void {
     comment.editMode = false;
   }
 
@@ -400,25 +428,28 @@ export class MoPdfViewerComponent implements OnDestroy {
     this.privateListVisible = !this.privateListVisible;
   }
 
-  showMenu(comment: any) {
+  public showMenu(comment: Comment): void {
     comment.isHovered = true;
   }
 
-  hideMenu(comment: any) {
+  public hideMenu(comment: Comment): void {
     comment.isHovered = false;
   }
 
-  onMouseEnter(list: 'private' | 'public' | 'highlight', index: number): void {
+  public onMouseEnter(
+    list: 'private' | 'public' | 'highlight',
+    index: number
+  ): void {
     this.hoveredIndex = index;
     this.hoveredList = list;
   }
 
-  onMouseLeave(): void {
+  public onMouseLeave(): void {
     this.hoveredIndex = null;
     this.hoveredList = null;
   }
 
-  ngOnDestroy() {
+  public ngOnDestroy(): void {
     this.closeCommentPopover;
   }
 }

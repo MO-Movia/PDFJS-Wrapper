@@ -4,14 +4,14 @@ import { UtilService } from '../util.service';
 import { Comment } from '../util.service';
 
 @Component({
-  selector: 'app-comment-popover',
+  selector: 'mo-app-comment-popover',
   templateUrl: './comment-popover.component.html',
   styleUrls: ['./comment-popover.component.scss'],
   standalone: true,
   imports: [FormsModule],
 })
 export class CommentPopoverComponent {
-  @Output() submitComment = new EventEmitter<string>();
+  @Output() public submitComment = new EventEmitter<string>();
   public newComment: string = '';
   public commentList: Comment[] = [];
   public closePopover: boolean = false;
@@ -21,9 +21,7 @@ export class CommentPopoverComponent {
   }
 
   public closeComment(): void {
-    const popover = document.querySelector(
-      '.comment-popover-content'
-    ) as HTMLElement;
+    const popover = document.querySelector('.comment-popover-content') as HTMLElement;
     if (!this.closePopover) {
       popover.style.display = 'none';
     }

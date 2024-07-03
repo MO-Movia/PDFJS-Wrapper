@@ -8,27 +8,22 @@ import {
   ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NgxExtendedPdfViewerComponent } from 'ngx-extended-pdf-viewer';
 import { UtilService } from '../util.service';
-import { MoPdfViewerComponent } from '../mo-pdf-viewer.component';
+
 @Component({
-  selector: 'app-tag-popover',
+  selector: 'mo-app-tag-popover',
   templateUrl: './tag-popover.component.html',
   styleUrls: ['./tag-popover.component.scss'],
   standalone: true,
   imports: [FormsModule],
 })
 export class TagPopoverComponent {
-  @ViewChild(NgxExtendedPdfViewerComponent)
-  public pdfComponent!: NgxExtendedPdfViewerComponent;
-  @ViewChild(MoPdfViewerComponent) pdfViewer!: MoPdfViewerComponent;
-
   public closePopover: boolean = false;
   public selectedTag: string = '';
   public tagListPrivate: string[] = [];
   public tagListPublic: string[] = [];
-  selectedTagPublic: boolean = false;
-  selectedTagPrivate: boolean = false;
+  public selectedTagPublic: boolean = false;
+  public selectedTagPrivate: boolean = false;
 
   constructor(public utilService: UtilService) {
     this.tagListPrivate = this.utilService.getTagListPrivate();

@@ -15,10 +15,10 @@ export interface Highlight {
 export class UtilService {
   public tagListPrivate: string[] = [];
   public tagListPublic: string[] = [];
-  private commentList: Comment[] = [];
-  private highlightList: any[] = [];
+  public commentList: Comment[] = [];
+  public highlightList: any[] = [];
 
-  public updateTagListPrivate(tagPrivate: string) {
+  public updateTagListPrivate(tagPrivate: string):void {
     this.tagListPrivate.push(tagPrivate);
   }
 
@@ -26,7 +26,7 @@ export class UtilService {
     return this.tagListPrivate;
   }
 
-  public updateTagListPublic(tagPublic: string) {
+  public updateTagListPublic(tagPublic: string):void {
     this.tagListPublic.push(tagPublic);
   }
 
@@ -41,7 +41,7 @@ export class UtilService {
     return this.highlightList;
   }
 
-  public updateComments(comment: Comment) {
+  public updateComments(comment: Comment):void {
     this.commentList.push(comment);
   }
 
