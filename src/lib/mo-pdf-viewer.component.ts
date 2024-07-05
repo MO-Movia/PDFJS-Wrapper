@@ -94,18 +94,13 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   @ViewChild(NgxExtendedPdfViewerComponent)
   public pdfComponent!: NgxExtendedPdfViewerComponent;
 
-  @ViewChild(TagPopoverComponent)
-  public tagPopoverComponent!: TagPopoverComponent;
-
   public ngOnInit(): void {
     const pdfViewerElement = this.elementRef.nativeElement.querySelector(
       'ngx-extended-pdf-viewer'
     );
     pdfViewerElement.addEventListener('scroll', this.onPdfViewerScroll);
-
     this.NodeObjectArray();
   }
-
   private popoverRef: any;
   private commentDetails: CommentTagEvent | null = null;
   private tagDetails: CommentTagEvent | null = null;
@@ -142,7 +137,6 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       objId: number;
       objValue: unknown;
     };
-
     let objArray: Array<objType> = [{ objId: 1, objValue: pdfObject }];
     console.log(objArray[0].objId);
     console.log(objArray[0].objValue);
@@ -235,7 +229,16 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     const popoverElement = (this.popoverRef.hostView as any)
       .rootNodes[0] as HTMLElement;
     popoverElement.style.display = 'block';
-    tagDetails.parent.parentNode.parentElement.appendChild(popoverElement);
+    let tagValue = null;
+    for (let [key, value] of tagDetails.parent.editors) {
+      console.log(`Key: ${key}`);
+      console.log('Value:', value);
+      tagValue = value.div;
+    }
+    if (tagValue) {
+      tagValue.appendChild(popoverElement);
+    }
+    // tagDetails.parent.parentNode.parentElement.appendChild(popoverElement);
     this.tagDetails = tagDetails;
     const pdfViewerElement = this.elementRef.nativeElement.querySelector(
       'ngx-extended-pdf-viewer'
@@ -248,7 +251,6 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   public showCommentPopover(commentDetails: CommentTagEvent): void {
     this.closeCommentPopover();
     this.isOpenComment = true;
-
     const popoverFactory = this.resolver.resolveComponentFactory(
       CommentPopoverComponent
     );
@@ -257,7 +259,15 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     const popoverElement = (this.popoverRef.hostView as any)
       .rootNodes[0] as HTMLElement;
     popoverElement.style.display = 'block';
-    commentDetails.parent.parentNode.parentElement.appendChild(popoverElement);
+    let commentValue = null;
+    for (let [key, value] of commentDetails.parent.editors) {
+      console.log(`Key: ${key}`);
+      console.log('Value:', value);
+      commentValue = value.div;
+    }
+    if (commentValue) {
+      commentValue.appendChild(popoverElement);
+    }
     this.commentDetails = commentDetails;
     const pdfViewerElement = this.elementRef.nativeElement.querySelector(
       'ngx-extended-pdf-viewer'

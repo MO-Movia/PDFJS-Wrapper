@@ -21,7 +21,9 @@ export class CommentPopoverComponent {
   }
 
   public closeComment(): void {
-    const popover = document.querySelector('.comment-popover-content') as HTMLElement;
+    const popover = document.querySelector(
+      '.comment-popover-content'
+    ) as HTMLElement;
     if (!this.closePopover) {
       popover.style.display = 'none';
     }
