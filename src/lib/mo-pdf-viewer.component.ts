@@ -103,7 +103,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       'ngx-extended-pdf-viewer'
     );
     pdfViewerElement.addEventListener('scroll', this.onPdfViewerScroll);
-    this.NodeObjectArray();
+    this.createPDFObject();
   }
   private popoverRef: any;
   private commentDetails: CommentTagEvent | null = null;
@@ -129,21 +129,39 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     this.commentList = utilService.getCommentList();
   }
 
-  public NodeObjectArray(): void {
-    const pdfObject = {
+  public onPageLoaded(event: any): void {
+    console.log('Page Load', event);
+  }
+
+  public createPDFObject(): void {
+    const annotationArrays = {
       tagListPrivate: this.utilService.getTagListPrivate(),
       tagListPublic: this.utilService.getTagListPublic(),
       commentList: this.utilService.getCommentList(),
       highlightList: this.utilService.gethighlightText(),
     };
-    console.log(pdfObject);
-    type objType = {
-      objId: number;
-      objValue: unknown;
+    console.log(annotationArrays);
+
+    type pdfNodeObjectsType = {
+      Id: number;
+      annotationObjArray: annotationObj;
+      spanIndex: any;
     };
-    let objArray: Array<objType> = [{ objId: 1, objValue: pdfObject }];
-    console.log(objArray[0].objId);
-    console.log(objArray[0].objValue);
+    type annotationObj = {
+      tagListPrivate: string[];
+      tagListPublic: string[];
+      commentList: Comment[];
+      highlightList: string[];
+    };
+
+    let pdfNodeObjects: Array<pdfNodeObjectsType> = [
+      { Id: 1, 
+        annotationObjArray: annotationArrays, 
+        spanIndex: '' 
+      },
+    ];
+    console.log(pdfNodeObjects[0].Id);
+    console.log(pdfNodeObjects[0].annotationObjArray);
   }
 
   public I = {

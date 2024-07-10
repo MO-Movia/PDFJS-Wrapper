@@ -12,6 +12,7 @@
               [customToolbar]="additionalButtons"
               [src]="pdfSrc"
               [textLayer]="true"
+              (pagesLoaded)="onPageLoaded($event)"
             >
             </ngx-extended-pdf-viewer>
             <ng-template #additionalButtons>
