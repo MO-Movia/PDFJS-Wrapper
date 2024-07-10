@@ -2,6 +2,7 @@ import { Component, Output, EventEmitter, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UtilService } from '../util.service';
 import { Comment } from '../util.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'mo-app-comment-popover',
@@ -64,6 +65,7 @@ export class CommentPopoverComponent {
         console.log(this.commentList);
       }
       this.closeComment();
+       this.utilService.submitComment();
     }
   }
   @HostListener('keydown', ['$event'])
@@ -107,8 +109,6 @@ export class CommentPopoverComponent {
     //   }
     // }
   }
-  
-  
-  
-  }
 
+
+}

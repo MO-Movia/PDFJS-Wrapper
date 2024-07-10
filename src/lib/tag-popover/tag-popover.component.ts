@@ -69,6 +69,7 @@ export class TagPopoverComponent {
         }
       }
       this.closeTag();
+      this.utilService.submitTag();
     }
   }
 }

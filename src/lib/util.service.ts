@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CommentSelection } from './models/comment-selection.model';
+import { Subject } from 'rxjs';
 
 export interface Comment extends CommentSelection {
   text: string;
@@ -18,6 +19,20 @@ export class UtilService {
   public commentList: Comment[] = [];
   public highlightList: any[] = [];
 
+  private submitActionSourceComment = new Subject<void>();
+  submitActionComment$ = this.submitActionSourceComment.asObservable();
+
+  private submitActionSourceTag = new Subject<void>();
+  submitActionTag$ = this.submitActionSourceTag.asObservable();
+
+  submitComment() {
+    this.submitActionSourceComment.next();
+  }
+
+  submitTag(){
+    this.submitActionSourceTag.next();
+  }
+  
   public updateTagListPrivate(tagPrivate: string):void {
     this.tagListPrivate.push(tagPrivate);
   }

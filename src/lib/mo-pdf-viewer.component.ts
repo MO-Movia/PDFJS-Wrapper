@@ -91,12 +91,10 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   highlightText: string | undefined;
   commentTextArray: string[] = [];
   textType: string | undefined;
+  public submitSubscription: any;
 
   @ViewChild(NgxExtendedPdfViewerComponent)
   public pdfComponent!: NgxExtendedPdfViewerComponent;
-
-  @ViewChild(TagPopoverComponent)
-  public tagPopoverComponent!: TagPopoverComponent;
 
   public ngOnInit(): void {
     const pdfViewerElement = this.elementRef.nativeElement.querySelector(
@@ -201,12 +199,6 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
 
   public showHighlightedArray(data: showhighlightedArrayEvent) {
     console.log('data:', data);
-    const currentEditorValues = Array.from(
-      data.highlightedText.parent.editors.values()
-    ) as { text: string }[];
-    for (const [key, value] of data.highlightedText.parent.editors.entries()) {
-      console.log('Editor key:', key);
-    }
     if (data.highlightedText) {
       this.highlightText = data.highlightedText.text;
       this.textType = data.highlightedText.type;
@@ -219,30 +211,35 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
         if (!this.highlightList.includes(this.highlightText)) {
           this.highlightList.push(this.highlightText);
         }
-      } else if (this.textType === 'Comment') {
-        data.highlightedText.updateParams(
-          AnnotationEditorParamsType.HIGHLIGHT_COLOR,
-          '#53FFBC'
-        );
       }
     }
-    // this.highlightList = this.highlightList.filter((text) =>
-    //   currentEditorValues.some((editor) => editor.text === text)
-    // );
-    // console.log('highlight array', this.highlightTextArray);
   }
 
   public commentTagPopover(data: ShowCommentTagPopoverDetails): void {
-    console.log('commentTagPopover called with data:', data);
     if (data.detail.type === 'Comment') {
       this.showCommentPopover(data.detail);
+      this.submitSubscription = this.utilService.submitActionComment$.subscribe(
+        () => {
+          data.detail.updateParams(
+            AnnotationEditorParamsType.HIGHLIGHT_COLOR,
+            '#80EBFF'
+          );
+        }
+      );
     } else if (data.detail.type === 'Tag') {
       this.showTagPopover(data.detail);
+      this.submitSubscription = this.utilService.submitActionTag$.subscribe(
+        () => {
+          data.detail.updateParams(
+            AnnotationEditorParamsType.HIGHLIGHT_COLOR,
+            '#53FFBC'
+          );
+        }
+      );
     }
   }
 
   public showTagPopover(tagDetails: CommentTagEvent): void {
-    console.log('showTagPopover called with tagDetails:', tagDetails);
     this.closeCommentPopover();
     this.isOpenTag = true;
     const popoverFactory =
@@ -254,8 +251,6 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     popoverElement.style.display = 'block';
     let tagValue = null;
     for (let [key, value] of tagDetails.parent.editors) {
-      console.log(`Key: ${key}`);
-      console.log('Value:', value);
       tagValue = value.div;
     }
     if (tagValue) {
@@ -286,8 +281,6 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     popoverElement.style.display = 'block';
     let commentValue = null;
     for (let [key, value] of commentDetails.parent.editors) {
-      console.log(`Key: ${key}`);
-      console.log('Value:', value);
       commentValue = value.div;
     }
     if (commentValue) {
@@ -384,7 +377,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
           behavior: 'smooth',
           block: 'start',
         });
-      } 
+      }
     }
   }
 
@@ -516,5 +509,6 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
 
   public ngOnDestroy(): void {
     this.closeCommentPopover;
+    this.submitSubscription.unsubscribe();
   }
 }
