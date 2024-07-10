@@ -23,6 +23,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {
   NgxExtendedPdfViewerModule,
   NgxExtendedPdfViewerComponent,
+  AnnotationEditorParamsType,
+  PdfHighlightEditorComponent,
 } from 'ngx-extended-pdf-viewer';
 import {
   CommentTagEvent,
@@ -87,12 +89,14 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   public privateListVisible: boolean = false;
   public isHovered: boolean = false;
   highlightText: string | undefined;
-  highlightTextArray: string[] = [];
   commentTextArray: string[] = [];
   textType: string | undefined;
 
   @ViewChild(NgxExtendedPdfViewerComponent)
   public pdfComponent!: NgxExtendedPdfViewerComponent;
+
+  @ViewChild(TagPopoverComponent)
+  public tagPopoverComponent!: TagPopoverComponent;
 
   public ngOnInit(): void {
     const pdfViewerElement = this.elementRef.nativeElement.querySelector(
@@ -106,7 +110,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   private tagDetails: CommentTagEvent | null = null;
   private previousScrollTop = 0;
   private previousScrollLeft = 0;
-  public highlightList: null[] = [];
+  public highlightList: string[] = [];
   public dropdownVisible: any = {};
   public hoveredList: 'private' | 'public' | null | 'highlight' = null;
   public hoveredIndex: number | null = null;
@@ -130,7 +134,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       tagListPrivate: this.utilService.getTagListPrivate(),
       tagListPublic: this.utilService.getTagListPublic(),
       commentList: this.utilService.getCommentList(),
-      highlightList: this.highlightTextArray,
+      highlightList: this.utilService.gethighlightText(),
     };
     console.log(pdfObject);
     type objType = {
@@ -194,19 +198,20 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     }
     if (this.highlightText !== undefined && this.textType !== undefined) {
       if (this.textType === 'Highlight') {
-        if (!this.highlightTextArray.includes(this.highlightText)) {
-          this.highlightTextArray.push(this.highlightText);
+        if (!this.highlightList.includes(this.highlightText)) {
+          this.highlightList.push(this.highlightText);
         }
       } else if (this.textType === 'Comment') {
-        if (!this.commentTextArray.includes(this.highlightText)) {
-          this.commentTextArray.push(this.highlightText);
-        }
+        data.highlightedText.updateParams(
+          AnnotationEditorParamsType.HIGHLIGHT_COLOR,
+          '#53FFBC'
+        );
       }
     }
-    this.highlightTextArray = this.highlightTextArray.filter((text) =>
-      currentEditorValues.some((editor) => editor.text === text)
-    );
-    console.log('highlight array', this.highlightTextArray);
+    // this.highlightList = this.highlightList.filter((text) =>
+    //   currentEditorValues.some((editor) => editor.text === text)
+    // );
+    // console.log('highlight array', this.highlightTextArray);
   }
 
   public commentTagPopover(data: ShowCommentTagPopoverDetails): void {
@@ -236,9 +241,11 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       tagValue = value.div;
     }
     if (tagValue) {
-      tagValue.appendChild(popoverElement);
+      const selectedText = document.querySelector(
+        '.highlightEditor.selectedEditor'
+      ) as HTMLElement;
+      selectedText.appendChild(popoverElement);
     }
-    // tagDetails.parent.parentNode.parentElement.appendChild(popoverElement);
     this.tagDetails = tagDetails;
     const pdfViewerElement = this.elementRef.nativeElement.querySelector(
       'ngx-extended-pdf-viewer'
@@ -266,7 +273,10 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       commentValue = value.div;
     }
     if (commentValue) {
-      commentValue.appendChild(popoverElement);
+      const selectedText = document.querySelector(
+        '.highlightEditor.selectedEditor'
+      ) as HTMLElement;
+      selectedText.appendChild(popoverElement);
     }
     this.commentDetails = commentDetails;
     const pdfViewerElement = this.elementRef.nativeElement.querySelector(
@@ -332,6 +342,33 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       }
     }
   };
+
+  public scrollToText(highlight: string): void {
+    const pdfViewerElement = this.elementRef.nativeElement.querySelector(
+      'ngx-extended-pdf-viewer'
+    );
+
+    if (pdfViewerElement && highlight) {
+      const textElements =
+        pdfViewerElement.querySelectorAll('.highlightEditor');
+      if (textElements.length === 0) {
+        return;
+      }
+      let foundElement: HTMLElement | null = null;
+      textElements.forEach((element: HTMLElement) => {
+        if (element.ariaLabel === highlight) {
+          foundElement = element;
+        }
+      });
+
+      if (foundElement) {
+        (foundElement as HTMLElement).scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+      } 
+    }
+  }
 
   public onPdfViewerScroll = (): void => {
     if (this.popoverRef && this.commentDetails && this.tagDetails) {

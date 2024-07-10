@@ -48,7 +48,7 @@
         <div class="row flex-grow-1 tag-container">
           <div class="highlightlist">
             <ng-container
-              *ngFor="let highlight of highlightTextArray; let i = index"
+              *ngFor="let highlight of highlightList; let i = index"
             >
               <div
                 class="highlight-list"
@@ -57,7 +57,7 @@
               >
                 <ul class="col">
                   <li class="highlights-list">
-                    <div>
+                    <div (click)="scrollToText(highlight)">
                       {{
                         highlight.length > 25
                           ? highlight.substring(0, 25) + "..."
@@ -198,7 +198,7 @@
               tabindex="-1"
             >
               <div class="col">
-                <div class="row row_comments">
+                <div class="row row_comments container-icon">
                   <div
                     class="col-12 comment-box"
                     style="position: relative"

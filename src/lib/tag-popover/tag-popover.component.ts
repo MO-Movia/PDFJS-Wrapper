@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, Input, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UtilService } from '../util.service';
+import { MoPdfViewerComponent } from '../mo-pdf-viewer.component';
+
 
 @Component({
   selector: 'mo-app-tag-popover',
@@ -10,6 +12,7 @@ import { UtilService } from '../util.service';
   imports: [FormsModule],
 })
 export class TagPopoverComponent {
+  @Input({ required: true }) public pdfSrc: string | Uint8Array = '';
   public closePopover: boolean = false;
   public selectedTag: string = '';
   public tagListPrivate: string[] = [];
@@ -17,16 +20,21 @@ export class TagPopoverComponent {
   public selectedTagPublic: boolean = false;
   public selectedTagPrivate: boolean = false;
 
+  @ViewChild(MoPdfViewerComponent)
+  public pdfViewer!: MoPdfViewerComponent;
+
   constructor(public utilService: UtilService) {
     this.tagListPrivate = this.utilService.getTagListPrivate();
     this.tagListPublic = this.utilService.getTagListPublic();
+    
   }
   public closeTag(): void {
     const popover = document.querySelector('.tag-popover') as HTMLElement;
     if (!this.closePopover) {
       popover.style.display = 'none';
     }
-    this.closePopover = !this.closePopover;
+    this.closePopover = !this.closePopover;  
+    
   }
 
   public storeTag(): void {

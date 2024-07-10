@@ -37,7 +37,7 @@ export class UtilService {
   public updateHighlightList(hightlight: any) {
     this.highlightList.push(hightlight);
   }
-  public gethighlightText(): any[] {
+  public gethighlightText(): string[] {
     return this.highlightList;
   }
 
@@ -48,7 +48,7 @@ export class UtilService {
   public getCommentList(): Comment[] {
     return this.commentList;
   }
-  public updatedHighlightList(highlight: any[]) {
+  public updatedHighlightList(highlight: string[]) {
     this.highlightList = highlight.slice();
   }
 
