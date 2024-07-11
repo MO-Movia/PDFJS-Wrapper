@@ -328,6 +328,15 @@
 
 .container-icon:hover {
   background-color: #dbd5d5;
+  
+
+
+}
+.container-icon:hover .svg-icon { 
+  display: block; 
+}
+.svg-icon { 
+  display: none; 
 }
 
 #tag-box {

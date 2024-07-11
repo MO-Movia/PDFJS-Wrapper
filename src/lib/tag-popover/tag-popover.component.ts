@@ -1,6 +1,6 @@
 import { Component, Input, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { UtilService } from '../util.service';
+import { AnnotationSelection, UtilService } from '../util.service';
 import { MoPdfViewerComponent } from '../mo-pdf-viewer.component';
 
 
@@ -15,8 +15,8 @@ export class TagPopoverComponent {
   @Input({ required: true }) public pdfSrc: string | Uint8Array = '';
   public closePopover: boolean = false;
   public selectedTag: string = '';
-  public tagListPrivate: string[] = [];
-  public tagListPublic: string[] = [];
+  public tagListPrivate: AnnotationSelection;
+  public tagListPublic: AnnotationSelection;
   public selectedTagPublic: boolean = false;
   public selectedTagPrivate: boolean = false;
 
@@ -48,11 +48,11 @@ export class TagPopoverComponent {
         let highlightList = this.utilService.gethighlightText();
         const normalizedTagText = tagText.trim().toLowerCase();
         if (
-          highlightList.some(
+          highlightList.text.some(
             (word) => word.trim().toLowerCase() === normalizedTagText
           )
         ) {
-          highlightList = highlightList.filter(
+          highlightList.text = highlightList.text.filter(
             (word) => word.trim().toLowerCase() !== normalizedTagText
           );
           console.log('The updated highlightList is: ', highlightList);

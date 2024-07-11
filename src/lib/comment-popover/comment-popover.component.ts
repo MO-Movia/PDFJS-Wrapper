@@ -1,6 +1,6 @@
 import { Component, Output, EventEmitter, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { UtilService } from '../util.service';
+import { AnnotationSelection, UtilService } from '../util.service';
 import { Comment } from '../util.service';
 import { Subscription } from 'rxjs';
 
@@ -14,7 +14,7 @@ import { Subscription } from 'rxjs';
 export class CommentPopoverComponent {
   @Output() public submitComment = new EventEmitter<string>();
   public newComment: string = '';
-  public commentList: Comment[] = [];
+  public commentList: AnnotationSelection;
   public closePopover: boolean = false;
 
   constructor(public utilService: UtilService) {
@@ -42,11 +42,11 @@ export class CommentPopoverComponent {
         let highlightList = this.utilService.gethighlightText();
         const normalizedTagText = selectedText.trim().toLowerCase();
         if (
-          highlightList.some(
+          highlightList.text.some(
             (word) => word.trim().toLowerCase() === normalizedTagText
           )
         ) {
-          highlightList = highlightList.filter(
+          highlightList.text = highlightList.text.filter(
             (word) => word.trim().toLowerCase() !== normalizedTagText
           );
           console.log('The updated highlightList is: ', highlightList);
@@ -58,9 +58,9 @@ export class CommentPopoverComponent {
           id: '',
           spanLocations: [],
           editMode: false,
-          isHovered: false,
+          isHovered: false
         };
-        this.utilService.updateComments(comment);
+        this.utilService.updateComments(comment.comment);
         this.newComment = '';
         console.log(this.commentList);
       }

@@ -49,7 +49,7 @@
         <div class="row flex-grow-1 tag-container">
           <div class="highlightlist">
             <ng-container
-              *ngFor="let highlight of highlightList; let i = index"
+              *ngFor="let highlight of highlightList.text; let i = index"
             >
               <div
                 class="highlight-list"
@@ -59,11 +59,7 @@
                 <ul class="col">
                   <li class="highlights-list">
                     <div (click)="scrollToText(highlight)">
-                      {{
-                        highlight.length > 25
-                          ? highlight.substring(0, 25) + "..."
-                          : highlight
-                      }}
+                      <span >{{ highlight  }}</span>
                     </div>
                   </li>
                 </ul>
@@ -96,11 +92,11 @@
             </svg>
             <h6 class="tag-type">Public</h6>
             <div class="tag-public-count">
-              {{ tagListPublic.length }}
+              {{ tagListPublic.text.length }}
             </div>
             <div *ngIf="publicListVisible">
               <div
-                *ngFor="let tagPublic of tagListPublic; let i = index"
+                *ngFor="let tagPublic of tagListPublic.text; let i = index"
                 class="publicList"
                 (mouseenter)="onMouseEnter('public', i)"
                 (mouseleave)="onMouseLeave()"
@@ -108,11 +104,7 @@
                 <ul class="col">
                   <li class="tag-list">
                     <div>
-                      {{
-                        tagPublic.length > 25
-                          ? tagPublic.substring(0, 25) + "..."
-                          : tagPublic
-                      }}
+                      <span >{{ tagPublic }}</span>
                       <p
                         tabindex="-1"
                         class="public-item-close"
@@ -144,11 +136,11 @@
             </svg>
             <h6 class="tag-type">Private</h6>
             <div class="tag-private-count">
-              {{ tagListPrivate.length }}
+              {{ tagListPrivate.text.length }}
             </div>
             <div *ngIf="privateListVisible">
               <div
-                *ngFor="let tagPrivate of tagListPrivate; let i = index"
+                *ngFor="let tagPrivate of tagListPrivate.text; let i = index"
                 class="privateList"
                 (mouseenter)="onMouseEnter('private', i)"
                 (mouseleave)="onMouseLeave()"
@@ -156,11 +148,7 @@
                 <ul class="col">
                   <li class="tag-list">
                     <div>
-                      {{
-                        tagPrivate.length > 25
-                          ? tagPrivate.substring(0, 25) + "..."
-                          : tagPrivate
-                      }}
+                    <span >{{ tagPrivate  }}</span>
                       <p
                         tabindex="-1"
                         class="private-item-close"
@@ -192,7 +180,7 @@
         <div class="row flex-grow-1 comment-container">
           <div class="col h-100 mt-2">
             <div
-              *ngFor="let comment of commentList"
+              *ngFor="let comment of commentList.text ; let i = index"
               class="row mx-2 clickable align-items-center"
               id="comment-row"
               [attr.tabindex]="0"
@@ -204,24 +192,16 @@
                     class="col-12 comment-box"
                     style="position: relative"
                     tabindex="-1"
-                    (mouseenter)="showMenu(comment)"
-                    (mouseleave)="hideMenu(comment)"
                   >
                     {{
-                      comment.comment.length > 30
-                        ? comment.comment.substring(0, 30) + "..."
-                        : comment.comment
+                      comment
                     }}
                   </div>
                   <span
                     class="icon-span"
-                    [ngStyle]="{
-                      display: comment.isHovered ? 'inline' : 'none'
-                    }"
-                    style="position: absolute; right: 0; cursor: pointer"
-                    (mouseenter)="showMenu(comment)"
-                    (mouseleave)="hideMenu(comment)"
+
                   >
+                  <div class="svg-icon">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="16"
@@ -237,13 +217,14 @@
                         d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"
                       />
                     </svg>
+                  </div>
                     <ul
                       class="dropdown-content"
                       *ngIf="dropdownVisible"
                       style="top: 16px; display: none"
                     >
                       <li
-                        (click)="removeComment(comment)"
+                      (click)="removeComment(i)"
                         tabindex="-1"
                         style="height: 35px"
                       >
@@ -253,7 +234,7 @@
                           title="Remove Comment"
                           class="btn btn-danger btn-sm ms-1"
                           id="trash_button_comment"
-                          (click)="removeComment(comment)"
+                          (click)="removeComment(i)"
                         >
                           <fa-icon
                             class="mx-auto my-auto"
@@ -263,19 +244,18 @@
                         </button>
                       </li>
                       <li
-                        (click)="editComment(comment)"
-                        *ngIf="!comment.editMode"
+                      (click)="editComment(i)"
                         tabindex="-1"
                         style="height: 35px"
                       >
                         Edit
                         <button
-                          *ngIf="!comment.editMode"
                           type="button"
                           title="Edit Comment"
                           class="btn btn-primary btn-sm ms-1"
                           id="edit_button_comment"
-                          (click)="editComment(comment)"
+                          (click)="editComment(i)"
+                          
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -293,22 +273,23 @@
                   </span>
                 </div>
 
-                <div class="row mt-2">
+                <div class="row mt-2"
+                *ngIf = 'isEditable'>
                   <div class="ms-3 w-100">
-                    <div *ngIf="comment.editMode">
+                    <div>
                       <textarea
                         placeholder="Type your Reply"
                         title="Comment"
                         class="form-control"
                         id="comments-textarea"
-                        [(ngModel)]="comment.comment"
+                        [(ngModel)]="newComment"
                         (input)="enableSubmitButton(comment, submitButton)"
                       ></textarea>
                       <button
                         #submitButton
                         class="button comment_submit btn btn-primary btn-sm"
-                        (click)="submitComment(comment, submitButton)"
-                        disabled
+                        (click)="submitComment(i, submitButton)"
+                        disabled =!newComment
                       >
                         Submit
                       </button>

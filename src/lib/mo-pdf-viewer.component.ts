@@ -48,7 +48,7 @@ import {
   faTrash,
   faHighlighter,
 } from '@fortawesome/free-solid-svg-icons';
-import { UtilService } from './util.service';
+import { AnnotationSelection, UtilService } from './util.service';
 import { Highlight } from './util.service';
 
 import { Comment } from './util.service';
@@ -80,21 +80,26 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   @Input() public documentClassification = 'Unclassified';
   @Input() public documentAuthor = '';
   @Input() public minimalView = false;
-  public tagListPublic: string[] = [];
-  public tagListPrivate: string[] = [];
-  public commentList: Comment[] = [];
+  public tagListPublic: AnnotationSelection;
+  public tagListPrivate: AnnotationSelection;
+  public commentList: AnnotationSelection;
   public isOpenTag: boolean = false;
   public isOpenComment: boolean = false;
   public publicListVisible: boolean = false;
   public privateListVisible: boolean = false;
   public isHovered: boolean = false;
-  highlightText: string | undefined;
+  public isEditable:boolean = false;
+  public newComment:string ='';
+  highlightText: string | undefined ='';
   commentTextArray: string[] = [];
   textType: string | undefined;
   public submitSubscription: any;
 
   @ViewChild(NgxExtendedPdfViewerComponent)
   public pdfComponent!: NgxExtendedPdfViewerComponent;
+
+  @ViewChild(TagPopoverComponent)
+  public tagPopoverComponent!: TagPopoverComponent;
 
   public ngOnInit(): void {
     const pdfViewerElement = this.elementRef.nativeElement.querySelector(
@@ -108,7 +113,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   private tagDetails: CommentTagEvent | null = null;
   private previousScrollTop = 0;
   private previousScrollLeft = 0;
-  public highlightList: string[] = [];
+  public highlightList: AnnotationSelection
   public dropdownVisible: any = {};
   public hoveredList: 'private' | 'public' | null | 'highlight' = null;
   public hoveredIndex: number | null = null;
@@ -131,36 +136,38 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     console.log('Page Load', event);
   }
 
-  public createPDFObject(): void {
-    const annotationArrays = {
-      tagListPrivate: this.utilService.getTagListPrivate(),
-      tagListPublic: this.utilService.getTagListPublic(),
-      commentList: this.utilService.getCommentList(),
-      highlightList: this.utilService.gethighlightText(),
-    };
-    console.log(annotationArrays);
+public createPDFObject(): void {
+  const annotationArrays = {
+    tagListPrivate: this.utilService.getTagListPrivate(),
+    tagListPublic: this.utilService.getTagListPublic(),
+    commentList: this.utilService.getCommentList(),
+    highlightList: this.utilService.gethighlightText(),
+  };
+  console.log(annotationArrays);
 
-    type pdfNodeObjectsType = {
-      Id: number;
-      annotationObjArray: annotationObj;
-      spanIndex: any;
-    };
-    type annotationObj = {
-      tagListPrivate: string[];
-      tagListPublic: string[];
-      commentList: Comment[];
-      highlightList: string[];
-    };
-
-    let pdfNodeObjects: Array<pdfNodeObjectsType> = [
-      { Id: 1, 
-        annotationObjArray: annotationArrays, 
-        spanIndex: '' 
-      },
-    ];
-    console.log(pdfNodeObjects[0].Id);
-    console.log(pdfNodeObjects[0].annotationObjArray);
+  interface PdfNodeObjectsType {
+    Id: number;
+    annotationObjArray: AnnotationObj;
+    spanIndex: any;
   }
+  interface AnnotationObj {
+    tagListPrivate: AnnotationSelection;
+    tagListPublic: AnnotationSelection;
+    commentList: AnnotationSelection;
+    highlightList: AnnotationSelection;
+  }
+
+  let pdfNodeObjects: Array<PdfNodeObjectsType> = [
+    {
+      Id: 1,
+      annotationObjArray: annotationArrays,
+      spanIndex: ''
+    },
+  ];
+  console.log(pdfNodeObjects[0].Id);
+  console.log(pdfNodeObjects[0].annotationObjArray);
+}
+
 
   public I = {
     faFile,
@@ -199,6 +206,12 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
 
   public showHighlightedArray(data: showhighlightedArrayEvent) {
     console.log('data:', data);
+    const currentEditorValues = Array.from(
+      data.highlightedText.parent.editors.values()
+    ) as { text: string }[];
+    for (const [key, value] of data.highlightedText.parent.editors.entries()) {
+      console.log('Editor key:', key);
+    }
     if (data.highlightedText) {
       this.highlightText = data.highlightedText.text;
       this.textType = data.highlightedText.type;
@@ -208,14 +221,19 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     }
     if (this.highlightText !== undefined && this.textType !== undefined) {
       if (this.textType === 'Highlight') {
-        if (!this.highlightList.includes(this.highlightText)) {
-          this.highlightList.push(this.highlightText);
+        if (!this.highlightList.text.includes(this.highlightText)) {
+          this.highlightList.text.push(this.highlightText);
         }
       }
     }
+    // this.highlightList = this.highlightList.filter((text) =>
+    //   currentEditorValues.some((editor) => editor.text === text)
+    // );
+    // console.log('highlight array', this.highlightTextArray);
   }
 
   public commentTagPopover(data: ShowCommentTagPopoverDetails): void {
+    console.log('commentTagPopover called with data:', data);
     if (data.detail.type === 'Comment') {
       this.showCommentPopover(data.detail);
       this.submitSubscription = this.utilService.submitActionComment$.subscribe(
@@ -240,6 +258,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   }
 
   public showTagPopover(tagDetails: CommentTagEvent): void {
+    console.log('showTagPopover called with tagDetails:', tagDetails);
     this.closeCommentPopover();
     this.isOpenTag = true;
     const popoverFactory =
@@ -251,6 +270,8 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     popoverElement.style.display = 'block';
     let tagValue = null;
     for (let [key, value] of tagDetails.parent.editors) {
+      console.log(`Key: ${key}`);
+      console.log('Value:', value);
       tagValue = value.div;
     }
     if (tagValue) {
@@ -281,6 +302,8 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     popoverElement.style.display = 'block';
     let commentValue = null;
     for (let [key, value] of commentDetails.parent.editors) {
+      console.log(`Key: ${key}`);
+      console.log('Value:', value);
       commentValue = value.div;
     }
     if (commentValue) {
@@ -377,7 +400,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
           behavior: 'smooth',
           block: 'start',
         });
-      }
+      } 
     }
   }
 
@@ -430,10 +453,10 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   }
 
   public enableSubmitButton(
-    comment: CommentSelection,
+    comment: string,
     submitButton: HTMLButtonElement
   ): void {
-    const textAreaValue = comment.comment && comment.comment.trim().length > 0;
+    const textAreaValue = comment && comment.trim().length > 0;
     if (submitButton) {
       if (textAreaValue) {
         submitButton.removeAttribute('disabled');
@@ -445,37 +468,37 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   }
 
   public submitComment(
-    comment: CommentSelection,
+    index: number,
     submitButton: HTMLButtonElement
   ): void {
-    console.log(this.commentList);
-    comment.editMode = false;
+    if (this.newComment.trim()) {
+      this.commentList.text[index] = this.newComment; // Update the comment in the list
+      this.newComment = ''; // Clear the textarea
+  
+    }
+    this.isEditable = false;
     submitButton.setAttribute('disabled', 'true');
   }
 
-  public editComment(comment: CommentSelection): void {
-    comment.editMode = true;
+  public editComment(index:number): void {
+  this.newComment = this.commentList.text[index]
+   this.isEditable = true;
   }
 
-  public removeComment(comment: Comment): void {
-    const index = this.commentList.findIndex(
-      (c) => c.comment === comment.comment
-    );
-    if (index > -1) {
-      this.commentList.splice(index, 1);
-    }
+  public removeComment(index:number): void {
+    this.commentList.text.splice(index,1);
   }
 
   public removeTag(type: 'public' | 'private', index: number): void {
     if (type === 'public') {
-      this.tagListPublic.splice(index, 1);
+      this.tagListPublic.text.splice(index, 1);
     } else if (type === 'private') {
-      this.tagListPrivate.splice(index, 1);
+      this.tagListPrivate.text.splice(index, 1);
     }
   }
 
-  public closeCommentTextarea(comment: CommentSelection): void {
-    comment.editMode = false;
+  public closeCommentTextarea(comment: string): void {
+   this.isEditable=false;
   }
 
   public tagPublicVisibility(): void {
@@ -486,13 +509,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     this.privateListVisible = !this.privateListVisible;
   }
 
-  public showMenu(comment: Comment): void {
-    comment.isHovered = true;
-  }
 
-  public hideMenu(comment: Comment): void {
-    comment.isHovered = false;
-  }
 
   public onMouseEnter(
     list: 'private' | 'public' | 'highlight',
@@ -509,6 +526,5 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
 
   public ngOnDestroy(): void {
     this.closeCommentPopover;
-    this.submitSubscription.unsubscribe();
   }
 }
