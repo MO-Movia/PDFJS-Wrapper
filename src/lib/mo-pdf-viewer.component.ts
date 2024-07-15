@@ -25,6 +25,8 @@ import {
   NgxExtendedPdfViewerComponent,
   AnnotationEditorParamsType,
   PdfHighlightEditorComponent,
+  NgxExtendedPdfViewerService,
+  PageRenderEvent,
 } from 'ngx-extended-pdf-viewer';
 import {
   CommentTagEvent,
@@ -88,7 +90,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   public publicListVisible: boolean = false;
   public privateListVisible: boolean = false;
   public isHovered: boolean = false;
-  public isEditable:boolean = false;
+  public isEditable:boolean[] = [];
   public newComment:string ='';
   highlightText: string | undefined ='';
   commentTextArray: string[] = [];
@@ -124,7 +126,8 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     private appRef: ApplicationRef,
     private elementRef: ElementRef,
     public utilService: UtilService,
-    public renderer: Renderer2
+    public renderer: Renderer2,
+    private pdfService: NgxExtendedPdfViewerService
   ) {
     this.highlightList = utilService.gethighlightText();
     this.tagListPublic = utilService.getTagListPublic();
@@ -225,11 +228,12 @@ public createPDFObject(): void {
           this.highlightList.text.push(this.highlightText);
         }
       }
+      // this.highlightList.text = this.highlightList.text.filter((text) =>
+      //   currentEditorValues.some((editor) => editor.text === text)
+      // );
+      // this.utilService.updatedHighlightList(this.highlightList);
+      // console.log('highlight array', this.highlightList);
     }
-    // this.highlightList = this.highlightList.filter((text) =>
-    //   currentEditorValues.some((editor) => editor.text === text)
-    // );
-    // console.log('highlight array', this.highlightTextArray);
   }
 
   public commentTagPopover(data: ShowCommentTagPopoverDetails): void {
@@ -321,6 +325,25 @@ public createPDFObject(): void {
     this.renderer.listen('document', 'click', this.onDocumentClickComment);
   }
 
+  public onPageRendered(event: PageRenderEvent): void {
+
+    //     this.pdfService.setAnnotation([{spanIndex: 42,
+    //       rangeStart: 0,
+    //       rangeEnd: 40,
+    //       color: '#000'},
+    //       {spanIndex: 44,
+    //         rangeStart: 5,
+    //         rangeEnd: 10,
+    //         color: '#000'},
+    //         {spanIndex: 48,
+    //           rangeStart: 3,
+    //           rangeEnd: 8,
+    //           color: '#000'},
+    // ]);
+      
+  }
+
+
   public onDocumentClickTag = (event: MouseEvent): void => {
     if (this.popoverRef && this.popoverRef.hostView) {
       const clickedInsidePopover =
@@ -377,7 +400,7 @@ public createPDFObject(): void {
     }
   };
 
-  public scrollToText(highlight: string): void {
+  public scrollToHighlight(highlight: string): void {
     const pdfViewerElement = this.elementRef.nativeElement.querySelector(
       'ngx-extended-pdf-viewer'
     );
@@ -391,6 +414,58 @@ public createPDFObject(): void {
       let foundElement: HTMLElement | null = null;
       textElements.forEach((element: HTMLElement) => {
         if (element.ariaLabel === highlight) {
+          foundElement = element;
+        }
+      });
+
+      if (foundElement) {
+        (foundElement as HTMLElement).scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+      } 
+    }
+  }
+  public scrollToTag(tag:string){
+    const pdfViewerElement = this.elementRef.nativeElement.querySelector(
+      'ngx-extended-pdf-viewer'
+    );
+
+    if (pdfViewerElement && tag) {
+      const textElements =
+        pdfViewerElement.querySelectorAll('.highlightEditor');
+      if (textElements.length === 0) {
+        return;
+      }
+      let foundElement: HTMLElement | null = null;
+      textElements.forEach((element: HTMLElement) => {
+        if (element.ariaLabel === tag) {
+          foundElement = element;
+        }
+      });
+
+      if (foundElement) {
+        (foundElement as HTMLElement).scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+      } 
+    }
+  }
+  public scrollToComment(text:string){
+    const pdfViewerElement = this.elementRef.nativeElement.querySelector(
+      'ngx-extended-pdf-viewer'
+    );
+
+    if (pdfViewerElement && text) {
+      const textElements =
+        pdfViewerElement.querySelectorAll('.highlightEditor');
+      if (textElements.length === 0) {
+        return;
+      }
+      let foundElement: HTMLElement | null = null;
+      textElements.forEach((element: HTMLElement) => {
+        if (element.ariaLabel === text) {
           foundElement = element;
         }
       });
@@ -472,33 +547,33 @@ public createPDFObject(): void {
     submitButton: HTMLButtonElement
   ): void {
     if (this.newComment.trim()) {
-      this.commentList.text[index] = this.newComment; // Update the comment in the list
-      this.newComment = ''; // Clear the textarea
-  
+      this.commentList.comment[index] = this.newComment; 
+      this.newComment = ''; 
     }
-    this.isEditable = false;
+    this.isEditable[index] = false;
     submitButton.setAttribute('disabled', 'true');
   }
 
   public editComment(index:number): void {
-  this.newComment = this.commentList.text[index]
-   this.isEditable = true;
+  this.newComment = this.commentList.comment[index]
+   this.isEditable[index] = true;
   }
 
   public removeComment(index:number): void {
+    this.commentList.comment.splice(index,1);
     this.commentList.text.splice(index,1);
   }
 
   public removeTag(type: 'public' | 'private', index: number): void {
     if (type === 'public') {
-      this.tagListPublic.text.splice(index, 1);
+      this.tagListPublic.comment.splice(index, 1);
     } else if (type === 'private') {
       this.tagListPrivate.text.splice(index, 1);
     }
   }
 
-  public closeCommentTextarea(comment: string): void {
-   this.isEditable=false;
+  public closeCommentTextarea(index:number,comment: string): void {
+   this.isEditable[index]=false;
   }
 
   public tagPublicVisibility(): void {

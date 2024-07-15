@@ -10,7 +10,7 @@ export interface Comment extends CommentSelection {
 export interface AnnotationSelection {
   id: string;
   text: string[] ;
-  comment: string;
+  comment: string[];
   editMode: boolean;
   isHovered:boolean;
   spanLocations: SpanLocation[],
@@ -29,7 +29,7 @@ export class UtilService {
   public tagListPrivate: AnnotationSelection ={
     id: '',
     text: [] ,
-    comment: '',
+    comment: [],
     editMode: false,
     isHovered: false,
     spanLocations: [],
@@ -40,7 +40,7 @@ export class UtilService {
   public tagListPublic: AnnotationSelection={
     id: '',
     text: [] ,
-    comment: '',
+    comment: [],
     editMode: false,
     isHovered: false,
     spanLocations: [],
@@ -51,7 +51,7 @@ export class UtilService {
   public commentList: AnnotationSelection={
     id: '',
     text: [] ,
-    comment: '',
+    comment: [],
     editMode: false,
     isHovered: false,
     spanLocations: [],
@@ -62,7 +62,7 @@ export class UtilService {
   public highlightList: AnnotationSelection={
     id: '',
     text: [] ,
-    comment: '',
+    comment: [],
     editMode: false,
     isHovered: false,
     spanLocations: [],
@@ -110,7 +110,7 @@ export class UtilService {
   }
 
   public updateComments(comment: string):void {
-    this.commentList.text.push(comment);
+    this.commentList.comment.push(comment);
   }
 
   public getCommentList(): AnnotationSelection {
@@ -118,6 +118,9 @@ export class UtilService {
   }
   public updatedHighlightList(highlight: AnnotationSelection) {
     this.highlightList.text = highlight.text.slice();
+  }
+  public updateCommentText(text:string):void{
+   this.commentList.text.push(text);
   }
 
   constructor() {}

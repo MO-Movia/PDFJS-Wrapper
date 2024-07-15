@@ -61,6 +61,7 @@ export class CommentPopoverComponent {
           isHovered: false
         };
         this.utilService.updateComments(comment.comment);
+        this.utilService.updateCommentText(comment.text);
         this.newComment = '';
         console.log(this.commentList);
       }

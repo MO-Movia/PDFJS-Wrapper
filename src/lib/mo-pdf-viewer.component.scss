@@ -276,6 +276,8 @@
   height: 22px;
   right: 3px;
   z-index: 1;
+  background-color: #6b6666;
+  border: none;
 }
 
 #trash_icon_comment {
@@ -308,12 +310,13 @@
 }
 
 .edit_comment_svg {
-  width: 24px;
+  width: 22px;
   height: 24px;
   position: absolute;
   top: 1px;
   right: -3px;
-  filter: contrast(0.5);
+  filter: contrast(0.6);
+  fill: white;
 }
 
 .comment-box {

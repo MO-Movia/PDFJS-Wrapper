@@ -13,6 +13,7 @@
               [src]="pdfSrc"
               [textLayer]="true"
               (pagesLoaded)="onPageLoaded($event)"
+              (pageRendered)="onPageRendered($event)"
             >
             </ngx-extended-pdf-viewer>
             <ng-template #additionalButtons>
@@ -58,8 +59,12 @@
               >
                 <ul class="col">
                   <li class="highlights-list">
-                    <div (click)="scrollToText(highlight)">
-                      <span >{{ highlight  }}</span>
+                    <div (click)="scrollToHighlight(highlight)">
+                      <span > {{
+                        highlight.length > 25
+                          ? highlight.substring(0, 25) + "..."
+                          : highlight
+                      }}</span>
                     </div>
                   </li>
                 </ul>
@@ -103,8 +108,12 @@
               >
                 <ul class="col">
                   <li class="tag-list">
-                    <div>
-                      <span >{{ tagPublic }}</span>
+                    <div (click)="scrollToTag(tagPublic)">
+                      <span >{{
+                        tagPublic.length > 25
+                          ? tagPublic.substring(0, 25) + "..."
+                          : tagPublic
+                      }}</span>
                       <p
                         tabindex="-1"
                         class="public-item-close"
@@ -147,8 +156,12 @@
               >
                 <ul class="col">
                   <li class="tag-list">
-                    <div>
-                    <span >{{ tagPrivate  }}</span>
+                    <div (click)="scrollToTag(tagPrivate)">
+                    <span>{{
+                      tagPrivate.length > 25
+                        ? tagPrivate.substring(0, 25) + "..."
+                        : tagPrivate
+                    }}</span>
                       <p
                         tabindex="-1"
                         class="private-item-close"
@@ -180,7 +193,8 @@
         <div class="row flex-grow-1 comment-container">
           <div class="col h-100 mt-2">
             <div
-              *ngFor="let comment of commentList.text ; let i = index"
+              *ngFor="let comment of commentList.comment ; let i = index; "
+            
               class="row mx-2 clickable align-items-center"
               id="comment-row"
               [attr.tabindex]="0"
@@ -192,9 +206,12 @@
                     class="col-12 comment-box"
                     style="position: relative"
                     tabindex="-1"
+                    (click)="scrollToComment(commentList.text[i])"
                   >
                     {{
-                      comment
+                      comment.length > 30
+                        ? comment.substring(0, 30) + "..."
+                        : comment
                     }}
                   </div>
                   <span
@@ -244,12 +261,14 @@
                         </button>
                       </li>
                       <li
-                      (click)="editComment(i)"
+                      *ngIf="!isEditable[i]"
                         tabindex="-1"
                         style="height: 35px"
+                        (click)="editComment(i)"
                       >
                         Edit
                         <button
+                        *ngIf="!isEditable[i]"
                           type="button"
                           title="Edit Comment"
                           class="btn btn-primary btn-sm ms-1"
@@ -273,10 +292,9 @@
                   </span>
                 </div>
 
-                <div class="row mt-2"
-                *ngIf = 'isEditable'>
+                <div class="row mt-2">
                   <div class="ms-3 w-100">
-                    <div>
+                    <div *ngIf ='isEditable[i]'>
                       <textarea
                         placeholder="Type your Reply"
                         title="Comment"
@@ -295,7 +313,7 @@
                       </button>
                       <button
                         class="button close-comment btn btn-primary btn-sm"
-                        (click)="closeCommentTextarea(comment)"
+                        (click)="closeCommentTextarea(i,comment)"
                       >
                         Close
                       </button>
