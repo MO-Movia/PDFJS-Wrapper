@@ -66,6 +66,17 @@
                           : highlight
                       }}</span>
                     </div>
+                    <p
+                        tabindex="-1"
+                        class="highlight-close"
+                        [class.visible]="
+                        hoveredIndex === i && hoveredList === 'highlight'
+                      "
+                       
+                      >
+                      X
+                    </p>
+
                   </li>
                 </ul>
               </div>

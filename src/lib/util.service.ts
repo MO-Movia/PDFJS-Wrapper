@@ -119,6 +119,9 @@ export class UtilService {
   public updatedHighlightList(highlight: AnnotationSelection) {
     this.highlightList.text = highlight.text.slice();
   }
+  public updatedCommentList(Comment: AnnotationSelection) {
+    this.commentList.comment = Comment.comment.slice();
+  }
   public updateCommentText(text:string):void{
    this.commentList.text.push(text);
   }
