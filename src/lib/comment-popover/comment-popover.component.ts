@@ -66,9 +66,11 @@ export class CommentPopoverComponent {
         console.log(this.commentList);
       }
       this.closeComment();
+      this.submitComment.emit();
        this.utilService.submitComment();
     }
   }
+  
   @HostListener('keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent) {
     if (event.key === ' ' && !event.shiftKey) {

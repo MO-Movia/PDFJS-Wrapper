@@ -240,6 +240,9 @@ public createPDFObject(): void {
     console.log('commentTagPopover called with data:', data);
     if (data.detail.type === 'Comment') {
       this.showCommentPopover(data.detail);
+      
+      const commentPopoverInstance = this.popoverRef.instance as CommentPopoverComponent;
+      commentPopoverInstance.submitComment.subscribe(() => {
       this.submitSubscription = this.utilService.submitActionComment$.subscribe(
         () => {
           data.detail.updateParams(
@@ -248,8 +251,12 @@ public createPDFObject(): void {
           );
         }
       );
+    });
     } else if (data.detail.type === 'Tag') {
       this.showTagPopover(data.detail);
+
+      const tagPopoverInstance = this.popoverRef.instance as TagPopoverComponent;
+      tagPopoverInstance.submitTag.subscribe(() => {
       this.submitSubscription = this.utilService.submitActionTag$.subscribe(
         () => {
           data.detail.updateParams(
@@ -258,6 +265,7 @@ public createPDFObject(): void {
           );
         }
       );
+    });
     }
   }
 

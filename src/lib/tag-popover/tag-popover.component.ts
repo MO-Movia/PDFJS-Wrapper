@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AnnotationSelection, UtilService } from '../util.service';
 import { MoPdfViewerComponent } from '../mo-pdf-viewer.component';
@@ -19,6 +19,7 @@ export class TagPopoverComponent {
   public tagListPublic: AnnotationSelection;
   public selectedTagPublic: boolean = false;
   public selectedTagPrivate: boolean = false;
+  @Output() public submitTag = new EventEmitter<string>();
 
   @ViewChild(MoPdfViewerComponent)
   public pdfViewer!: MoPdfViewerComponent;
@@ -69,6 +70,7 @@ export class TagPopoverComponent {
         }
       }
       this.closeTag();
+      this.submitTag.emit();
       this.utilService.submitTag();
     }
   }
