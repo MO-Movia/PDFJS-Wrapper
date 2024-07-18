@@ -1,8 +1,13 @@
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AnnotationSelection, UtilService } from '../util.service';
+import { UtilService } from '../util.service';
 import { MoPdfViewerComponent } from '../mo-pdf-viewer.component';
-
 
 @Component({
   selector: 'mo-app-tag-popover',
@@ -15,8 +20,8 @@ export class TagPopoverComponent {
   @Input({ required: true }) public pdfSrc: string | Uint8Array = '';
   public closePopover: boolean = false;
   public selectedTag: string = '';
-  public tagListPrivate: AnnotationSelection;
-  public tagListPublic: AnnotationSelection;
+  public tagListPrivate: { name: string; isPrivate: boolean }[];
+  public tagListPublic: { name: string; isPrivate: boolean }[];
   public selectedTagPublic: boolean = false;
   public selectedTagPrivate: boolean = false;
   @Output() public submitTag = new EventEmitter<string>();
@@ -25,53 +30,19 @@ export class TagPopoverComponent {
   public pdfViewer!: MoPdfViewerComponent;
 
   constructor(public utilService: UtilService) {
-    this.tagListPrivate = this.utilService.getTagListPrivate();
-    this.tagListPublic = this.utilService.getTagListPublic();
-    
+    this.tagListPrivate = this.utilService.getTags().filter((d) => d.isPrivate);
+    this.tagListPublic = this.utilService.getTags().filter((d) => !d.isPrivate);
   }
   public closeTag(): void {
     const popover = document.querySelector('.tag-popover') as HTMLElement;
     if (!this.closePopover) {
       popover.style.display = 'none';
     }
-    this.closePopover = !this.closePopover;  
-    
+    this.closePopover = !this.closePopover;
   }
 
   public storeTag(): void {
-    if (this.selectedTagPublic || this.selectedTagPrivate) {
-      const selectedTagText = document.querySelector(
-        '.selectedEditor'
-      ) as HTMLDivElement;
-      const tagText = selectedTagText?.ariaLabel;
-
-      if (tagText != null) {
-        let highlightList = this.utilService.gethighlightText();
-        const normalizedTagText = tagText.trim().toLowerCase();
-        if (
-          highlightList.text.some(
-            (word) => word.trim().toLowerCase() === normalizedTagText
-          )
-        ) {
-          highlightList.text = highlightList.text.filter(
-            (word) => word.trim().toLowerCase() !== normalizedTagText
-          );
-          console.log('The updated highlightList is: ', highlightList);
-          this.utilService.updatedHighlightList(highlightList);
-        }
-
-        if (this.selectedTagPrivate && this.selectedTagPublic) {
-          this.utilService.updateTagListPrivate(tagText);
-          this.utilService.updateTagListPublic(tagText);
-        } else if (this.selectedTagPrivate) {
-          this.utilService.updateTagListPrivate(tagText);
-        } else if (this.selectedTagPublic) {
-          this.utilService.updateTagListPublic(tagText);
-        }
-      }
-      this.closeTag();
-      this.submitTag.emit();
-      this.utilService.submitTag();
-    }
+    this.closeTag();
+    this.submitTag.emit();
   }
 }

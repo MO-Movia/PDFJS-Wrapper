@@ -58,5 +58,4 @@ describe('UtilService', () => {
     service.updatedHighlightList(newHighlights);
     expect(service.highlightList).toEqual(newHighlights);
   });
-
 });

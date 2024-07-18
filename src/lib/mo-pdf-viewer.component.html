@@ -12,8 +12,8 @@
               [customToolbar]="additionalButtons"
               [src]="pdfSrc"
               [textLayer]="true"
-              (pagesLoaded)="onPageLoaded($event)"
               (pageRendered)="onPageRendered($event)"
+              (annotationRemovedEvent)="annotationDeleted($event)"
             >
             </ngx-extended-pdf-viewer>
             <ng-template #additionalButtons>
@@ -50,7 +50,7 @@
         <div class="row flex-grow-1 tag-container">
           <div class="highlightlist">
             <ng-container
-              *ngFor="let highlight of highlightList.text; let i = index"
+              *ngFor="let highlight of highlightList; let i = index"
             >
               <div
                 class="highlight-list"
@@ -59,24 +59,25 @@
               >
                 <ul class="col">
                   <li class="highlights-list">
-                    <div (click)="scrollToHighlight(highlight)">
-                      <span > {{
-                        highlight.length > 25
-                          ? highlight.substring(0, 25) + "..."
-                          : highlight
-                      }}</span>
+                    <div>
+                      <span (click)="scrollToElement(highlight.id)">
+                        {{
+                          highlight.text.length > 25
+                            ? highlight.text.substring(0, 25) + "..."
+                            : highlight.text
+                        }}</span
+                      >
                     </div>
                     <p
-                        tabindex="-1"
-                        class="highlight-close"
-                        [class.visible]="
+                      tabindex="-1"
+                      class="highlight-close"
+                      [class.visible]="
                         hoveredIndex === i && hoveredList === 'highlight'
                       "
-                       
-                      >
+                      (click)="removeAnnotation(highlight)"
+                    >
                       X
                     </p>
-
                   </li>
                 </ul>
               </div>
@@ -108,22 +109,22 @@
             </svg>
             <h6 class="tag-type">Public</h6>
             <div class="tag-public-count">
-              {{ tagListPublic.text.length }}
+              {{ tagListPublic.length }}
             </div>
             <div *ngIf="publicListVisible">
               <div
-                *ngFor="let tagPublic of tagListPublic.text; let i = index"
+                *ngFor="let tagPublic of tagListPublic; let i = index"
                 class="publicList"
                 (mouseenter)="onMouseEnter('public', i)"
                 (mouseleave)="onMouseLeave()"
               >
                 <ul class="col">
                   <li class="tag-list">
-                    <div (click)="scrollToTag(tagPublic)">
-                      <span >{{
-                        tagPublic.length > 25
-                          ? tagPublic.substring(0, 25) + "..."
-                          : tagPublic
+                    <div>
+                      <span (click)="scrollToElement(tagPublic.id)">{{
+                        tagPublic.text.length > 25
+                          ? tagPublic.text.substring(0, 25) + "..."
+                          : tagPublic.text
                       }}</span>
                       <p
                         tabindex="-1"
@@ -131,8 +132,7 @@
                         [class.visible]="
                           hoveredIndex === i && hoveredList === 'public'
                         "
-                        (click)="removeTag('public', i)"
-                        (keyup)="removeTag('public', i)"
+                        (click)="removeAnnotation(tagPublic)"
                       >
                         X
                       </p>
@@ -156,31 +156,30 @@
             </svg>
             <h6 class="tag-type">Private</h6>
             <div class="tag-private-count">
-              {{ tagListPrivate.text.length }}
+              {{ tagListPrivate.length }}
             </div>
             <div *ngIf="privateListVisible">
               <div
-                *ngFor="let tagPrivate of tagListPrivate.text; let i = index"
+                *ngFor="let tagPrivate of tagListPrivate; let i = index"
                 class="privateList"
                 (mouseenter)="onMouseEnter('private', i)"
                 (mouseleave)="onMouseLeave()"
               >
                 <ul class="col">
                   <li class="tag-list">
-                    <div (click)="scrollToTag(tagPrivate)">
-                    <span>{{
-                      tagPrivate.length > 25
-                        ? tagPrivate.substring(0, 25) + "..."
-                        : tagPrivate
-                    }}</span>
+                    <div>
+                      <span (click)="scrollToElement(tagPrivate.id)">{{
+                        tagPrivate.text.length > 25
+                          ? tagPrivate.text.substring(0, 25) + "..."
+                          : tagPrivate.text
+                      }}</span>
                       <p
                         tabindex="-1"
                         class="private-item-close"
                         [class.visible]="
                           hoveredIndex === i && hoveredList === 'private'
                         "
-                        (click)="removeTag('private', i)"
-                        (keyup)="removeTag('private', i)"
+                        (click)="removeAnnotation(tagPrivate)"
                       >
                         X
                       </p>
@@ -204,8 +203,7 @@
         <div class="row flex-grow-1 comment-container">
           <div class="col h-100 mt-2">
             <div
-              *ngFor="let comment of commentList.comment ; let i = index; "
-            
+              *ngFor="let comment of commentList; let i = index"
               class="row mx-2 clickable align-items-center"
               id="comment-row"
               [attr.tabindex]="0"
@@ -217,42 +215,39 @@
                     class="col-12 comment-box"
                     style="position: relative"
                     tabindex="-1"
-                    (click)="scrollToComment(commentList.text[i])"
+                    (click)="scrollToElement(comment.id)"
                   >
                     {{
-                      comment.length > 30
-                        ? comment.substring(0, 30) + "..."
-                        : comment
+                      comment.comment.length > 30
+                        ? comment.comment.substring(0, 30) + "..."
+                        : comment.comment
                     }}
                   </div>
-                  <span
-                    class="icon-span"
-
-                  >
-                  <div class="svg-icon">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      fill="currentColor"
-                      class="bi bi-three-dots-vertical"
-                      viewBox="0 0 16 16"
-                      id="comment-dropdown"
-                      #commentDropdown
-                      (click)="commntDropdownVisible(commentDropdown)"
-                    >
-                      <path
-                        d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"
-                      />
-                    </svg>
-                  </div>
+                  <span class="icon-span">
+                    <div class="svg-icon">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        fill="currentColor"
+                        class="bi bi-three-dots-vertical"
+                        viewBox="0 0 16 16"
+                        id="comment-dropdown"
+                        #commentDropdown
+                        (click)="commntDropdownVisible(commentDropdown)"
+                      >
+                        <path
+                          d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"
+                        />
+                      </svg>
+                    </div>
                     <ul
                       class="dropdown-content"
                       *ngIf="dropdownVisible"
                       style="top: 16px; display: none"
                     >
                       <li
-                      (click)="removeComment(i)"
+                        (click)="removeAnnotation(comment)"
                         tabindex="-1"
                         style="height: 35px"
                       >
@@ -262,7 +257,6 @@
                           title="Remove Comment"
                           class="btn btn-danger btn-sm ms-1"
                           id="trash_button_comment"
-                          (click)="removeComment(i)"
                         >
                           <fa-icon
                             class="mx-auto my-auto"
@@ -272,20 +266,19 @@
                         </button>
                       </li>
                       <li
-                      *ngIf="!isEditable[i]"
+                        *ngIf="!isEditable[i]"
                         tabindex="-1"
                         style="height: 35px"
                         (click)="editComment(i)"
                       >
                         Edit
                         <button
-                        *ngIf="!isEditable[i]"
+                          *ngIf="!isEditable[i]"
                           type="button"
                           title="Edit Comment"
                           class="btn btn-primary btn-sm ms-1"
                           id="edit_button_comment"
                           (click)="editComment(i)"
-                          
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -305,26 +298,23 @@
 
                 <div class="row mt-2">
                   <div class="ms-3 w-100">
-                    <div *ngIf ='isEditable[i]'>
+                    <div *ngIf="isEditable[i]">
                       <textarea
                         placeholder="Type your Reply"
                         title="Comment"
                         class="form-control"
                         id="comments-textarea"
                         [(ngModel)]="newComment"
-                        (input)="enableSubmitButton(comment, submitButton)"
                       ></textarea>
                       <button
                         #submitButton
                         class="button comment_submit btn btn-primary btn-sm"
-                        (click)="submitComment(i, submitButton)"
-                        disabled =!newComment
+                        disabled="!newComment"
                       >
                         Submit
                       </button>
                       <button
                         class="button close-comment btn btn-primary btn-sm"
-                        (click)="closeCommentTextarea(i,comment)"
                       >
                         Close
                       </button>

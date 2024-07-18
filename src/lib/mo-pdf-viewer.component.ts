@@ -10,6 +10,8 @@ import {
   Renderer2,
   OnInit,
   HostListener,
+  Output,
+  EventEmitter,
 } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { provideAnimations } from '@angular/platform-browser/animations';
@@ -25,15 +27,12 @@ import {
   NgxExtendedPdfViewerModule,
   NgxExtendedPdfViewerComponent,
   AnnotationEditorParamsType,
-  PdfHighlightEditorComponent,
   NgxExtendedPdfViewerService,
   PageRenderEvent,
-} from 'ngx-extended-pdf-viewer';
-import {
-  CommentTagEvent,
+  AnnotationActionType,
   ShowCommentTagPopoverDetails,
-  showhighlightedArrayEvent,
-} from 'ngx-extended-pdf-viewer/lib/events/annotation-editor-layer-event';
+  AnnotationDeleteEvent,
+} from 'ngx-extended-pdf-viewer';
 import { CommentPopoverComponent } from './comment-popover/comment-popover.component';
 import { TagPopoverComponent } from './tag-popover/tag-popover.component';
 import {
@@ -51,13 +50,9 @@ import {
   faTrash,
   faHighlighter,
 } from '@fortawesome/free-solid-svg-icons';
-import { AnnotationSelection, UtilService } from './util.service';
-import { Highlight } from './util.service';
+import { UtilService } from './util.service';
 
-import { Comment } from './util.service';
-import { CommentSelection } from './models/comment-selection.model';
 import { FormsModule } from '@angular/forms';
-import { SpanLocation } from './models/span-location.model';
 
 @Component({
   standalone: true,
@@ -83,17 +78,18 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   @Input() public documentClassification = 'Unclassified';
   @Input() public documentAuthor = '';
   @Input() public minimalView = false;
-  public tagListPublic: AnnotationSelection;
-  public tagListPrivate: AnnotationSelection;
-  public commentList: AnnotationSelection;
+  @Output() public annotationUpdated = new EventEmitter<any>();
+  public tagListPublic: any[] = [];
+  public tagListPrivate: any[] = [];
+  public commentList: any[] = [];
   public isOpenTag: boolean = false;
   public isOpenComment: boolean = false;
   public publicListVisible: boolean = false;
   public privateListVisible: boolean = false;
   public isHovered: boolean = false;
-  public isEditable:boolean[] = [];
-  public newComment:string ='';
-  highlightText: string | undefined ='';
+  public isEditable: boolean[] = [];
+  public newComment: string = '';
+  highlightText: string | undefined = '';
   commentTextArray: string[] = [];
   textType: string | undefined;
   public submitSubscription: any;
@@ -110,14 +106,11 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     );
     pdfViewerElement.addEventListener('scroll', this.onPdfViewerScroll);
     pdfViewerElement.addEventListener('keydown', this.onKeyDown);
-    this.createPDFObject();
   }
   private popoverRef: any;
-  private commentDetails: CommentTagEvent | null = null;
-  private tagDetails: CommentTagEvent | null = null;
   private previousScrollTop = 0;
   private previousScrollLeft = 0;
-  public highlightList: AnnotationSelection
+  public highlightList: any[] = [];
   public dropdownVisible: any = {};
   public hoveredList: 'private' | 'public' | null | 'highlight' = null;
   public hoveredIndex: number | null = null;
@@ -131,48 +124,17 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     public renderer: Renderer2,
     private pdfService: NgxExtendedPdfViewerService
   ) {
-    this.highlightList = utilService.gethighlightText();
-    this.tagListPublic = utilService.getTagListPublic();
-    this.tagListPrivate = utilService.getTagListPrivate();
-    this.commentList = utilService.getCommentList();
+    this.utilService.annotationUpdated$.subscribe(() => {
+      this.createPDFObject();
+    });
   }
 
-  public onPageLoaded(event: any): void {
-    console.log('Page Load', event);
+  public createPDFObject(): void {
+    this.highlightList = this.utilService.gethighlightText();
+    this.tagListPublic = this.utilService.getTagListPublic();
+    this.tagListPrivate = this.utilService.getTagListPrivate();
+    this.commentList = this.utilService.getCommentList();
   }
-
-public createPDFObject(): void {
-  const annotationArrays = {
-    tagListPrivate: this.utilService.getTagListPrivate(),
-    tagListPublic: this.utilService.getTagListPublic(),
-    commentList: this.utilService.getCommentList(),
-    highlightList: this.utilService.gethighlightText(),
-  };
-  console.log(annotationArrays);
-
-  interface PdfNodeObjectsType {
-    Id: number;
-    annotationObjArray: AnnotationObj;
-    spanIndex: any;
-  }
-  interface AnnotationObj {
-    tagListPrivate: AnnotationSelection;
-    tagListPublic: AnnotationSelection;
-    commentList: AnnotationSelection;
-    highlightList: AnnotationSelection;
-  }
-
-  let pdfNodeObjects: Array<PdfNodeObjectsType> = [
-    {
-      Id: 1,
-      annotationObjArray: annotationArrays,
-      spanIndex: ''
-    },
-  ];
-  console.log(pdfNodeObjects[0].Id);
-  console.log(pdfNodeObjects[0].annotationObjArray);
-}
-
 
   public I = {
     faFile,
@@ -209,57 +171,15 @@ public createPDFObject(): void {
     this.selectedSearchCategory = category;
   }
 
-  public showHighlightedArray(data: showhighlightedArrayEvent) {
-    console.log('data:', data);
-
-    const currentEditorValues = Array.from(
-      data.highlightedText._uiManager.allEditors.values()
-    ) as { text: string }[];
-    for (const [key, value] of data.highlightedText.parent.editors.entries()) {
-      console.log('Editor key:', key);
-    }
-    if (data.highlightedText) {
-      this.highlightText = data.highlightedText.text;
-      this.textType = data.highlightedText.type;
-    } else {
-      this.highlightText = undefined;
-      this.textType = undefined;
-    }
-    if (this.highlightText !== undefined && this.textType !== undefined) {
-      if (this.textType === 'Highlight') {
-        if (!this.highlightList.text.includes(this.highlightText)) {
-          this.highlightList.text.push(this.highlightText);
-        }
-      }
-    }
-
-    this.highlightList.text = this.highlightList.text.filter((text) =>
-      currentEditorValues.some((editor) => editor.text === text)
-
-    );
-  
-    this.tagListPrivate.text = this.tagListPrivate.text.filter((text) =>
-      currentEditorValues.some((editor) => editor.text === text)
-
-    );
-    this.tagListPublic.text = this.tagListPublic.text.filter((text) =>
-      currentEditorValues.some((editor) => editor.text === text)
-    );
-    for (let i = this.commentList.comment.length - 1; i >= 0; i--) {
-      const text = this.commentList.text[i];
-      const hasMatchingEditor = currentEditorValues.some(editor => editor.text === text);
-      if (!hasMatchingEditor) {
-        this.commentList.comment.splice(i, 1);
-        this.commentList.text.splice(i, 1); 
-      }
-    }  
-  
+  public showHighlightedArray(editor: any) {
+    this.annotationUpdated.emit(editor);
+    this.utilService.addEditor(editor);
   }
 
   @HostListener('keydown', ['$event'])
   onKey(event: KeyboardEvent) {
     if (event.key === 'Backspace') {
-      event.preventDefault(); 
+      event.preventDefault();
       event.stopPropagation();
       const textarea = event.target as HTMLTextAreaElement;
       const start = textarea.selectionStart;
@@ -271,7 +191,7 @@ public createPDFObject(): void {
         setTimeout(() => {
           textarea.selectionStart = textarea.selectionEnd = start;
         }, 0);
-      } else if (start > 0) { 
+      } else if (start > 0) {
         const value = textarea.value;
         const newValue = value.substring(0, start - 1) + value.substring(end);
         this.newComment = newValue;
@@ -279,53 +199,54 @@ public createPDFObject(): void {
           textarea.selectionStart = textarea.selectionEnd = start - 1;
         }, 0);
       }
-  
     }
   }
 
   public onKeyDown(event: KeyboardEvent): void {
     if (event.key === 'Backspace') {
       event.preventDefault();
-      event.stopPropagation(); 
+      event.stopPropagation();
     }
   }
 
- 
   public commentTagPopover(data: ShowCommentTagPopoverDetails): void {
     console.log('commentTagPopover called with data:', data);
-    if (data.detail.type === 'Comment') {
-      this.showCommentPopover(data.detail);
-      
-      const commentPopoverInstance = this.popoverRef.instance as CommentPopoverComponent;
-      commentPopoverInstance.submitComment.subscribe(() => {
-      this.submitSubscription = this.utilService.submitActionComment$.subscribe(
-        () => {
-          data.detail.updateParams(
-            AnnotationEditorParamsType.HIGHLIGHT_COLOR,
-            '#80EBFF'
-          );
-        }
-      );
-    });
-    } else if (data.detail.type === 'Tag') {
-      this.showTagPopover(data.detail);
+    const editor = this.utilService.getEditor(data.id);
+    if (data.type === AnnotationActionType.comment) {
+      this.showCommentPopover(editor);
 
-      const tagPopoverInstance = this.popoverRef.instance as TagPopoverComponent;
+      const commentPopoverInstance = this.popoverRef
+        .instance as CommentPopoverComponent;
+      commentPopoverInstance.comment = editor.comment;
+      commentPopoverInstance.submitComment.subscribe(() => {
+        editor.updateParams(
+          AnnotationEditorParamsType.HIGHLIGHT_COLOR,
+          '#80EBFF'
+        );
+        editor.type = AnnotationActionType.comment;
+        editor.comment = commentPopoverInstance.comment;
+        this.utilService.updateEditorType(editor);
+      });
+    } else if (
+      data.type === AnnotationActionType.privateTag ||
+      data.type === AnnotationActionType.publicTag
+    ) {
+      this.showTagPopover(editor);
+
+      const tagPopoverInstance = this.popoverRef
+        .instance as TagPopoverComponent;
       tagPopoverInstance.submitTag.subscribe(() => {
-      this.submitSubscription = this.utilService.submitActionTag$.subscribe(
-        () => {
-          data.detail.updateParams(
-            AnnotationEditorParamsType.HIGHLIGHT_COLOR,
-            '#53FFBC'
-          );
-        }
-      );
-    });
+        editor.updateParams(
+          AnnotationEditorParamsType.HIGHLIGHT_COLOR,
+          '#53FFBC'
+        );
+        editor.type = AnnotationActionType.publicTag; // TO-DO - Make it dynamic
+        this.utilService.updateEditorType(editor);
+      });
     }
   }
 
-  public showTagPopover(tagDetails: CommentTagEvent): void {
-    console.log('showTagPopover called with tagDetails:', tagDetails);
+  public showTagPopover(editor: any): void {
     this.closeCommentPopover();
     this.isOpenTag = true;
     const popoverFactory =
@@ -335,19 +256,12 @@ public createPDFObject(): void {
     const popoverElement = (this.popoverRef.hostView as any)
       .rootNodes[0] as HTMLElement;
     popoverElement.style.display = 'block';
-    let tagValue = null;
-    for (let [key, value] of tagDetails.parent.editors) {
-      console.log(`Key: ${key}`);
-      console.log('Value:', value);
-      tagValue = value.div;
-    }
-    if (tagValue) {
-      const selectedText = document.querySelector(
-        '.highlightEditor.selectedEditor'
-      ) as HTMLElement;
-      selectedText.appendChild(popoverElement);
-    }
-    this.tagDetails = tagDetails;
+
+    const selectedText = document.querySelector(
+      '.highlightEditor.selectedEditor'
+    ) as HTMLElement;
+    selectedText.appendChild(popoverElement);
+
     const pdfViewerElement = this.elementRef.nativeElement.querySelector(
       'ngx-extended-pdf-viewer'
     );
@@ -356,7 +270,7 @@ public createPDFObject(): void {
     this.renderer.listen('document', 'click', this.onDocumentClickTag);
   }
 
-  public showCommentPopover(commentDetails: CommentTagEvent): void {
+  public showCommentPopover(editor: any): void {
     this.closeCommentPopover();
     this.isOpenComment = true;
     const popoverFactory = this.resolver.resolveComponentFactory(
@@ -367,19 +281,12 @@ public createPDFObject(): void {
     const popoverElement = (this.popoverRef.hostView as any)
       .rootNodes[0] as HTMLElement;
     popoverElement.style.display = 'block';
-    let commentValue = null;
-    for (let [key, value] of commentDetails.parent.editors) {
-      console.log(`Key: ${key}`);
-      console.log('Value:', value);
-      commentValue = value.div;
-    }
-    if (commentValue) {
-      const selectedText = document.querySelector(
-        '.highlightEditor.selectedEditor'
-      ) as HTMLElement;
-      selectedText.appendChild(popoverElement);
-    }
-    this.commentDetails = commentDetails;
+
+    const selectedText = document.querySelector(
+      '.highlightEditor.selectedEditor'
+    ) as HTMLElement;
+    selectedText.appendChild(popoverElement);
+
     const pdfViewerElement = this.elementRef.nativeElement.querySelector(
       'ngx-extended-pdf-viewer'
     );
@@ -389,23 +296,16 @@ public createPDFObject(): void {
   }
 
   public onPageRendered(event: PageRenderEvent): void {
-
-    //     this.pdfService.setAnnotation([{spanIndex: 42,
-    //       rangeStart: 0,
-    //       rangeEnd: 40,
-    //       color: '#000'},
-    //       {spanIndex: 44,
-    //         rangeStart: 5,
-    //         rangeEnd: 10,
-    //         color: '#000'},
-    //         {spanIndex: 48,
-    //           rangeStart: 3,
-    //           rangeEnd: 8,
-    //           color: '#000'},
-    // ]);
-      
+    this.pdfService.setAnnotation([
+      {
+        spanIndex: 32,
+        rangeStart: 5,
+        rangeEnd: 12,
+        color: '#80EBFF',
+        pageNumber: 1,
+      },
+    ]);
   }
-
 
   public onDocumentClickTag = (event: MouseEvent): void => {
     if (this.popoverRef && this.popoverRef.hostView) {
@@ -423,7 +323,7 @@ public createPDFObject(): void {
       if (!clickedInsidePopover && !clickedInsideTag) {
         const popover = document.querySelector('.tag-popover') as HTMLElement;
 
-        if (this.isOpenTag) {
+        if (this.isOpenTag && popover) {
           popover.style.display = 'none';
         }
         this.isOpenTag = false;
@@ -452,7 +352,7 @@ public createPDFObject(): void {
           '.comment-popover-content'
         ) as HTMLElement;
 
-        if (this.isOpenComment) {
+        if (this.isOpenComment && popover) {
           popover.style.display = 'none';
         }
         this.isOpenTag = false;
@@ -463,87 +363,15 @@ public createPDFObject(): void {
     }
   };
 
-  public scrollToHighlight(highlight: string): void {
-    const pdfViewerElement = this.elementRef.nativeElement.querySelector(
-      'ngx-extended-pdf-viewer'
-    );
-
-    if (pdfViewerElement && highlight) {
-      const textElements =
-        pdfViewerElement.querySelectorAll('.highlightEditor');
-      if (textElements.length === 0) {
-        return;
-      }
-      let foundElement: HTMLElement | null = null;
-      textElements.forEach((element: HTMLElement) => {
-        if (element.ariaLabel === highlight) {
-          foundElement = element;
-        }
-      });
-
-      if (foundElement) {
-        (foundElement as HTMLElement).scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
-        });
-      } 
-    }
-  }
-  public scrollToTag(tag:string){
-    const pdfViewerElement = this.elementRef.nativeElement.querySelector(
-      'ngx-extended-pdf-viewer'
-    );
-
-    if (pdfViewerElement && tag) {
-      const textElements =
-        pdfViewerElement.querySelectorAll('.highlightEditor');
-      if (textElements.length === 0) {
-        return;
-      }
-      let foundElement: HTMLElement | null = null;
-      textElements.forEach((element: HTMLElement) => {
-        if (element.ariaLabel === tag) {
-          foundElement = element;
-        }
-      });
-
-      if (foundElement) {
-        (foundElement as HTMLElement).scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
-        });
-      } 
-    }
-  }
-  public scrollToComment(text:string){
-    const pdfViewerElement = this.elementRef.nativeElement.querySelector(
-      'ngx-extended-pdf-viewer'
-    );
-
-    if (pdfViewerElement && text) {
-      const textElements =
-        pdfViewerElement.querySelectorAll('.highlightEditor');
-      if (textElements.length === 0) {
-        return;
-      }
-      let foundElement: HTMLElement | null = null;
-      textElements.forEach((element: HTMLElement) => {
-        if (element.ariaLabel === text) {
-          foundElement = element;
-        }
-      });
-
-      if (foundElement) {
-        (foundElement as HTMLElement).scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
-        });
-      } 
-    }
+  public scrollToElement(id: string): void {
+    document.getElementById(`${id}`)?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
   }
 
   public onPdfViewerScroll = (): void => {
-    if (this.popoverRef && this.commentDetails && this.tagDetails) {
+    if (this.popoverRef) {
       const pdfViewerElement = this.elementRef.nativeElement.querySelector(
         'ngx-extended-pdf-viewer'
       );
@@ -557,7 +385,6 @@ public createPDFObject(): void {
       this.appRef.detachView(this.popoverRef.hostView);
       this.popoverRef.destroy();
       this.popoverRef = null;
-      this.commentDetails = null;
       const pdfViewerElement = this.elementRef.nativeElement.querySelector(
         'ngx-extended-pdf-viewer'
       );
@@ -605,98 +432,28 @@ public createPDFObject(): void {
     }
   }
 
-  public submitComment(
-    index: number,
-    submitButton: HTMLButtonElement
-  ): void {
+  public annotationDeleted(event: AnnotationDeleteEvent) {
+    this.utilService.removeAnnotation(event.id);
+  }
+
+  public submitComment(index: number, submitButton: HTMLButtonElement): void {
     if (this.newComment.trim()) {
-      this.commentList.comment[index] = this.newComment; 
-      this.newComment = ''; 
+      this.newComment = '';
     }
     this.isEditable[index] = false;
     submitButton.setAttribute('disabled', 'true');
   }
 
-  public editComment(index:number): void {
-  this.newComment = this.commentList.comment[index]
-   this.isEditable[index] = true;
-   
+  public editComment(index: number): void {
+    this.isEditable[index] = true;
   }
 
-  public removeComment(index:number): void {
-    this.commentList.comment.splice(index,1);
-    this.commentList.text.splice(index,1);
-  }
-  // public removeHighlight(index: number): void {
-  //   const pdfViewerElement = this.elementRef.nativeElement.querySelector(
-  //     'ngx-extended-pdf-viewer'
-  //   );
-  
-  //   if (pdfViewerElement && this.highlightList.text[index]) {
-  //     const textElements = pdfViewerElement.querySelectorAll('.highlightEditor');
-  //     if (textElements.length === 0) {
-  //       return;
-  //     }
-
-  
-  //     let foundElement: any = null;
-  //     textElements.forEach((element: HTMLElement) => {
-  //       if (element.ariaLabel === this.highlightList.text[index]) {
-  //         foundElement = element;
-  //       }
-  //     });
-  //     if (foundElement && foundElement.setSelectionRange) {
-  //       // Modern browsers
-  //       foundElement.focus();
-  //          foundElement.click();
-  //          foundElement.click();
-  //   }
-      
-
-  //       // const lastChild =foundElement.childNodes[1].childNodes[0].lastElementChild;
-  //       //     if (lastChild) {
-  //       //     lastChild.click();
-  //       //     // secondChild.classList.add('hidden');
-  //       //     }
-  //         // Rem
-    
-  //       const secondChild = foundElement.querySelector(':nth-child(2)'); // Select second child element
-  //       if (secondChild && secondChild.classList) {
-  //         secondChild.classList.remove(secondChild.classList[1]); 
-          
-  //           const lastChild =foundElement.childNodes[1].childNodes[0].lastElementChild;
-  //           if (lastChild) {
-  //           lastChild.click();
-  //           // secondChild.classList.add('hidden');
-  //           }
-  //         // Remove class at index 1
-  //       }
-  //       const lastChild =foundElement.childNodes[1].classList[1]
-  //       if (lastChild) {
-  //           lastChild.click();
-  //         } 
-         
-  //      else {
-  //       console.error('Element corresponding to highlightList[index] not found.');
-  //     }
-  //   } 
-  
-  //   this.highlightList.text.splice(index, 1);
-    
-  // }
-
-  
-
-  public removeTag(type: 'public' | 'private', index: number): void {
-    if (type === 'public') {
-      this.tagListPublic.comment.splice(index, 1);
-    } else if (type === 'private') {
-      this.tagListPrivate.text.splice(index, 1);
-    }
+  public removeAnnotation(editor: any) {
+    editor.remove(editor);
   }
 
-  public closeCommentTextarea(index:number,comment: string): void {
-   this.isEditable[index]=false;
+  public closeCommentTextarea(index: number, comment: string): void {
+    this.isEditable[index] = false;
   }
 
   public tagPublicVisibility(): void {
@@ -706,8 +463,6 @@ public createPDFObject(): void {
   public tagPrivateVisibility(): void {
     this.privateListVisible = !this.privateListVisible;
   }
-
-
 
   public onMouseEnter(
     list: 'private' | 'public' | 'highlight',

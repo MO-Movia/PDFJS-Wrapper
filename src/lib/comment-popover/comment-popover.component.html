@@ -1,11 +1,17 @@
 <div class="comment-popover-content">
   <div class="comment-header">
     <h5>Add Comment</h5>
-    <span class="close-comment" tabindex="-1" (click)="closeComment()" (keyup)="closeComment()">x</span>
+    <span
+      class="close-comment"
+      tabindex="-1"
+      (click)="closeComment()"
+      (keyup)="closeComment()"
+      >x</span
+    >
   </div>
   <div class="comment-border"></div>
   <textarea
-    [(ngModel)]="newComment"
+    [(ngModel)]="comment"
     rows="4"
     placeholder="Enter your comment"
     class="comment-textarea"
