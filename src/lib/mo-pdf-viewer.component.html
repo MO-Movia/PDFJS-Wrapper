@@ -59,8 +59,8 @@
               >
                 <ul class="col">
                   <li class="highlights-list">
-                    <div>
-                      <span (click)="scrollToElement(highlight.id)">
+                    <div (click)="scrollToElement(highlight.id)">
+                      <span>
                         {{
                           highlight.text.length > 25
                             ? highlight.text.substring(0, 25) + "..."
@@ -120,8 +120,8 @@
               >
                 <ul class="col">
                   <li class="tag-list">
-                    <div>
-                      <span (click)="scrollToElement(tagPublic.id)">{{
+                    <div (click)="scrollToElement(tagPublic.id)">
+                      <span>{{
                         tagPublic.text.length > 25
                           ? tagPublic.text.substring(0, 25) + "..."
                           : tagPublic.text
@@ -167,8 +167,8 @@
               >
                 <ul class="col">
                   <li class="tag-list">
-                    <div>
-                      <span (click)="scrollToElement(tagPrivate.id)">{{
+                    <div (click)="scrollToElement(tagPrivate.id)">
+                      <span>{{
                         tagPrivate.text.length > 25
                           ? tagPrivate.text.substring(0, 25) + "..."
                           : tagPrivate.text
@@ -304,8 +304,11 @@
                         title="Comment"
                         class="form-control"
                         id="comments-textarea"
-                        [(ngModel)]="newComment"
-                        (input)="enableSubmitButton(newComment, submitButton)"
+                        [(ngModel)]="newComment[i]"
+                        (input)="
+                          enableSubmitButton(i, newComment[i], submitButton)
+                        "
+                        (keydown)="onKey($event, i)"
                       ></textarea>
                       <button
                         #submitButton

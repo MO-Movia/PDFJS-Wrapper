@@ -88,7 +88,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   public privateListVisible: boolean = false;
   public isHovered: boolean = false;
   public isEditable: boolean[] = [];
-  public newComment: string = '';
+  public newComment: string[] = [];
   highlightText: string | undefined = '';
   commentTextArray: string[] = [];
   textType: string | undefined;
@@ -177,7 +177,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   }
 
   @HostListener('keydown', ['$event'])
-  onKey(event: KeyboardEvent) {
+  onKey(event: KeyboardEvent, i: number) {
     if (event.key === 'Backspace') {
       event.preventDefault();
       event.stopPropagation();
@@ -187,14 +187,15 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       if (start !== end) {
         const value = textarea.value;
         const newValue = value.substring(0, start) + value.substring(end);
-        this.newComment = newValue;
+        this.newComment[i] = newValue;
         setTimeout(() => {
           textarea.selectionStart = textarea.selectionEnd = start;
         }, 0);
       } else if (start > 0) {
         const value = textarea.value;
         const newValue = value.substring(0, start - 1) + value.substring(end);
-        this.newComment = newValue;
+        this.newComment[i] = newValue;
+
         setTimeout(() => {
           textarea.selectionStart = textarea.selectionEnd = start - 1;
         }, 0);
@@ -232,7 +233,6 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       data.type === AnnotationActionType.publicTag
     ) {
       this.showTagPopover(editor);
-
       const tagPopoverInstance = this.popoverRef
         .instance as TagPopoverComponent;
       tagPopoverInstance.submitTag.subscribe(() => {
@@ -240,16 +240,12 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
           AnnotationEditorParamsType.HIGHLIGHT_COLOR,
           '#53FFBC'
         );
-        if(tagPopoverInstance.selectedTag === "Public"){
-          editor.type = AnnotationActionType.publicTag;  
-          this.utilService.updateEditorType(editor);
-          
-        } else if(tagPopoverInstance.selectedTag === "Private"){
-          editor.type = AnnotationActionType.privateTag
-          this.utilService.updateEditorType(editor);
-           
+        if (tagPopoverInstance.selectedTag === 'Public') {
+          editor.type = AnnotationActionType.publicTag;
+        } else if (tagPopoverInstance.selectedTag === 'Private') {
+          editor.type = AnnotationActionType.privateTag;
         }
-        
+        this.utilService.updateEditorType(editor);
       });
     }
   }
@@ -269,7 +265,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       '.highlightEditor.selectedEditor'
     ) as HTMLElement;
     selectedText.appendChild(popoverElement);
- 
+
     const pdfViewerElement = this.elementRef.nativeElement.querySelector(
       'ngx-extended-pdf-viewer'
     );
@@ -359,7 +355,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
         if (this.isOpenComment && popover) {
           popover.style.display = 'none';
         }
-        this.isOpenComment= false;
+        this.isOpenComment = false;
       }
     }
   };
@@ -419,6 +415,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   }
 
   public enableSubmitButton(
+    index: number,
     comment: string,
     submitButton: HTMLButtonElement
   ): void {
@@ -442,9 +439,9 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     submitButton: HTMLButtonElement,
     editor: any
   ): void {
-    if (this.newComment.trim()) {
-      editor.comment = this.newComment;
-      this.newComment = '';
+    if (this.newComment[index].trim()) {
+      editor.comment = this.newComment[index];
+      this.newComment[index] = '';
     }
 
     this.isEditable[index] = false;
@@ -452,7 +449,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   }
 
   public editComment(index: number, comment: string): void {
-    this.newComment = comment;
+    this.newComment[index] = comment;
     this.isEditable[index] = true;
   }
 
