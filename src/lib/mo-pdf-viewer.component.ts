@@ -265,10 +265,19 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       '.highlightEditor.selectedEditor'
     ) as HTMLElement;
     selectedText.appendChild(popoverElement);
-
-    const pdfViewerElement = this.elementRef.nativeElement.querySelector(
-      'ngx-extended-pdf-viewer'
-    );
+    const selectedTextRect = selectedText.getBoundingClientRect();
+    const targetPageIndex = editor.pageIndex; 
+    const pageElement = document.getElementsByClassName('textLayer')[targetPageIndex];    
+    if (pageElement) {
+      const pageRect = pageElement.getBoundingClientRect();
+      popoverElement.style.position = 'absolute';
+      if (selectedTextRect.bottom > pageRect.bottom - 195) {
+        popoverElement.style.top = 'calc(100% - 184px)';
+      } else {
+        popoverElement.style.top = '60px';
+      }
+    }
+    const pdfViewerElement = this.elementRef.nativeElement.querySelector('ngx-extended-pdf-viewer');
     pdfViewerElement.removeEventListener('scroll', this.onPdfViewerScroll);
     pdfViewerElement.addEventListener('scroll', this.onPdfViewerScroll);
     this.renderer.listen('document', 'click', this.onDocumentClickTag);
@@ -290,10 +299,19 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       '.highlightEditor.selectedEditor'
     ) as HTMLElement;
     selectedText.appendChild(popoverElement);
-
-    const pdfViewerElement = this.elementRef.nativeElement.querySelector(
-      'ngx-extended-pdf-viewer'
-    );
+    const selectedTextRect = selectedText.getBoundingClientRect();
+    const targetPageIndex = editor.pageIndex; 
+    const pageElement = document.getElementsByClassName('textLayer')[targetPageIndex]; 
+    if (pageElement) {
+      const pageRect = pageElement.getBoundingClientRect();
+      popoverElement.style.position = 'absolute';
+      if (selectedTextRect.bottom > pageRect.bottom - 210) {
+        popoverElement.style.top = 'calc(100% - 218px)';
+      } else {
+        popoverElement.style.top = '60px';
+      }
+    }
+    const pdfViewerElement = this.elementRef.nativeElement.querySelector('ngx-extended-pdf-viewer');
     pdfViewerElement.removeEventListener('scroll', this.onPdfViewerScroll);
     pdfViewerElement.addEventListener('scroll', this.onPdfViewerScroll);
     this.renderer.listen('document', 'click', this.onDocumentClickComment);
