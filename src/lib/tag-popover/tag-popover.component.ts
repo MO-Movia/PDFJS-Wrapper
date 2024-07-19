@@ -17,13 +17,10 @@ import { MoPdfViewerComponent } from '../mo-pdf-viewer.component';
   imports: [FormsModule],
 })
 export class TagPopoverComponent {
-  @Input({ required: true }) public pdfSrc: string | Uint8Array = '';
   public closePopover: boolean = false;
-  public selectedTag: string = '';
+  @Input() public selectedTag: string = '';
   public tagListPrivate: { name: string; isPrivate: boolean }[];
   public tagListPublic: { name: string; isPrivate: boolean }[];
-  public selectedTagPublic: boolean = false;
-  public selectedTagPrivate: boolean = false;
   @Output() public submitTag = new EventEmitter<string>();
 
   @ViewChild(MoPdfViewerComponent)
@@ -43,6 +40,6 @@ export class TagPopoverComponent {
 
   public storeTag(): void {
     this.closeTag();
-    this.submitTag.emit();
+    this.submitTag.emit(this.selectedTag);
   }
 }

@@ -1,13 +1,14 @@
 <div class="comment-popover-content">
   <div class="comment-header">
     <h5>Add Comment</h5>
-    <span
+    <button
       class="close-comment"
-      tabindex="-1"
-      (click)="closeComment()"
-      (keyup)="closeComment()"
-      >x</span
+      (click)="togglePopover()"
+      (keyup.enter)="togglePopover()"
+      aria-label="Close comment popover"
     >
+      x
+    </button>
   </div>
   <div class="comment-border"></div>
   <textarea
@@ -17,7 +18,12 @@
     class="comment-textarea"
   ></textarea>
   <div class="button-container">
-    <button class="submit-button" (click)="onSubmit()" (keyup)="onSubmit()">
+    <button
+      class="submit-button"
+      (click)="onSubmit()"
+      [disabled]="!comment || comment.trim().length === 0"
+      aria-label="Submit comment"
+    >
       Submit
     </button>
   </div>

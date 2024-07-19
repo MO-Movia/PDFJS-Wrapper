@@ -31,14 +31,14 @@
 
 .close-comment {
   width: 10%;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
   font-size: 17px;
-  color: white;
-  font-weight: 600;
+  color: #fff;
   cursor: pointer;
   background: transparent;
+  border: none;
+  top: 0;
+  position: absolute;
+  left: 84%;
 }
 
 h5 {
@@ -53,12 +53,17 @@ h5 {
 }
 
 .submit-button {
-  background: #1c1c1c82;
-  color: white;
+  color: black;
   padding: 5px 10px;
   border: none;
-}
+  cursor: pointer;
 
-.submit-button:hover {
-  background: #000000;
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  &:hover {
+    background: white;
+  }
 }

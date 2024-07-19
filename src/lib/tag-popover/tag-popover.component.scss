@@ -31,17 +31,21 @@ input {
 .ok-button {
   position: absolute;
   border: none;
-  color: white;
+  color: black;
   width: 21px;
   font-size: 12px;
   height: 25px;
   margin-top: 13px;
-  background: #1c1c1c82;
   letter-spacing: 1px;
-}
 
-.ok-button:hover {
-  background: #000000;
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  &:hover {
+    background: white;
+  }
 }
 
 .close-button {

@@ -240,20 +240,16 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
           AnnotationEditorParamsType.HIGHLIGHT_COLOR,
           '#53FFBC'
         );
-        // if(tagPopoverInstance.selectedTagPrivate && tagPopoverInstance.selectedTagPublic){
-        //   editor.type = AnnotationActionType.privateTag || AnnotationActionType.publicTag;
-        //   this.utilService.updateEditorType(editor);
-        // }
-        // else if(tagPopoverInstance.selectedTagPrivate || tagPopoverInstance.selectedTagPublic){
-
-        if (tagPopoverInstance.selectedTagPrivate) {
-          editor.type = AnnotationActionType.privateTag;
+        if(tagPopoverInstance.selectedTag === "Public"){
+          editor.type = AnnotationActionType.publicTag;  
           this.utilService.updateEditorType(editor);
-        } else if (tagPopoverInstance.selectedTagPublic) {
-          editor.type = AnnotationActionType.publicTag;
+          
+        } else if(tagPopoverInstance.selectedTag === "Private"){
+          editor.type = AnnotationActionType.privateTag
           this.utilService.updateEditorType(editor);
+           
         }
-        // }
+        
       });
     }
   }
@@ -273,7 +269,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       '.highlightEditor.selectedEditor'
     ) as HTMLElement;
     selectedText.appendChild(popoverElement);
-
+ 
     const pdfViewerElement = this.elementRef.nativeElement.querySelector(
       'ngx-extended-pdf-viewer'
     );
