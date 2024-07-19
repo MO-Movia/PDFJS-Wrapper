@@ -240,8 +240,20 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
           AnnotationEditorParamsType.HIGHLIGHT_COLOR,
           '#53FFBC'
         );
-        editor.type = AnnotationActionType.publicTag; // TO-DO - Make it dynamic
-        this.utilService.updateEditorType(editor);
+        // if(tagPopoverInstance.selectedTagPrivate && tagPopoverInstance.selectedTagPublic){
+        //   editor.type = AnnotationActionType.privateTag || AnnotationActionType.publicTag;
+        //   this.utilService.updateEditorType(editor);
+        // }
+        // else if(tagPopoverInstance.selectedTagPrivate || tagPopoverInstance.selectedTagPublic){
+
+        if (tagPopoverInstance.selectedTagPrivate) {
+          editor.type = AnnotationActionType.privateTag;
+          this.utilService.updateEditorType(editor);
+        } else if (tagPopoverInstance.selectedTagPublic) {
+          editor.type = AnnotationActionType.publicTag;
+          this.utilService.updateEditorType(editor);
+        }
+        // }
       });
     }
   }
@@ -311,7 +323,6 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     if (this.popoverRef && this.popoverRef.hostView) {
       const clickedInsidePopover =
         this.popoverRef.hostView.rootNodes[0].contains(event.target as Node);
-
       const tagElements = document.querySelectorAll('.tag');
       let clickedInsideTag = false;
 
@@ -327,9 +338,6 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
           popover.style.display = 'none';
         }
         this.isOpenTag = false;
-      }
-      if (clickedInsidePopover) {
-        this.highlightList = this.utilService.gethighlightText();
       }
     }
   };
@@ -355,10 +363,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
         if (this.isOpenComment && popover) {
           popover.style.display = 'none';
         }
-        this.isOpenTag = false;
-      }
-      if (clickedInsidePopover) {
-        this.highlightList = this.utilService.gethighlightText();
+        this.isOpenComment= false;
       }
     }
   };
@@ -436,15 +441,22 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     this.utilService.removeAnnotation(event.id);
   }
 
-  public submitComment(index: number, submitButton: HTMLButtonElement): void {
+  public submitComment(
+    index: number,
+    submitButton: HTMLButtonElement,
+    editor: any
+  ): void {
     if (this.newComment.trim()) {
+      editor.comment = this.newComment;
       this.newComment = '';
     }
+
     this.isEditable[index] = false;
     submitButton.setAttribute('disabled', 'true');
   }
 
-  public editComment(index: number): void {
+  public editComment(index: number, comment: string): void {
+    this.newComment = comment;
     this.isEditable[index] = true;
   }
 
@@ -452,7 +464,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     editor.remove(editor);
   }
 
-  public closeCommentTextarea(index: number, comment: string): void {
+  public closeCommentTextarea(index: number): void {
     this.isEditable[index] = false;
   }
 
