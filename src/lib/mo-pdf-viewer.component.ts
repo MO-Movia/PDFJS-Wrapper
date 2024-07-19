@@ -104,6 +104,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     const pdfViewerElement = this.elementRef.nativeElement.querySelector(
       'ngx-extended-pdf-viewer'
     );
+    pdfViewerElement.offsetParent.children[5].style.display ='none';
     pdfViewerElement.addEventListener('scroll', this.onPdfViewerScroll);
     pdfViewerElement.addEventListener('keydown', this.onKeyDown);
   }
