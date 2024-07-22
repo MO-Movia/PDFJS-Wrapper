@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
-import { AnnotationActionType } from 'ngx-extended-pdf-viewer';
+import { AnnotationActionType, AnnotationItem } from 'ngx-extended-pdf-viewer';
 
 @Injectable({
   providedIn: 'root',
@@ -17,25 +17,25 @@ export class UtilService {
 
   public getTagListPrivate(): any[] {
     return this.annotations.filter(
-      (t) => t.type === AnnotationActionType.privateTag
+      (t) => t.annotationConfig.type === AnnotationActionType.privateTag
     );
   }
 
   public getTagListPublic(): any[] {
     return this.annotations.filter(
-      (t) => t.type === AnnotationActionType.publicTag
+      (t) => t.annotationConfig.type === AnnotationActionType.publicTag
     );
   }
 
   public gethighlightText(): any[] {
     return this.annotations.filter(
-      (t) => t.type === AnnotationActionType.highlight
+      (t) => t.annotationConfig.type === AnnotationActionType.highlight
     );
   }
 
   public getCommentList(): any[] {
     return this.annotations.filter(
-      (t) => t.type === AnnotationActionType.comment
+      (t) => t.annotationConfig.type === AnnotationActionType.comment
     );
   }
 
@@ -50,7 +50,7 @@ export class UtilService {
 
   public updateEditorType(editor: any): void {
     const editorIndex = this.annotations.findIndex((t) => t.id === editor.id);
-    if (editorIndex) {
+    if (editorIndex > -1) {
       this.annotations[editorIndex] = editor;
       this.annotationDataUpdated();
     }
@@ -59,6 +59,10 @@ export class UtilService {
   public removeAnnotation(id: string): void {
     this.annotations = this.annotations.filter((a) => a.id != id);
     this.annotationDataUpdated();
+  }
+
+  public getAnnotationConfigs(): AnnotationItem[] {
+    return this.annotations.map((a) => a.annotationConfig);
   }
 
   public getTags(): { name: string; isPrivate: boolean }[] {
