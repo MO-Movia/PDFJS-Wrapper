@@ -29,9 +29,11 @@ import {
   AnnotationEditorParamsType,
   NgxExtendedPdfViewerService,
   PageRenderEvent,
+  PagesLoadedEvent,
   AnnotationActionType,
   ShowCommentTagPopoverDetails,
   AnnotationDeleteEvent,
+  AnnotationItem,
 } from 'ngx-extended-pdf-viewer';
 import { CommentPopoverComponent } from './comment-popover/comment-popover.component';
 import { TagPopoverComponent } from './tag-popover/tag-popover.component';
@@ -78,7 +80,16 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   @Input() public documentClassification = 'Unclassified';
   @Input() public documentAuthor = '';
   @Input() public minimalView = false;
-  @Output() public annotationUpdated = new EventEmitter<any>();
+  @Input() set annotations(savedAnnotations: AnnotationItem[]) {
+    if (savedAnnotations && savedAnnotations.length > 0) {
+      this.savedAnnotations = savedAnnotations;
+      this.notRenderedPages = [
+        ...new Set(this.savedAnnotations.map((a) => a.pageNumber)),
+      ];
+    }
+  }
+  @Input() public savedAnnotations: AnnotationItem[] = [];
+  @Output() public annotationUpdated = new EventEmitter<AnnotationItem[]>();
   public tagListPublic: any[] = [];
   public tagListPrivate: any[] = [];
   public commentList: any[] = [];
@@ -93,6 +104,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   commentTextArray: string[] = [];
   textType: string | undefined;
   public submitSubscription: any;
+  private notRenderedPages: number[] = [];
 
   @ViewChild(NgxExtendedPdfViewerComponent)
   public pdfComponent!: NgxExtendedPdfViewerComponent;
@@ -104,7 +116,6 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     const pdfViewerElement = this.elementRef.nativeElement.querySelector(
       'ngx-extended-pdf-viewer'
     );
-    pdfViewerElement.offsetParent.children[5].style.display ='none';
     pdfViewerElement.addEventListener('scroll', this.onPdfViewerScroll);
     pdfViewerElement.addEventListener('keydown', this.onKeyDown);
   }
@@ -115,6 +126,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   public dropdownVisible: any = {};
   public hoveredList: 'private' | 'public' | null | 'highlight' = null;
   public hoveredIndex: number | null = null;
+  private callExecuted: boolean = false;
 
   constructor(
     private resolver: ComponentFactoryResolver,
@@ -127,6 +139,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   ) {
     this.utilService.annotationUpdated$.subscribe(() => {
       this.createPDFObject();
+      this.annotationUpdated.emit(this.utilService.getAnnotationConfigs());
     });
   }
 
@@ -173,7 +186,6 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   }
 
   public showHighlightedArray(editor: any) {
-    this.annotationUpdated.emit(editor);
     this.utilService.addEditor(editor);
   }
 
@@ -219,14 +231,15 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
 
       const commentPopoverInstance = this.popoverRef
         .instance as CommentPopoverComponent;
-      commentPopoverInstance.comment = editor.comment;
+      commentPopoverInstance.comment = editor.annotationConfig.comment;
       commentPopoverInstance.submitComment.subscribe(() => {
         editor.updateParams(
           AnnotationEditorParamsType.HIGHLIGHT_COLOR,
           '#80EBFF'
         );
-        editor.type = AnnotationActionType.comment;
-        editor.comment = commentPopoverInstance.comment;
+        editor.annotationConfig.type = AnnotationActionType.comment;
+        editor.annotationConfig.comment = commentPopoverInstance.comment;
+        editor.annotationConfig.color = '#80EBFF';
         this.utilService.updateEditorType(editor);
       });
     } else if (
@@ -242,10 +255,11 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
           '#53FFBC'
         );
         if (tagPopoverInstance.selectedTag === 'Public') {
-          editor.type = AnnotationActionType.publicTag;
+          editor.annotationConfig.type = AnnotationActionType.publicTag;
         } else if (tagPopoverInstance.selectedTag === 'Private') {
-          editor.type = AnnotationActionType.privateTag;
+          editor.annotationConfig.type = AnnotationActionType.privateTag;
         }
+	 editor.annotationConfig.color = '#53FFBC';
         this.utilService.updateEditorType(editor);
       });
     }
@@ -318,22 +332,33 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     this.renderer.listen('document', 'click', this.onDocumentClickComment);
   }
 
+  public onTextLayerRendered(event: any): void {
+    this.savedAnnotations.sort((a, b) => a.pageNumber - b.pageNumber);
+    setTimeout(() => {
+      this.notRenderedPages = this.notRenderedPages.filter(
+        (p) => p !== event.pageNumber
+      );
+      this.pdfService.setAnnotation(this.savedAnnotations);
+      if (this.notRenderedPages.length === 0) {
+        setTimeout(() => {
+          this.pdfService.scrollPageIntoView(1);
+        }, 200);
+      }
+    }, 500);
+  }
   public onPageRendered(event: PageRenderEvent): void {
-    this.pdfService.setAnnotation([
-      {
-        spanIndex: 32,
-        rangeStart: 5,
-        rangeEnd: 12,
-        color: '#80EBFF',
-        pageNumber: 1,
-      },
-    ]);
+    this.savedAnnotations.sort((a, b) => a.pageNumber - b.pageNumber);
+
+    this.savedAnnotations.forEach((d) => {
+      this.pdfService.addPageToRenderQueue(d.pageNumber);
+    });
   }
 
   public onDocumentClickTag = (event: MouseEvent): void => {
     if (this.popoverRef && this.popoverRef.hostView) {
       const clickedInsidePopover =
         this.popoverRef.hostView.rootNodes[0].contains(event.target as Node);
+
       const tagElements = document.querySelectorAll('.tag');
       let clickedInsideTag = false;
 
@@ -379,13 +404,15 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     }
   };
 
-  public scrollToElement(id: string): void {
-    document.getElementById(`${id}`)?.scrollIntoView({
+  public scrollToElement(editor: any): void {
+    document.getElementById(`${editor.id}`)?.scrollIntoView({
       behavior: 'smooth',
       block: 'start',
     });
-  }
 
+    editor._uiManager.setSelected(editor);
+  }
+  
   public onPdfViewerScroll = (): void => {
     if (this.popoverRef) {
       const pdfViewerElement = this.elementRef.nativeElement.querySelector(

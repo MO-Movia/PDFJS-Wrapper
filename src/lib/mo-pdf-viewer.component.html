@@ -13,6 +13,7 @@
               [src]="pdfSrc"
               [textLayer]="true"
               (pageRendered)="onPageRendered($event)"
+              (textLayerRendered)="onTextLayerRendered($event)"
               (annotationRemovedEvent)="annotationDeleted($event)"
             >
             </ngx-extended-pdf-viewer>
@@ -59,12 +60,12 @@
               >
                 <ul class="col">
                   <li class="highlights-list">
-                    <div (click)="scrollToElement(highlight.id)">
-                      <span>
+                    <div>
+                      <span (click)="scrollToElement(highlight)">
                         {{
-                          highlight.text.length > 25
-                            ? highlight.text.substring(0, 25) + "..."
-                            : highlight.text
+                          highlight?.text?.length > 25
+                            ? highlight?.text?.substring(0, 25) + "..."
+                            : highlight?.text
                         }}</span
                       >
                     </div>
@@ -109,7 +110,7 @@
             </svg>
             <h6 class="tag-type">Public</h6>
             <div class="tag-public-count">
-              {{ tagListPublic.length }}
+              {{ tagListPublic?.length }}
             </div>
             <div *ngIf="publicListVisible">
               <div
@@ -120,11 +121,11 @@
               >
                 <ul class="col">
                   <li class="tag-list">
-                    <div (click)="scrollToElement(tagPublic.id)">
-                      <span>{{
-                        tagPublic.text.length > 25
-                          ? tagPublic.text.substring(0, 25) + "..."
-                          : tagPublic.text
+                    <div>
+                      <span (click)="scrollToElement(tagPublic)">{{
+                        tagPublic?.text?.length > 25
+                          ? tagPublic?.text?.substring(0, 25) + "..."
+                          : tagPublic?.text
                       }}</span>
                       <p
                         tabindex="-1"
@@ -167,9 +168,9 @@
               >
                 <ul class="col">
                   <li class="tag-list">
-                    <div (click)="scrollToElement(tagPrivate.id)">
-                      <span>{{
-                        tagPrivate.text.length > 25
+                    <div>
+                      <span (click)="scrollToElement(tagPrivate)">{{
+                        tagPrivate?.text.length > 25
                           ? tagPrivate.text.substring(0, 25) + "..."
                           : tagPrivate.text
                       }}</span>
@@ -215,12 +216,12 @@
                     class="col-12 comment-box"
                     style="position: relative"
                     tabindex="-1"
-                    (click)="scrollToElement(comment.id)"
+                    (click)="scrollToElement(comment)"
                   >
                     {{
-                      comment.comment.length > 30
-                        ? comment.comment.substring(0, 30) + "..."
-                        : comment.comment
+                      comment?.comment?.length > 30
+                        ? comment?.comment?.substring(0, 30) + "..."
+                        : comment?.comment
                     }}
                   </div>
                   <span class="icon-span">
