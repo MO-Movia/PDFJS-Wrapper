@@ -98,8 +98,8 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   public publicListVisible: boolean = false;
   public privateListVisible: boolean = false;
   public isHovered: boolean = false;
-  public isEditable: boolean[] = [];
-  public newComment: string[] = [];
+  //public isEditable: boolean[] = [];
+  // public newComment: string = '';
   highlightText: string | undefined = '';
   commentTextArray: string[] = [];
   textType: string | undefined;
@@ -117,7 +117,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       'ngx-extended-pdf-viewer'
     );
     pdfViewerElement.addEventListener('scroll', this.onPdfViewerScroll);
-    pdfViewerElement.addEventListener('keydown', this.onKeyDown);
+    //pdfViewerElement.addEventListener('keydown', this.onKeyDown);
   }
   private popoverRef: any;
   private previousScrollTop = 0;
@@ -189,40 +189,6 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     this.utilService.addEditor(editor);
   }
 
-  @HostListener('keydown', ['$event'])
-  onKey(event: KeyboardEvent, i: number) {
-    if (event.key === 'Backspace') {
-      event.preventDefault();
-      event.stopPropagation();
-      const textarea = event.target as HTMLTextAreaElement;
-      const start = textarea.selectionStart;
-      const end = textarea.selectionEnd;
-      if (start !== end) {
-        const value = textarea.value;
-        const newValue = value.substring(0, start) + value.substring(end);
-        this.newComment[i] = newValue;
-        setTimeout(() => {
-          textarea.selectionStart = textarea.selectionEnd = start;
-        }, 0);
-      } else if (start > 0) {
-        const value = textarea.value;
-        const newValue = value.substring(0, start - 1) + value.substring(end);
-        this.newComment[i] = newValue;
-
-        setTimeout(() => {
-          textarea.selectionStart = textarea.selectionEnd = start - 1;
-        }, 0);
-      }
-    }
-  }
-
-  public onKeyDown(event: KeyboardEvent): void {
-    if (event.key === 'Backspace') {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-  }
-
   public commentTagPopover(data: ShowCommentTagPopoverDetails): void {
     console.log('commentTagPopover called with data:', data);
     const editor = this.utilService.getEditor(data.id);
@@ -259,7 +225,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
         } else if (tagPopoverInstance.selectedTag === 'Private') {
           editor.annotationConfig.type = AnnotationActionType.privateTag;
         }
-	 editor.annotationConfig.color = '#53FFBC';
+        editor.annotationConfig.color = '#53FFBC';
         this.utilService.updateEditorType(editor);
       });
     }
@@ -281,8 +247,9 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     ) as HTMLElement;
     selectedText.appendChild(popoverElement);
     const selectedTextRect = selectedText.getBoundingClientRect();
-    const targetPageIndex = editor.pageIndex; 
-    const pageElement = document.getElementsByClassName('textLayer')[targetPageIndex];    
+    const targetPageIndex = editor.pageIndex;
+    const pageElement =
+      document.getElementsByClassName('textLayer')[targetPageIndex];
     if (pageElement) {
       const pageRect = pageElement.getBoundingClientRect();
       popoverElement.style.position = 'absolute';
@@ -292,7 +259,9 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
         popoverElement.style.top = '60px';
       }
     }
-    const pdfViewerElement = this.elementRef.nativeElement.querySelector('ngx-extended-pdf-viewer');
+    const pdfViewerElement = this.elementRef.nativeElement.querySelector(
+      'ngx-extended-pdf-viewer'
+    );
     pdfViewerElement.removeEventListener('scroll', this.onPdfViewerScroll);
     pdfViewerElement.addEventListener('scroll', this.onPdfViewerScroll);
     this.renderer.listen('document', 'click', this.onDocumentClickTag);
@@ -315,8 +284,9 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     ) as HTMLElement;
     selectedText.appendChild(popoverElement);
     const selectedTextRect = selectedText.getBoundingClientRect();
-    const targetPageIndex = editor.pageIndex; 
-    const pageElement = document.getElementsByClassName('textLayer')[targetPageIndex]; 
+    const targetPageIndex = editor.pageIndex;
+    const pageElement =
+      document.getElementsByClassName('textLayer')[targetPageIndex];
     if (pageElement) {
       const pageRect = pageElement.getBoundingClientRect();
       popoverElement.style.position = 'absolute';
@@ -326,7 +296,9 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
         popoverElement.style.top = '60px';
       }
     }
-    const pdfViewerElement = this.elementRef.nativeElement.querySelector('ngx-extended-pdf-viewer');
+    const pdfViewerElement = this.elementRef.nativeElement.querySelector(
+      'ngx-extended-pdf-viewer'
+    );
     pdfViewerElement.removeEventListener('scroll', this.onPdfViewerScroll);
     pdfViewerElement.addEventListener('scroll', this.onPdfViewerScroll);
     this.renderer.listen('document', 'click', this.onDocumentClickComment);
@@ -412,7 +384,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
 
     editor._uiManager.setSelected(editor);
   }
-  
+
   public onPdfViewerScroll = (): void => {
     if (this.popoverRef) {
       const pdfViewerElement = this.elementRef.nativeElement.querySelector(
@@ -428,6 +400,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       this.appRef.detachView(this.popoverRef.hostView);
       this.popoverRef.destroy();
       this.popoverRef = null;
+      //this.commentDetails = null;
       const pdfViewerElement = this.elementRef.nativeElement.querySelector(
         'ngx-extended-pdf-viewer'
       );
@@ -435,7 +408,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     }
   }
 
-  public commntDropdownVisible(element: HTMLElement): void {
+  public commntDropdownVisible(element: HTMLElement, editor: any): void {
     const allDropdowns = document.querySelectorAll('.dropdown-content');
     allDropdowns.forEach((dropdown) => {
       (dropdown as HTMLElement).style.display = 'none';
@@ -461,7 +434,6 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   }
 
   public enableSubmitButton(
-    index: number,
     comment: string,
     submitButton: HTMLButtonElement
   ): void {
@@ -480,31 +452,19 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     this.utilService.removeAnnotation(event.id);
   }
 
-  public submitComment(
-    index: number,
-    submitButton: HTMLButtonElement,
-    editor: any
-  ): void {
-    if (this.newComment[index].trim()) {
-      editor.comment = this.newComment[index];
-      this.newComment[index] = '';
-    }
-
-    this.isEditable[index] = false;
-    submitButton.setAttribute('disabled', 'true');
+  public submitComment(editor: any): void {
+    editor.annotationConfig.comment = editor.tempComment;
+    editor.showEdit = false;
   }
 
-  public editComment(index: number, comment: string): void {
-    this.newComment[index] = comment;
-    this.isEditable[index] = true;
+  public editComment(editor: any): void {
+    this.commentList.forEach((c) => (c.showEdit = false));
+    editor.tempComment = editor.annotationConfig.comment;
+    editor.showEdit = true;
   }
 
   public removeAnnotation(editor: any) {
     editor.remove(editor);
-  }
-
-  public closeCommentTextarea(index: number): void {
-    this.isEditable[index] = false;
   }
 
   public tagPublicVisibility(): void {
@@ -533,6 +493,6 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     const pdfViewerElement = this.elementRef.nativeElement.querySelector(
       'ngx-extended-pdf-viewer'
     );
-    pdfViewerElement.removeEventListener('keydown', this.onKeyDown);
+    //pdfViewerElement.removeEventListener('keydown', this.onKeyDown);
   }
 }
