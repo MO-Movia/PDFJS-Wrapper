@@ -1,30 +1,51 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { AnnotationActionType, AnnotationItem } from 'ngx-extended-pdf-viewer';
+export interface TagModel {
+  id: number;
+  name: string;
+  isPrivate: boolean;
+  text?: string;
+  editorId?: string;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class UtilService {
   public annotations: any[] = [];
+  public uniqueTagIds: any;
+  public uniqueTags: any;
+  // public matchingTags:TagModel[] =[]
+  public newTag: TagModel[] = [];
 
   private annotationUpdated = new Subject<void>();
   annotationUpdated$ = this.annotationUpdated.asObservable();
 
+  public _selectedTags = new BehaviorSubject<any[]>([]);
+  selectedTags$ = this._selectedTags.asObservable();
+
+  updateSelectedTags(tags: any[]) {
+    this._selectedTags.next(tags);
+  }
+
+  // private checkboxData = new Subject<void>();
+  // checkboxData$ = this.checkboxData.asObservable();
+
+  // public checkboxUpdated(){
+  //   this.checkboxData.next();
+  // }
   annotationDataUpdated() {
     this.annotationUpdated.next();
   }
 
-  public getTagListPrivate(): any[] {
-    return this.annotations.filter(
-      (t) => t.annotationConfig.type === AnnotationActionType.privateTag
-    );
+  public getTagListPrivate(): TagModel[] {
+    const tags = this.getAnnotatedTags();
+    return tags.filter((tag) => tag.isPrivate);
   }
-
-  public getTagListPublic(): any[] {
-    return this.annotations.filter(
-      (t) => t.annotationConfig.type === AnnotationActionType.publicTag
-    );
+  public getTagListPublic(): TagModel[] {
+    const tags = this.getAnnotatedTags();
+    return tags.filter((tag) => !tag.isPrivate);
   }
 
   public gethighlightText(): any[] {
@@ -65,13 +86,32 @@ export class UtilService {
     return this.annotations.map((a) => a.annotationConfig);
   }
 
-  public getTags(): { name: string; isPrivate: boolean }[] {
+  public getAnnotatedTags(): TagModel[] {
+    const allTags = this.getTags();
+    const matchingTags: TagModel[] = [];
+    this.annotations.forEach((annotation) => {
+      if (annotation.annotationConfig.Tags) {
+        annotation.annotationConfig.Tags.forEach((tagId: { id: number }) => {
+          const matchingTag = allTags.find((tag) => tag.id === tagId.id);
+          if (matchingTag) {
+            matchingTag.text = annotation?.text || '';
+            matchingTags.push({ ...matchingTag });
+          }
+        });
+      }
+    });
+
+    return matchingTags;
+  }
+
+  public getTags(): TagModel[] {
     return [
-      { name: 'tag1', isPrivate: false },
-      { name: 'tag2', isPrivate: false },
-      { name: 'tag3', isPrivate: false },
-      { name: 'tag4', isPrivate: true },
-      { name: 'tag5', isPrivate: true },
+      { id: 1, name: 'PriTag1', isPrivate: true },
+      { id: 2, name: 'PriTag2', isPrivate: true },
+      { id: 3, name: 'PriTag3', isPrivate: true },
+      { id: 4, name: 'PubTag1', isPrivate: false },
+      { id: 5, name: 'PubTag2', isPrivate: false },
+      { id: 6, name: 'PubTag3', isPrivate: false },
     ];
   }
 

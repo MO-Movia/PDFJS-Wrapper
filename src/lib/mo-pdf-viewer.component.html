@@ -114,18 +114,18 @@
             </div>
             <div *ngIf="publicListVisible">
               <div
-                *ngFor="let tagPublic of tagListPublic; let i = index"
+                *ngFor="let tag of tagListPublic; let i = index"
                 class="publicList"
                 (mouseenter)="onMouseEnter('public', i)"
                 (mouseleave)="onMouseLeave()"
               >
+              <span></span>
                 <ul class="col">
                   <li class="tag-list">
                     <div>
-                      <span (click)="scrollToElement(tagPublic)">{{
-                        tagPublic?.text?.length > 25
-                          ? tagPublic?.text?.substring(0, 25) + "..."
-                          : tagPublic?.text
+                        <h4>  {{tagListPublic[i].name}}          </h4>
+                      <span (click)="scrollToElement(tagListPublic[i])">{{
+                        tagListPublic[i]?.text
                       }}</span>
                       <p
                         tabindex="-1"
@@ -133,7 +133,7 @@
                         [class.visible]="
                           hoveredIndex === i && hoveredList === 'public'
                         "
-                        (click)="removeAnnotation(tagPublic)"
+                        (click)="removeAnnotation(tags[i])"
                       >
                         X
                       </p>
@@ -169,10 +169,11 @@
                 <ul class="col">
                   <li class="tag-list">
                     <div>
-                      <span (click)="scrollToElement(tagPrivate)">{{
-                        tagPrivate?.text.length > 25
-                          ? tagPrivate.text.substring(0, 25) + "..."
-                          : tagPrivate.text
+                      <h4>{{tagListPrivate[i].name}}</h4>
+                      <span (click)="scrollToElement(tagListPrivate[i])">{{
+                        tagListPrivate[i]?.text.length > 25
+                          ? tagListPrivate[i].text.substring(0, 25) + "..."
+                          : tagListPrivate[i].text
                       }}</span>
                       <p
                         tabindex="-1"
@@ -194,7 +195,7 @@
       </div>
       <div
         class="search-category"
-        *ngIf="selectedSearchCategory === 'Comments'"
+        *ngIf="selectedSearchCategory === 'Notes'"
       >
         <div class="row ms-2">
           <div class="col">

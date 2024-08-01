@@ -10,6 +10,8 @@
     "lint": "ng lint",
     "lint:fix": "ng lint --fix",
     "ci:build": "ng build --configuration production",
+    "postbuild": "cd ./dist/ && yalc push",
+    "build:watch": "npm run build && ng build --watch",
     "ci:test": "ng test -c jenkins",
     "ci:lint": "ng lint",
     "test:unit": "ng test --watch=false",

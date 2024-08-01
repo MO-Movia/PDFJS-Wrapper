@@ -52,9 +52,10 @@ import {
   faTrash,
   faHighlighter,
 } from '@fortawesome/free-solid-svg-icons';
-import { UtilService } from './util.service';
+import { TagModel, UtilService } from './util.service';
 
 import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
 
 @Component({
   standalone: true,
@@ -80,6 +81,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   @Input() public documentClassification = 'Unclassified';
   @Input() public documentAuthor = '';
   @Input() public minimalView = false;
+  private _isFirstEditor: any;
   @Input() set annotations(savedAnnotations: AnnotationItem[]) {
     if (savedAnnotations && savedAnnotations.length > 0) {
       this.savedAnnotations = savedAnnotations;
@@ -98,6 +100,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   public publicListVisible: boolean = false;
   public privateListVisible: boolean = false;
   public isHovered: boolean = false;
+  public tags: TagModel[] = [];
   //public isEditable: boolean[] = [];
   // public newComment: string = '';
   highlightText: string | undefined = '';
@@ -105,6 +108,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   textType: string | undefined;
   public submitSubscription: any;
   private notRenderedPages: number[] = [];
+  public subscription: Subscription | undefined;
 
   @ViewChild(NgxExtendedPdfViewerComponent)
   public pdfComponent!: NgxExtendedPdfViewerComponent;
@@ -174,7 +178,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       icon: faTag,
     },
     {
-      label: 'Comments',
+      label: 'Notes',
       icon: faMessage,
     },
   ];
@@ -215,18 +219,26 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       this.showTagPopover(editor);
       const tagPopoverInstance = this.popoverRef
         .instance as TagPopoverComponent;
-      tagPopoverInstance.submitTag.subscribe(() => {
-        editor.updateParams(
-          AnnotationEditorParamsType.HIGHLIGHT_COLOR,
-          '#53FFBC'
-        );
-        if (tagPopoverInstance.selectedTag === 'Public') {
-          editor.annotationConfig.type = AnnotationActionType.publicTag;
-        } else if (tagPopoverInstance.selectedTag === 'Private') {
-          editor.annotationConfig.type = AnnotationActionType.privateTag;
-        }
-        editor.annotationConfig.color = '#53FFBC';
-        this.utilService.updateEditorType(editor);
+
+      tagPopoverInstance.tagSelected.subscribe(() => {
+        this.subscription = this.utilService.selectedTags$.subscribe((tags) => {
+          editor.annotationConfig.Tags = tags
+            .filter((tag) => tag.editorId === editor.id)
+            .map((tag) => ({ id: tag.id }));
+
+          this.utilService.getAnnotatedTags();
+          this.tagListPrivate = this.utilService.getTagListPrivate();
+          this.tagListPublic = this.utilService.getTagListPublic();
+        });
+
+        tagPopoverInstance.submitTag.subscribe(() => {
+          editor.updateParams(
+            AnnotationEditorParamsType.HIGHLIGHT_COLOR,
+            '#53FFBC'
+          );
+          editor.annotationConfig.color = '#53FFBC';
+          // this.utilService.updateEditorType(editor);
+        });
       });
     }
   }
@@ -236,8 +248,11 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     this.isOpenTag = true;
     const popoverFactory =
       this.resolver.resolveComponentFactory(TagPopoverComponent);
+
     this.popoverRef = popoverFactory.create(this.injector);
     this.appRef.attachView(this.popoverRef.hostView);
+    this.popoverRef.instance.editorId = editor.id;
+
     const popoverElement = (this.popoverRef.hostView as any)
       .rootNodes[0] as HTMLElement;
     popoverElement.style.display = 'block';
@@ -494,5 +509,6 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       'ngx-extended-pdf-viewer'
     );
     //pdfViewerElement.removeEventListener('keydown', this.onKeyDown);
+    this.subscription?.unsubscribe();
   }
 }

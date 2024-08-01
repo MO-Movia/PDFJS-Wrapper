@@ -1,19 +1,19 @@
 <div class="comment-popover-content">
   <div class="comment-header">
-    <h5>Add Comment</h5>
-    <span
+    <h5>Add Note</h5>
+    <button
       class="close-comment"
       tabindex="-1"
       (click)="closeComment()"
       (keyup)="closeComment()"
-      >x</span
-    >
+      >x
+    </button>
   </div>
   <div class="comment-border"></div>
   <textarea
     [(ngModel)]="comment"
     rows="4"
-    placeholder="Enter your comment"
+    placeholder="Enter your note"
     class="comment-textarea"
     (keydown)="$event.stopPropagation()"
   ></textarea>

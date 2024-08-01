@@ -1,26 +1,27 @@
 .tag-popover {
-  background: #4c4a4a;
-  color: white;
+  background: #f0f0f4;
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 10px;
-  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px #0000001a;
   font-size: small;
   position: absolute;
   pointer-events: all;
-  color: white;
-  width: 143px;
-  height: 147px;
+  color: black;
+  width: 173px;
+  height: 237px;
 }
 
 .tag-popover label {
-  margin-left: 6px;
-  font-size: 15px;
+  margin-left: 16px;
+  font-size: 12px;
   letter-spacing: 1px;
+  font-weight: normal;
 }
 
-input {
-  font-size: 20px;
+input-field {
+  font-size: 13px;
+  padding:0.25rem 0.5rem;
 }
 
 .border-clr {
@@ -48,16 +49,16 @@ input {
 }
 
 .close-button {
-  left: 84%;
-  top: 0px;
-  position: absolute;
-  border: none;
-  font-size: 17px;
-  color: white;
-  width: 16px;
-  font-weight: 600;
-  height: 24px;
-  background: transparent;
+
+  padding: 4px;
+  margin-left: 83px;
+  color: black;
+  font-size: 16px;
+  font-weight: 500;
+}
+.close-button:hover {
+background-color: none;
+border: 1px solid #0060df;
 }
 
 #tag-public {
@@ -66,4 +67,118 @@ input {
 
 #tag-private {
   margin-top: 13px;
+}
+.tag-header {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  padding: var(--bs-modal-header-padding);
+  border-bottom: var(--bs-modal-header-border-width) solid var(--bs-modal-header-border-color);
+  border-top-left-radius: var(--bs-modal-inner-border-radius);
+  border-top-right-radius: var(--bs-modal-inner-border-radius);
+}
+.flex {
+  display: flex;
+  flex-direction: column;
+}
+.d-flex{
+  display: flex;
+}
+
+.mo-check-label {
+  margin-bottom: 10px; /* Adjust this value for spacing between items */
+  display: block;
+}
+// .checkbox{
+//   position: relative;
+//   right: 99px;
+//   top: 1px;
+//   margin-left:-2px;
+// }
+// .checkmark[_ngcontent-ng-c1591847081] {
+//   position: absolute;
+//   top: 8px;
+//   left: 11px;
+//   height: 15px;
+//   width: 15px;
+//   border: solid 1px var(--bs-gray-400);
+//   background-color: #252d39;
+//   border-radius: 3px;
+//   pointer-events: none;
+// }
+// .mo-check-label[_ngcontent-ng-c1591847081] {
+//   position: relative;
+//   padding: .25rem 0 0 2.5rem;
+//   cursor: pointer;
+// }
+.scrollable-div {
+  width: 150px;
+  height: 62px;
+  overflow: auto;
+  padding: 10px;
+  scrollbar-width: thin;
+  box-sizing: border-box;
+}
+.pb-3 {
+  padding-bottom: 0.35rem ;
+}
+.ok-btn{
+  margin-top: -13px;
+  margin-bottom: 2px;
+  margin-left: 114px;
+  background: #fff;
+  width: 22px;
+  text-align: center;
+  height: 22px;
+  border-radius: 4px;
+  color: #000;
+  padding: 3px 9px;
+  border: 1px solid black;
+  cursor: pointer;
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  // &:hover {
+  //   background: white;
+  // }
+}
+.ok-btn:hover{
+  border:1px solid #0060df;
+}
+
+.selectedTag-btn{
+  margin-top: -6px;
+  margin-bottom: 2px;
+  width: 69px;
+  height: 29px;
+  border-radius: 4px;
+  color: black;
+  /* border: 1px solid black; */
+  padding: 3px 8px;
+  font-size: 10.5px;
+  text-align: center;
+  background: white;
+  border: none;
+  cursor: pointer;
+
+}
+.selectedtag-checkmark{
+  right: 9px;
+  top: -16px;
+}
+.selected-label{
+   height: 10px;
+}
+.seltag-text{
+  letter-spacing: normal;
+    margin-left: -12px;
+    padding: 21px;
+}
+.break{
+  margin:3px
+}
+.filter{
+  font-size:14px
 }
