@@ -8,7 +8,6 @@ import {
 import { FormsModule } from '@angular/forms';
 import { UtilService } from '../util.service';
 import { MoPdfViewerComponent } from '../mo-pdf-viewer.component';
-import { OnInit } from 'reactflow';
 import { CommonModule } from '@angular/common';
 import { TagModel } from '../util.service';
 @Component({

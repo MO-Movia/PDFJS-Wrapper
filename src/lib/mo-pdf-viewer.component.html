@@ -43,13 +43,15 @@
         class="search-category"
         *ngIf="selectedSearchCategory === 'Highlights'"
       >
-        <div class="row ms-2">
+        <div class="row">
           <div class="col">
             <h3 class="right-panel-title">Highlights:</h3>
           </div>
         </div>
-        <div class="row flex-grow-1 tag-container">
-          <div class="highlightlist">
+        <div class="row flex-grow-1 highlight-container">
+          <div
+            class="highlightlist"
+          >
             <ng-container
               *ngFor="let highlight of highlightList; let i = index"
             >
@@ -60,36 +62,35 @@
               >
                 <ul class="col">
                   <li class="highlights-list">
-                    <div>
-                      <span (click)="scrollToElement(highlight)">
-                        {{
-                          highlight?.text?.length > 25
-                            ? highlight?.text?.substring(0, 25) + "..."
-                            : highlight?.text
-                        }}</span
+                    <div class="highlightList">
+                        <div
+                          class="highlight-span"
+                          (click)="scrollToElement(highlight)"
+                        >
+                          {{ highlight?.text }}
+                      </div>
+                     
+                      <div
+                        tabindex="-1"
+                        class="highlight-close"
+                        [class.visible]="
+                          hoveredIndex === i && hoveredList === 'highlight'
+                        "
+                        (click)="removeAnnotation(highlight)"
                       >
+                        X
+                      </div>
                     </div>
-                    <p
-                      tabindex="-1"
-                      class="highlight-close"
-                      [class.visible]="
-                        hoveredIndex === i && hoveredList === 'highlight'
-                      "
-                      (click)="removeAnnotation(highlight)"
-                    >
-                      X
-                    </p>
                   </li>
                 </ul>
               </div>
             </ng-container>
           </div>
         </div>
-        <div class="row highlight-container"></div>
       </div>
 
       <div class="search-category" *ngIf="selectedSearchCategory === 'Tags'">
-        <div class="row ms-2">
+        <div class="row">
           <div class="col">
             <h3 class="right-panel-title">Tags:</h3>
           </div>
@@ -197,7 +198,7 @@
         class="search-category"
         *ngIf="selectedSearchCategory === 'Notes'"
       >
-        <div class="row ms-2">
+        <div class="row">
           <div class="col">
             <h3 class="right-panel-title">Notes:</h3>
           </div>
@@ -206,24 +207,19 @@
           <div class="col h-100 mt-2">
             <div
               *ngFor="let comment of commentList; let i = index"
-              class="row mx-2 clickable align-items-center"
+              class="clickable align-items-center"
               id="comment-row"
               [attr.tabindex]="0"
               tabindex="-1"
             >
               <div class="col">
-                <div class="row row_comments container-icon">
+                <div class="row_comments container-icon">
                   <div
-                    class="col-12 comment-box"
-                    style="position: relative"
+                    class="comment-box"
                     tabindex="-1"
                     (click)="scrollToElement(comment)"
                   >
-                    {{
-                      comment?.annotationConfig?.comment?.length > 30
-                        ? comment?.annotationConfig?.comment?.substring(0, 30) + "..."
-                        : comment?.annotationConfig?.comment
-                    }}
+                    {{ comment?.annotationConfig?.comment }}
                   </div>
                   <span class="icon-span">
                     <div class="svg-icon">
@@ -330,7 +326,7 @@
         </div>
       </div>
 
-      <div class="row ms-2">
+      <div class="row">
         <ul
           ngbNav
           #nav="ngbNav"
