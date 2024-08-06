@@ -2,11 +2,13 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { AnnotationActionType, AnnotationItem } from 'ngx-extended-pdf-viewer';
 export interface TagModel {
+
   id: number;
   name: string;
   isPrivate: boolean;
   textArray?: string[];
   editorId?: string;
+  isChecked?:boolean;
 }
 
 @Injectable({
@@ -27,6 +29,7 @@ export class UtilService {
   updateSelectedTags(tags: any[]) {
     this._selectedTags.next(tags);
   }
+
 
   // private checkboxData = new Subject<void>();
   // checkboxData$ = this.checkboxData.asObservable();

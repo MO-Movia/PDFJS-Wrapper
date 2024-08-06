@@ -221,28 +221,44 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       data.type === AnnotationActionType.publicTag
     ) {
       this.showTagPopover(editor);
+
       const tagPopoverInstance = this.popoverRef
         .instance as TagPopoverComponent;
+    
 
       tagPopoverInstance.tagSelected.subscribe(() => {
         this.subscription = this.utilService.selectedTags$.subscribe((tags) => {
-          editor.annotationConfig.Tags = tags
-            .filter((tag) => tag.editorId === editor.id)
+            const filteredTags = tags.filter((tag) => tag.editorId === editor.id);
+            editor.annotationConfig.Tags = filteredTags
             .map((tag) => ({ id: tag.id }));
-
+           if (filteredTags.some((tag) => tag.isChecked)) {
+              editor.updateParams(
+                      AnnotationEditorParamsType.HIGHLIGHT_COLOR,
+                      '#53FFBC'
+                    );
+                    editor.annotationConfig.color = '#53FFBC';                
+            } else {
+              editor.updateParams(
+                AnnotationEditorParamsType.HIGHLIGHT_COLOR,
+                "#FFFF98"
+              );
+              
+            }
+            
+          
           this.utilService.getAnnotatedTags();
           this.tagListPrivate = this.utilService.getTagListPrivate();
           this.tagListPublic = this.utilService.getTagListPublic();
         });
 
-        tagPopoverInstance.submitTag.subscribe(() => {
-          editor.updateParams(
-            AnnotationEditorParamsType.HIGHLIGHT_COLOR,
-            '#53FFBC'
-          );
-          editor.annotationConfig.color = '#53FFBC';
-          // this.utilService.updateEditorType(editor);
-        });
+      //   tagPopoverInstance.submitTag.subscribe(() => {
+      //     editor.updateParams(
+      //       AnnotationEditorParamsType.HIGHLIGHT_COLOR,
+      //       '#53FFBC'
+      //     );
+      //     editor.annotationConfig.color = '#53FFBC';
+      //     // this.utilService.updateEditorType(editor);
+      //   });
       });
     }
   }

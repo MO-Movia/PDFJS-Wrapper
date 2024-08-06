@@ -63,6 +63,7 @@
           _ngcontent-ng-c2919085671=""
           type="button"
           class="btn close-button"
+          (click)="closeTag()"
         >
           <!-- <fa-icon _ngcontent-ng-c2919085671="" class="ng-fa-icon"> -->
           <svg
@@ -93,12 +94,14 @@
             </div>
             <div _ngcontent-ng-c3314754245="" class="ps-2">
               <input
+              
                 _ngcontent-ng-c3314754245=""
                 #filterInput
-                 
+                (keyup)="tagSearch(filterInput.value)"
                 placeholder="Enter text"
                 class="input-field"
-                style="max-width: 87px"
+                style="max-width: 106px;height:20px;position: relative;right:8px  "
+ 
               />
             </div>
           </div>
@@ -110,48 +113,57 @@
           ></div>
         </div>
         <div _ngcontent-ng-c3314754245="" class="col-12 tag-list pb-2" >
-          <div _ngcontent-ng-c1591847081="" class="flex scrollable-div">
-            <label _ngcontent-ng-c1591847081="" class="mo-check-label"  *ngFor="let tag of tagListPrivate; let i = index">
-              <span>{{ tagListPrivate[i].name }}</span>
+         
+            
+            <!-- <label _ngcontent-ng-c1591847081="" class="mo-check-label"  *ngFor="let tag of filteredTags; let i = index">
+              <span class="tagName">{{ filteredTags[i].name }}</span>
               <input
-               id="privateTag"
-                _ngcontent-ng-c1591847081=""
-                type="checkbox"
-                class="black-tick ng-untouched ng-pristine ng-valid checkbox"
-                value="tag.id"
-                (click)="checkedTag(tagListPrivate[i])"
-              />
+              id="privateTag"
+               _ngcontent-ng-c1591847081=""
+               type="checkbox"
+               class="black-tick ng-untouched ng-pristine ng-valid"
+               value="tag.id"
+               (click)="checkedTag(filteredTags[i])"
+               [ngClass]="{'isPublic': isPublic}">  
               <span _ngcontent-ng-c1591847081="" class="checkmark"></span>
-            </label>
-            <label _ngcontent-ng-c1591847081="" class="mo-check-label"  *ngFor="let tag of tagListPublic; let i = index">
-              <span>{{ tagListPublic[i].name }}</span>
+            </label> -->
+            <div class="d-flex flex scrollable-div flex"  >
+              <label class="mo-check-label" *ngFor="let tag of filteredTags; let i = index">
+                <span class="tag-name">{{ filteredTags[i].name }}</span>
+                  <input type="checkbox" class="black-tick checkbox" (click)="checkedTag(filteredTags[i])"  [checked]="tag.isChecked">
+                  <span class="checkmark"></span>
+              </label>
+          </div>
+            <!-- <label _ngcontent-ng-c1591847081="" class="mo-check-label"  *ngFor="let tag of tagListPublic; let i = index">
+              <span class="tagName">{{ tagListPublic[i].name }}</span>
               <input
                  id="publicTag"
                 _ngcontent-ng-c1591847081=""
                 type="checkbox"
-                class="black-tick ng-untouched ng-pristine ng-valid checkbox"
+                class="black-tick ng-untouched ng-pristine ng-valid pubCheckbox"
                 value="tag.id"
                 (click)="checkedTag(tagListPublic[i])"
               />
-              <span _ngcontent-ng-c1591847081="" class="checkmark"></span>
-            </label>
-          </div>
+              <!-- <span _ngcontent-ng-c1591847081="" class="checkmark"></span> -->
+          
+       
+          <hr>
         </div>
         
 
-        <div>
+        <div class="selectedDiv">
           <label _ngcontent-ng-c1591847081="" class="selected-label"
           > <span class="seltag-text">Show selected tags only </span>
           <input
+          (click)="showSelectedTabs()"
             _ngcontent-ng-c1591847081=""
             type="checkbox"
-            class="black-tick ng-untouched ng-pristine ng-valid checkbox selectedtag-checkmark"
-          /><span _ngcontent-ng-c1591847081="" class="checkmark"></span>
+            id="selectedTags"
+            class="black-tick ng-untouched ng-pristine ng-valid  selectedtag-checkmark"
+           />
+          <!-- <span _ngcontent-ng-c1591847081="" class="checkmark"></span> -->
         </label>
         </div>
-        <div>
-        <button type="button" class="btn ok-btn" (click)="storeTag()">Ok</button>
-      </div>
       </div>
     </div>
   </div>

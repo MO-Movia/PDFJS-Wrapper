@@ -225,7 +225,12 @@
                     tabindex="-1"
                     (click)="scrollToElement(comment)"
                   >
-                    {{ comment?.annotationConfig?.comment }}
+                    {{
+                      comment?.annotationConfig?.comment?.length > 30
+                        ? comment?.annotationConfig?.comment?.substring(0, 30) +
+                          "..."
+                        : comment?.annotationConfig?.comment
+                    }}
                   </div>
                   <span class="icon-span">
                     <div class="svg-icon">
