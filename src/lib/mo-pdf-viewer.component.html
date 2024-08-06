@@ -95,104 +95,110 @@
             <h3 class="right-panel-title">Tags:</h3>
           </div>
         </div>
-
-        <div class="row flex-grow-1 tag-container">
-          <div class="publicList">
-            <svg
-              class="collapse-svg"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 448 512"
-              (click)="tagPublicVisibility()"
-              [style.rotate]="publicListVisible ? '0deg' : '180deg'"
-            >
-              <path
-                d="M201.4 137.4c12.5-12.5 32.8-12.5 45.3 0l160 160c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L224 205.3 86.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l160-160z"
-              />
-            </svg>
-            <h6 class="tag-type">Public</h6>
-            <div class="tag-public-count">
-              {{ tagListPublic?.length }}
-            </div>
-            <div *ngIf="publicListVisible">
-              <div
-                *ngFor="let tag of tagListPublic; let i = index"
-                class="publicList"
-                (mouseenter)="onMouseEnter('public', i)"
-                (mouseleave)="onMouseLeave()"
-              >
-              <span></span>
-                <ul class="col">
-                  <li class="tag-list">
-                    <div>
-                        <h4>  {{tagListPublic[i].name}}          </h4>
-                      <span (click)="scrollToElement(tagListPublic[i])">{{
-                        tagListPublic[i]?.text
-                      }}</span>
-                      <p
-                        tabindex="-1"
-                        class="public-item-close"
-                        [class.visible]="
-                          hoveredIndex === i && hoveredList === 'public'
-                        "
-                        (click)="removeAnnotation(tags[i])"
-                      >
-                        X
-                      </p>
-                    </div>
-                  </li>
+        <ul ngbNav #nav="ngbNav" class="nav-tabs taglist-tab">
+          <li [ngbNavItem]="1">
+            <button ngbNavLink type="button" class="tab-private" role="tab">Private Tag</button>
+            
+            <ng-template ngbNavContent>
+              <div *ngFor="let tag of tagListPrivate; let i = index" class="privateList">
+                <div>
+                  <svg
+                    class="collapse-svg"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 448 512"
+                    (click)="tagPrivateVisibility(i)"
+                    [style.rotate]="privateListVisible[i] ? '0deg' : '180deg'"
+                  >
+                    <path
+                      d="M201.4 137.4c12.5-12.5 32.8-12.5 45.3 0l160 160c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L224 205.3 86.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l160-160z"
+                    />
+                  </svg>
+                  <h4 class="tag-name">{{ tag.name }}</h4>
+                  <div class="tag-private-count">{{ tag.textArray.length }}</div>
+                </div>
+                <ul class="col tag-col">
+                
+                  <div class="private-span" >
+                    <ng-container *ngFor="let text of tag.textArray; let j = index">
+                      <li *ngIf="privateListVisible[i]">
+                      <div *ngIf="privateListVisible[i]" class="tag-item-container">
+                       
+                        <div
+                          class="tag-private-list"
+                        
+                          (click)="scrollToElement(tag)"
+                        >
+                          {{ text }}
+                      </div>
+                   
+                        <p
+                          tabindex="-1"
+                          class="private-item-close"
+                          
+                          (click)="removeAnnotation(tag)"
+                        >
+                          X
+                        </p>
+                      </div>
+                    </li>
+                    </ng-container>
+                  </div>
+                
                 </ul>
               </div>
-            </div>
-          </div>
-          <div class="privateList">
-            <svg
-              class="collapse-svg"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 448 512"
-              (click)="tagPrivateVisibility()"
-              [style.rotate]="privateListVisible ? '0deg' : '180deg'"
-            >
-              <path
-                d="M201.4 137.4c12.5-12.5 32.8-12.5 45.3 0l160 160c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L224 205.3 86.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l160-160z"
-              />
-            </svg>
-            <h6 class="tag-type">Private</h6>
-            <div class="tag-private-count">
-              {{ tagListPrivate.length }}
-            </div>
-            <div *ngIf="privateListVisible">
-              <div
-                *ngFor="let tagPrivate of tagListPrivate; let i = index"
-                class="privateList"
-                (mouseenter)="onMouseEnter('private', i)"
-                (mouseleave)="onMouseLeave()"
-              >
-                <ul class="col">
-                  <li class="tag-list">
-                    <div>
-                      <h4>{{tagListPrivate[i].name}}</h4>
-                      <span (click)="scrollToElement(tagListPrivate[i])">{{
-                        tagListPrivate[i]?.text.length > 25
-                          ? tagListPrivate[i].text.substring(0, 25) + "..."
-                          : tagListPrivate[i].text
-                      }}</span>
-                      <p
-                        tabindex="-1"
-                        class="private-item-close"
-                        [class.visible]="
-                          hoveredIndex === i && hoveredList === 'private'
-                        "
-                        (click)="removeAnnotation(tagPrivate)"
-                      >
-                        X
-                      </p>
-                    </div>
-                  </li>
+            </ng-template> 
+          </li>
+          <li [ngbNavItem]="2">
+            <button ngbNavLink type="button" class="tab-public" role="tab">Public Tag</button>
+            
+            <ng-template ngbNavContent>
+              <div *ngFor="let tag of tagListPublic; let i = index" class="publicList">
+                <div>
+                  <svg
+                    class="collapse-svg"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 448 512"
+                    (click)="tagPublicVisibility(i)"
+                    [style.rotate]="publicListVisible[i] ? '0deg' : '180deg'"
+                  >
+                    <path
+                      d="M201.4 137.4c12.5-12.5 32.8-12.5 45.3 0l160 160c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L224 205.3 86.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l160-160z"
+                    />
+                  </svg>
+                  <h4 class="tag-name">{{ tag.name }}</h4>
+                  <div class="tag-public-count">
+                    {{ tag.textArray.length }}
+                  </div>
+                </div>
+                <ul class="col tag-col">
+                  <span class="public-span">
+                    <ng-container *ngFor="let text of tag.textArray; let j = index">
+                      <div *ngIf="publicListVisible[i]" class="tag-item-container">
+                        <li>
+                        <div
+                          class="tag-public-list"
+                          (click)="scrollToElement(tag)"
+                        >
+                          {{ text }}
+                      </div>
+                    </li>
+                        <p
+                          tabindex="-1"
+                          class="public-item-close"
+                          (click)="removeAnnotation(tag.text)"
+                        >
+                          X
+                        </p>
+                      </div>
+                    </ng-container>
+                  </span>
                 </ul>
               </div>
-            </div>
-          </div>
-        </div>
+            </ng-template>
+            
+          </li>
+        </ul> 
+        <div [ngbNavOutlet]="nav" class="mt-2"></div>
       </div>
       <div
         class="search-category"

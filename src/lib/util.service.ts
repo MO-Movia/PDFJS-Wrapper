@@ -5,7 +5,7 @@ export interface TagModel {
   id: number;
   name: string;
   isPrivate: boolean;
-  text?: string;
+  textArray?: string[];
   editorId?: string;
 }
 
@@ -16,7 +16,6 @@ export class UtilService {
   public annotations: any[] = [];
   public uniqueTagIds: any;
   public uniqueTags: any;
-  // public matchingTags:TagModel[] =[]
   public newTag: TagModel[] = [];
 
   private annotationUpdated = new Subject<void>();
@@ -37,15 +36,6 @@ export class UtilService {
   // }
   annotationDataUpdated() {
     this.annotationUpdated.next();
-  }
-
-  public getTagListPrivate(): TagModel[] {
-    const tags = this.getAnnotatedTags();
-    return tags.filter((tag) => tag.isPrivate);
-  }
-  public getTagListPublic(): TagModel[] {
-    const tags = this.getAnnotatedTags();
-    return tags.filter((tag) => !tag.isPrivate);
   }
 
   public gethighlightText(): any[] {
@@ -86,23 +76,49 @@ export class UtilService {
     return this.annotations.map((a) => a.annotationConfig);
   }
 
+  public getTagListPrivate(): TagModel[] {
+    const tags = this.getAnnotatedTags();
+    return tags.filter((tag) => tag.isPrivate);
+  }
+  
+  public getTagListPublic(): TagModel[] {
+    const tags = this.getAnnotatedTags();
+    return tags.filter((tag) => !tag.isPrivate);
+  }
+  
+
   public getAnnotatedTags(): TagModel[] {
     const allTags = this.getTags();
     const matchingTags: TagModel[] = [];
+    
     this.annotations.forEach((annotation) => {
       if (annotation.annotationConfig.Tags) {
         annotation.annotationConfig.Tags.forEach((tagId: { id: number }) => {
           const matchingTag = allTags.find((tag) => tag.id === tagId.id);
           if (matchingTag) {
-            matchingTag.text = annotation?.text || '';
-            matchingTags.push({ ...matchingTag });
+            const existingTag = matchingTags.find((tag) => tag.name === matchingTag.name);
+            if (existingTag) {
+              if (!existingTag.textArray) {
+                existingTag.textArray = [];
+              }
+              existingTag.textArray.push(annotation.text || '');
+            
+            } else {
+              const newTag: TagModel = {
+                ...matchingTag,
+                textArray: [annotation.text || ''],
+                editorId: annotation.id
+              };
+              matchingTags.push(newTag);
+            }
           }
         });
       }
     });
 
     return matchingTags;
-  }
+}
+
 
   public getTags(): TagModel[] {
     return [

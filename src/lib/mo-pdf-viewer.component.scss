@@ -432,28 +432,26 @@
 }
 
 .privateList {
-  margin: 2px 15px -27px 14px;
+  margin: -2px 16px -8px 19px;
   border-radius: 5px;
 }
 
 .publicList {
-  margin: 2px 15px -27px 14px;
+  margin: -2px 16px -8px 19px;
   border-radius: 5px;
 }
 
 .tag-list {
-  width: 78%;
-  margin: -25px 0 30px 0;
+  width: 100%;
+  margin: -25px 0 30px;
+  overflow: hidden;
+  white-space: nowrap;
+  padding-right: 15px;
 }
-// .highlight-list {
-//   width: 78%;
-//   margin: -25px 0 30px 0;
-// }
 
-.privateList .tag-list:hover {
-  background-color: #dbd5d5;
-  margin-left: 2px;
-  cursor: pointer;
+.tag-list-ul{
+  margin-right: 17px;
+  margin-left: -28px;
 }
 
 .highlights-list {
@@ -480,15 +478,9 @@
   padding-right: 2px;
 }
 
-.publicList .tag-list:hover {
-  background-color: #dbd5d5;
-  margin-left: 2px;
-  cursor: pointer;
-}
-
 .collapse-svg {
-  height: 25px;
-  width: 22px;
+  height: 20px;
+  width: 20px;
   cursor: pointer;
   rotate: 180deg;
   fill: #686161;
@@ -508,8 +500,8 @@
   cursor: pointer;
   text-align: center;
   width: 23px;
-  margin-left: 88%;
-  margin-top: -24px;
+  margin-left: 100%;
+  margin-top: -25px;
   font-weight: 600;
   visibility: hidden;
 }
@@ -522,8 +514,8 @@
   cursor: pointer;
   text-align: center;
   width: 23px;
-  margin-left: 88%;
-  margin-top: -24px;
+  margin-left: 100%;
+  margin-top: -25px;
   font-weight: 600;
   visibility: hidden;
 }
@@ -534,7 +526,8 @@
 
 .tag-public-count {
   position: relative;
-  left: 73%;
+  left: 100%;
+  margin-left: -3%;
   border-radius: 50%;
   background: #c1c0be;
   text-align: center;
@@ -545,7 +538,9 @@
 
 .tag-private-count {
   position: relative;
-  left: 73%;
+  left: 88%;
+  margin-left: -3%;
+  left: 100%;
   border-radius: 50%;
   background: #c1c0be;
   text-align: center;
@@ -568,4 +563,84 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap; 
+}
+.tag-public-div{
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+  padding-right: 11px;
+}
+
+.tag-private-div{
+  padding-right: 23px; 
+  width: 100%;
+}
+
+.nav-item{
+  width: 50%;
+}
+
+.tag-item-container:hover .public-item-close {
+  visibility: visible;
+}
+
+.tag-item-container:hover .private-item-close {
+  visibility: visible;
+}
+
+.tag-item-container:hover {
+  background-color: #dbd5d5;
+}
+
+
+.tab-public{
+  width: 100%;
+  font-size: 14px;
+  padding: 20px;
+}
+
+.tab-private{
+  width: 100%;
+  font-size: 14px;
+  padding: 20px;
+}
+
+.nav-link.active{
+  background-color: #5a5858;
+  color: white;
+}
+
+.taglist-tab{
+  margin: 12px;
+}
+
+.tag-text{
+  width: 100%;
+}
+
+.tag-name{
+  margin-left: 28px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: larger;
+}
+
+.tag-private-list{
+  width: 100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.tag-public-list{
+  width: 100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.tag-col{
+  margin-top: -9px;
 }

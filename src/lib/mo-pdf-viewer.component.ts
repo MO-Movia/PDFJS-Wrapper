@@ -97,8 +97,8 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   public commentList: any[] = [];
   public isOpenTag: boolean = false;
   public isOpenComment: boolean = false;
-  public publicListVisible: boolean = false;
-  public privateListVisible: boolean = false;
+  public publicListVisible: boolean[] = [];
+  public privateListVisible: boolean[] = [];
   public isHovered: boolean = false;
   public tags: TagModel[] = [];
   //public isEditable: boolean[] = [];
@@ -123,6 +123,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     pdfViewerElement.addEventListener('scroll', this.onPdfViewerScroll);
     //pdfViewerElement.addEventListener('keydown', this.onKeyDown);
   }
+
   private popoverRef: any;
   private previousScrollTop = 0;
   private previousScrollLeft = 0;
@@ -141,6 +142,9 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     public renderer: Renderer2,
     private pdfService: NgxExtendedPdfViewerService
   ) {
+
+    this.privateListVisible = new Array(this.tagListPrivate.length).fill(false);
+
     this.utilService.annotationUpdated$.subscribe(() => {
       this.createPDFObject();
       this.annotationUpdated.emit(this.utilService.getAnnotationConfigs());
@@ -482,12 +486,13 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     editor.remove(editor);
   }
 
-  public tagPublicVisibility(): void {
-    this.publicListVisible = !this.publicListVisible;
+
+  public tagPublicVisibility(index:number): void {
+    this.publicListVisible[index] = !this.publicListVisible[index];
   }
 
-  public tagPrivateVisibility(): void {
-    this.privateListVisible = !this.privateListVisible;
+  tagPrivateVisibility(index: number): void {
+    this.privateListVisible[index] = !this.privateListVisible[index];
   }
 
   public onMouseEnter(
@@ -502,6 +507,8 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     this.hoveredIndex = null;
     this.hoveredList = null;
   }
+
+  
 
   public ngOnDestroy(): void {
     this.closeCommentPopover;
