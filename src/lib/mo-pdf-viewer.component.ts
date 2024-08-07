@@ -70,7 +70,7 @@ import { Subscription } from 'rxjs';
     BrowserAnimationsModule,
     FormsModule,
   ],
-  providers: [provideAnimations()],
+  providers: [provideAnimations(), UtilService],
   selector: 'mo-pdf-viewer',
   templateUrl: './mo-pdf-viewer.component.html',
   styleUrls: ['./mo-pdf-viewer.component.scss'],
@@ -88,6 +88,8 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       this.notRenderedPages = [
         ...new Set(this.savedAnnotations.map((a) => a.pageNumber)),
       ];
+
+      this.requestedPages = [...this.notRenderedPages];
     }
   }
   @Input() public savedAnnotations: AnnotationItem[] = [];
@@ -109,7 +111,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   public submitSubscription: any;
   private notRenderedPages: number[] = [];
   public subscription: Subscription | undefined;
-
+  private requestedPages: number[] = [];
   @ViewChild(NgxExtendedPdfViewerComponent)
   public pdfComponent!: NgxExtendedPdfViewerComponent;
 
@@ -346,19 +348,29 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
         (p) => p !== event.pageNumber
       );
       this.pdfService.setAnnotation(this.savedAnnotations);
-      if (this.notRenderedPages.length === 0) {
+      if (
+        this.notRenderedPages.length === 0 &&
+        this.savedAnnotations.length > 0 &&
+        !this.callExecuted
+      ) {
         setTimeout(() => {
           this.pdfService.scrollPageIntoView(1);
+          this.callExecuted = true;
         }, 200);
       }
     }, 500);
   }
   public onPageRendered(event: PageRenderEvent): void {
+    this.requestedPages = this.requestedPages.filter(
+      (d) => d !== event.pageNumber
+    );
     this.savedAnnotations.sort((a, b) => a.pageNumber - b.pageNumber);
 
-    this.savedAnnotations.forEach((d) => {
-      this.pdfService.addPageToRenderQueue(d.pageNumber);
-    });
+    if (this.pdfService.isRenderQueueEmpty()) {
+      this.requestedPages.forEach((d) => {
+        this.pdfService.addPageToRenderQueue(d - 1);
+      });
+    }
   }
 
   public onDocumentClickTag = (event: MouseEvent): void => {
@@ -413,8 +425,8 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
 
   public scrollToElement(editor: any): void {
     document.getElementById(`${editor.id}`)?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
+      block: 'center',
+      inline: 'center',
     });
 
     editor._uiManager.setSelected(editor);
