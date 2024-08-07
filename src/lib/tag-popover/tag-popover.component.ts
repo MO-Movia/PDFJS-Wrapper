@@ -50,16 +50,7 @@ export class TagPopoverComponent {
   ngOnInit() {
     this.allTags = [...this.tagListPrivate, ...this.tagListPublic];
     this.filteredTags = this.allTags;
-    const selectedTagsForEditor = this.utilService._selectedTags.value.filter(
-      (tag) => tag.editorId === this.editorId
-    );
-
-    this.filteredTags.forEach((filteredTag) => {
-      const foundTag = selectedTagsForEditor.find(
-        (tag) => tag.id === filteredTag.id
-      );
-      filteredTag.isChecked = foundTag ? foundTag.isChecked : false;
-    });
+    this.updateSelectedTagsFromStorage();
    
   }
   // ngAfterViewInit() {
