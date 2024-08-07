@@ -1,29 +1,3 @@
-<!-- <div class="tag-popover">
-  <h4>Tags</h4>
-  <button class="close-button" (click)="closeTag()">x</button>
-  <div class="col-12 d-flex border-clr pt-1"></div>
-  <input
-    type="radio"
-    id="tag-public"
-    [(ngModel)]="selectedTag"
-    value="Public"
-  />
-  <label for="tag-public">Public</label><br />
-  <input
-    type="radio"
-    id="tag-private"
-    [(ngModel)]="selectedTag"
-    value="Private"
-  />
-  <label for="tag-private">Private</label><br />
-  <button
-    class="ok-button"
-    [disabled]="!selectedTag"
-    (click)="storeTag()"
-  >
-    OK
-  </button>
-</div> -->
 <div class="tag-popover">
   <div _ngcontent-ng-c2435349743="" class="popContainter">
     <div _ngcontent-ng-c2435349743="" class="d-flex flex-column">
@@ -32,40 +6,12 @@
           Tags
         </h5>
         <span _ngcontent-ng-c2435349743="" class="m-1"></span>
-        <!-- <fa-layers _ngcontent-ng-c2435349743="" role="button" placement="end" triggers="manual" class="fa-layers fa-fw"><fa-icon _ngcontent-ng-c2435349743="" class="ng-fa-icon"><svg role="img" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="tag" class="svg-inline--fa fa-tag fa-fw" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-          <path fill="currentColor" d="M0 80V229.5c0 17 6.7 33.3 18.7 45.3l176 176c25 25 65.5 25 90.5 0L418.7 317.3c25-25 25-65.5 0-90.5l-176-176c-12-12-28.3-18.7-45.3-18.7H48C21.5 32 0 53.5 0 80zm112 32a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"></path>
-        </svg>
-      </fa-icon> -->
-        <!-- <fa-icon _ngcontent-ng-c2435349743="" transform="right-6 up-4" class="ng-fa-icon"> -->
-        <!-- <svg
-          role="img"
-          aria-hidden="true"
-          focusable="false"
-          data-prefix="fas"
-          data-icon="plus"
-          class="svg-inline--fa fa-plus fa-fw"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 448 512"
-          style="transform-origin: 0.8125em 0.25em"
-        >
-          <g transform="translate(224 256)">
-            <g transform="translate(192, -128)  scale(1, 1)  rotate(0 0 0)">
-              <path
-                fill="currentColor"
-                d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z"
-                transform="translate(-224 -256)"
-              ></path>
-            </g>
-          </g>
-        </svg> -->
-        <!-- </fa-icon></fa-layers><maw-icon-btn _ngcontent-ng-c2435349743="" aria-describedby="modal-title" class="ms-auto" _nghost-ng-c2919085671=""> -->
         <button
           _ngcontent-ng-c2919085671=""
           type="button"
           class="btn close-button"
           (click)="closeTag()"
         >
-          <!-- <fa-icon _ngcontent-ng-c2919085671="" class="ng-fa-icon"> -->
           <svg
             role="img"
             aria-hidden="true"
@@ -81,11 +27,9 @@
               d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"
             ></path>
           </svg>
-          <!-- </fa-icon> -->
         </button>
-        <!-- </maw-icon-btn> -->
       </div>
-      <!-- <maw-tag-selection _ngcontent-ng-c2435349743="" _nghost-ng-c3314754245=""> -->
+
       <div _ngcontent-ng-c3314754245="">
         <div _ngcontent-ng-c3314754245="" class="col-12 d-flex pt-2 pb-3">
           <div _ngcontent-ng-c3314754245="" class="col-8 d-flex pt-2">
@@ -94,14 +38,17 @@
             </div>
             <div _ngcontent-ng-c3314754245="" class="ps-2">
               <input
-              
                 _ngcontent-ng-c3314754245=""
                 #filterInput
                 (keyup)="tagSearch(filterInput.value)"
                 placeholder="Enter text"
                 class="input-field"
-                style="max-width: 106px;height:20px;position: relative;right:8px  "
- 
+                style="
+                  max-width: 106px;
+                  height: 20px;
+                  position: relative;
+                  right: 8px;
+                "
               />
             </div>
           </div>
@@ -112,57 +59,38 @@
             style="position: relative"
           ></div>
         </div>
-        <div _ngcontent-ng-c3314754245="" class="col-12 tag-list pb-2" >
-         
-            
-            <!-- <label _ngcontent-ng-c1591847081="" class="mo-check-label"  *ngFor="let tag of filteredTags; let i = index">
-              <span class="tagName">{{ filteredTags[i].name }}</span>
+        <div _ngcontent-ng-c3314754245="" class="col-12 tag-list pb-2">
+          <div class="d-flex flex scrollable-div flex">
+            <label
+              class="mo-check-label"
+              *ngFor="let tag of filteredTags; let i = index"
+            >
+              <span class="tag-name">{{ filteredTags[i].name }}</span>
               <input
-              id="privateTag"
-               _ngcontent-ng-c1591847081=""
-               type="checkbox"
-               class="black-tick ng-untouched ng-pristine ng-valid"
-               value="tag.id"
-               (click)="checkedTag(filteredTags[i])"
-               [ngClass]="{'isPublic': isPublic}">  
-              <span _ngcontent-ng-c1591847081="" class="checkmark"></span>
-            </label> -->
-            <div class="d-flex flex scrollable-div flex"  >
-              <label class="mo-check-label" *ngFor="let tag of filteredTags; let i = index">
-                <span class="tag-name">{{ filteredTags[i].name }}</span>
-                  <input type="checkbox" class="black-tick checkbox" (click)="checkedTag(filteredTags[i])"  [checked]="tag.isChecked">
-                  <span class="checkmark"></span>
-              </label>
-          </div>
-            <!-- <label _ngcontent-ng-c1591847081="" class="mo-check-label"  *ngFor="let tag of tagListPublic; let i = index">
-              <span class="tagName">{{ tagListPublic[i].name }}</span>
-              <input
-                 id="publicTag"
-                _ngcontent-ng-c1591847081=""
                 type="checkbox"
-                class="black-tick ng-untouched ng-pristine ng-valid pubCheckbox"
-                value="tag.id"
-                (click)="checkedTag(tagListPublic[i])"
+                class="black-tick checkbox"
+                (click)="checkedTag(filteredTags[i])"
+                [checked]="tag.isChecked"
+                id="checkbox"
               />
-              <!-- <span _ngcontent-ng-c1591847081="" class="checkmark"></span> -->
-          
-       
-          <hr>
+              <span class="checkmark"></span>
+            </label>
+          </div>
+
+          <hr />
         </div>
-        
 
         <div class="selectedDiv">
-          <label _ngcontent-ng-c1591847081="" class="selected-label"
-          > <span class="seltag-text">Show selected tags only </span>
-          <input
-          (click)="showSelectedTabs()"
-            _ngcontent-ng-c1591847081=""
-            type="checkbox"
-            id="selectedTags"
-            class="black-tick ng-untouched ng-pristine ng-valid  selectedtag-checkmark"
-           />
-          <!-- <span _ngcontent-ng-c1591847081="" class="checkmark"></span> -->
-        </label>
+          <label _ngcontent-ng-c1591847081="" class="selected-label">
+            <span class="seltag-text">Show selected tags only </span>
+            <input
+              (click)="showSelectedTabs()"
+              _ngcontent-ng-c1591847081=""
+              type="checkbox"
+              id="selectedTags"
+              class="black-tick ng-untouched ng-pristine ng-valid selectedtag-checkmark"
+            />
+          </label>
         </div>
       </div>
     </div>

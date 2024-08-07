@@ -60,8 +60,22 @@ export class TagPopoverComponent {
       );
       filteredTag.isChecked = foundTag ? foundTag.isChecked : false;
     });
+   
   }
-
+  // ngAfterViewInit() {
+  //   const popoverContent = document.querySelector('.tag-popover') as HTMLElement;
+  //   const checkboxes = popoverContent.querySelectorAll('input[type="checkbox"]') as NodeListOf<HTMLInputElement>;
+  
+  //   // const firstCheckedCheckbox = Array.from(checkboxes).findIndex((checkbox) => checkbox.checked);
+  
+  //   if (checkboxes[5]) {
+  //     const checkboxOffsetTop = checkboxes[5].offsetTop;
+  //     popoverContent.scrollTo({
+  //       top: checkboxOffsetTop,
+  //       behavior: 'smooth',
+  //     });
+  //   }
+  // }
   public closeTag(): void {
     const popover = document.querySelector('.tag-popover') as HTMLElement;
     if (!this.closePopover) {

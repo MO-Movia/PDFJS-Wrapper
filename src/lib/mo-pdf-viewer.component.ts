@@ -219,11 +219,9 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
         this.utilService.updateEditorType(editor);
       });
     } else if (
-      data.type === AnnotationActionType.privateTag ||
-      data.type === AnnotationActionType.publicTag
+      data.type === AnnotationActionType.tag 
     ) {
       this.showTagPopover(editor);
-
       const tagPopoverInstance = this.popoverRef
         .instance as TagPopoverComponent;
     
@@ -238,12 +236,16 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
                       AnnotationEditorParamsType.HIGHLIGHT_COLOR,
                       '#53FFBC'
                     );
-                    editor.annotationConfig.color = '#53FFBC';                
+                    editor.annotationConfig.color = '#53FFBC';     
+                    editor.annotationConfig.type=AnnotationActionType.tag      
+                    this.utilService.updateEditorType(editor);
             } else {
               editor.updateParams(
                 AnnotationEditorParamsType.HIGHLIGHT_COLOR,
                 "#FFFF98"
               );
+              editor.annotationConfig.type=AnnotationActionType.highlight
+              this.utilService.updateEditorType(editor);
               
             }
             
