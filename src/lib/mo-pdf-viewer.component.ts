@@ -9,7 +9,6 @@ import {
   OnDestroy,
   Renderer2,
   OnInit,
-  HostListener,
   Output,
   EventEmitter,
 } from '@angular/core';
@@ -29,7 +28,6 @@ import {
   AnnotationEditorParamsType,
   NgxExtendedPdfViewerService,
   PageRenderEvent,
-  PagesLoadedEvent,
   AnnotationActionType,
   ShowCommentTagPopoverDetails,
   AnnotationDeleteEvent,
@@ -38,21 +36,13 @@ import {
 import { CommentPopoverComponent } from './comment-popover/comment-popover.component';
 import { TagPopoverComponent } from './tag-popover/tag-popover.component';
 import {
-  faFile,
-  faUser,
-  faMessage,
-  faThumbsUp,
-} from '@fortawesome/free-regular-svg-icons';
-import {
-  faSliders,
-  faBookOpenReader,
-  faQuoteRight,
-  faArrowTrendUp,
+
   faTag,
   faTrash,
   faHighlighter,
+  faMessage
 } from '@fortawesome/free-solid-svg-icons';
-import { TagModel, UtilService } from './util.service';
+import { TagModel, UtilService, TagListModel } from './util.service';
 
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
@@ -77,11 +67,6 @@ import { Subscription } from 'rxjs';
 })
 export class MoPdfViewerComponent implements OnDestroy, OnInit {
   @Input({ required: true }) public pdfSrc: string | Uint8Array = '';
-  @Input() public documentTitle = '';
-  @Input() public documentClassification = 'Unclassified';
-  @Input() public documentAuthor = '';
-  @Input() public minimalView = false;
-  private _isFirstEditor: any;
   @Input() set annotations(savedAnnotations: AnnotationItem[]) {
     if (savedAnnotations && savedAnnotations.length > 0) {
       this.savedAnnotations = savedAnnotations;
@@ -103,11 +88,6 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   public privateListVisible: boolean[] = [];
   public isHovered: boolean = false;
   public tags: TagModel[] = [];
-  //public isEditable: boolean[] = [];
-  // public newComment: string = '';
-  highlightText: string | undefined = '';
-  commentTextArray: string[] = [];
-  textType: string | undefined;
   public submitSubscription: any;
   private notRenderedPages: number[] = [];
   public subscription: Subscription | undefined;
@@ -123,12 +103,11 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       'ngx-extended-pdf-viewer'
     );
     pdfViewerElement.addEventListener('scroll', this.onPdfViewerScroll);
-    //pdfViewerElement.addEventListener('keydown', this.onKeyDown);
   }
 
   private popoverRef: any;
-  private previousScrollTop = 0;
-  private previousScrollLeft = 0;
+  public previousScrollTop = 0;
+  public previousScrollLeft = 0;
   public highlightList: any[] = [];
   public dropdownVisible: any = {};
   public hoveredList: 'private' | 'public' | null | 'highlight' = null;
@@ -144,31 +123,25 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     public renderer: Renderer2,
     private pdfService: NgxExtendedPdfViewerService
   ) {
-
     this.privateListVisible = new Array(this.tagListPrivate.length).fill(false);
 
     this.utilService.annotationUpdated$.subscribe(() => {
       this.createPDFObject();
       this.annotationUpdated.emit(this.utilService.getAnnotationConfigs());
     });
+    this.utilService.tags$.subscribe((tags) => {
+      this.tagListPublic = tags.filter((tag) => !tag.isPrivate);
+      this.tagListPrivate = tags.filter((tag) => tag.isPrivate);
+    });
   }
 
   public createPDFObject(): void {
     this.highlightList = this.utilService.gethighlightText();
-    this.tagListPublic = this.utilService.getTagListPublic();
-    this.tagListPrivate = this.utilService.getTagListPrivate();
     this.commentList = this.utilService.getCommentList();
   }
 
   public I = {
-    faFile,
-    faUser,
-    faSliders,
-    faBookOpenReader,
     faMessage,
-    faQuoteRight,
-    faArrowTrendUp,
-    faThumbsUp,
     faTag,
     faTrash,
     faHighlighter,
@@ -218,52 +191,35 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
         editor.annotationConfig.color = '#80EBFF';
         this.utilService.updateEditorType(editor);
       });
-    } else if (
-      data.type === AnnotationActionType.tag 
-    ) {
+    } else if (data.type === AnnotationActionType.tag) {
       this.showTagPopover(editor);
       const tagPopoverInstance = this.popoverRef
         .instance as TagPopoverComponent;
-    
 
-      tagPopoverInstance.tagSelected.subscribe(() => {
-        this.subscription = this.utilService.selectedTags$.subscribe((tags) => {
-            const filteredTags = tags.filter((tag) => tag.editorId === editor.id);
-            editor.annotationConfig.Tags = filteredTags
-            .map((tag) => ({ id: tag.id }));
-           if (filteredTags.some((tag) => tag.isChecked)) {
-              editor.updateParams(
-                      AnnotationEditorParamsType.HIGHLIGHT_COLOR,
-                      '#53FFBC'
-                    );
-                    editor.annotationConfig.color = '#53FFBC';     
-                    editor.annotationConfig.type=AnnotationActionType.tag      
-                    this.utilService.updateEditorType(editor);
-            } else {
-              editor.updateParams(
-                AnnotationEditorParamsType.HIGHLIGHT_COLOR,
-                "#FFFF98"
-              );
-              editor.annotationConfig.type=AnnotationActionType.highlight
-              this.utilService.updateEditorType(editor);
-              
-            }
-            
-          
-          this.utilService.getAnnotatedTags();
-          this.tagListPrivate = this.utilService.getTagListPrivate();
-          this.tagListPublic = this.utilService.getTagListPublic();
-        });
+      tagPopoverInstance.tagSelected.subscribe((activeEditor) => {
+        editor.annotationConfig.Tags = activeEditor.annotationConfig.Tags;
 
-      //   tagPopoverInstance.submitTag.subscribe(() => {
-      //     editor.updateParams(
-      //       AnnotationEditorParamsType.HIGHLIGHT_COLOR,
-      //       '#53FFBC'
-      //     );
-      //     editor.annotationConfig.color = '#53FFBC';
-      //     // this.utilService.updateEditorType(editor);
-      //   });
+        this.updateTagProps(editor);
       });
+    }
+  }
+
+  public updateTagProps(editor: any) {
+    if (editor.annotationConfig.Tags.length > 0) {
+      editor.updateParams(
+        AnnotationEditorParamsType.HIGHLIGHT_COLOR,
+        '#53FFBC'
+      );
+      editor.annotationConfig.color = '#53FFBC';
+      editor.annotationConfig.type = AnnotationActionType.tag;
+      this.utilService.updateEditorType(editor);
+    } else {
+      editor.updateParams(
+        AnnotationEditorParamsType.HIGHLIGHT_COLOR,
+        '#FFFF98'
+      );
+      editor.annotationConfig.type = AnnotationActionType.highlight;
+      this.utilService.updateEditorType(editor);
     }
   }
 
@@ -275,7 +231,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
 
     this.popoverRef = popoverFactory.create(this.injector);
     this.appRef.attachView(this.popoverRef.hostView);
-    this.popoverRef.instance.editorId = editor.id;
+    this.popoverRef.instance.editor = editor;
 
     const popoverElement = (this.popoverRef.hostView as any)
       .rootNodes[0] as HTMLElement;
@@ -289,15 +245,22 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     const targetPageIndex = editor.pageIndex;
     const pageElement =
       document.getElementsByClassName('textLayer')[targetPageIndex];
-    if (pageElement) {
-      const pageRect = pageElement.getBoundingClientRect();
-      popoverElement.style.position = 'absolute';
-      if (selectedTextRect.bottom > pageRect.bottom - 195) {
-        popoverElement.style.top = 'calc(100% - 184px)';
-      } else {
-        popoverElement.style.top = '60px';
-      }
-    }
+      if (pageElement) {
+          const pageRect = pageElement.getBoundingClientRect();
+          popoverElement.style.position = 'absolute';
+          if (selectedTextRect.bottom > pageRect.bottom - 260) {
+            popoverElement.style.top = 'calc(100% - 264px)';
+          } else {
+            popoverElement.style.top = '60px';
+          }
+    
+          if(selectedTextRect.left >pageRect.left - 173 ){
+            popoverElement.style.left = 'calc(100% - 80px)';
+          }
+          else{
+            popoverElement.style.left = '-60px';
+          } 
+        }
     const pdfViewerElement = this.elementRef.nativeElement.querySelector(
       'ngx-extended-pdf-viewer'
     );
@@ -326,15 +289,21 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     const targetPageIndex = editor.pageIndex;
     const pageElement =
       document.getElementsByClassName('textLayer')[targetPageIndex];
-    if (pageElement) {
-      const pageRect = pageElement.getBoundingClientRect();
-      popoverElement.style.position = 'absolute';
-      if (selectedTextRect.bottom > pageRect.bottom - 210) {
-        popoverElement.style.top = 'calc(100% - 218px)';
-      } else {
-        popoverElement.style.top = '60px';
+      if (pageElement) {
+        const pageRect = pageElement.getBoundingClientRect();
+        popoverElement.style.position = 'absolute';
+        if (selectedTextRect.bottom > pageRect.bottom - 270) {
+          popoverElement.style.top = 'calc(100% - 264px)';
+        } else {
+          popoverElement.style.top = '60px';
+        }
+        if(selectedTextRect.left >pageRect.left - 173 ){
+          popoverElement.style.left = 'calc(100% - 80px)';
+        }
+        else{
+          popoverElement.style.left = '-60px';
+        } 
       }
-    }
     const pdfViewerElement = this.elementRef.nativeElement.querySelector(
       'ngx-extended-pdf-viewer'
     );
@@ -372,6 +341,15 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       this.requestedPages.forEach((d) => {
         this.pdfService.addPageToRenderQueue(d - 1);
       });
+    }
+  }
+  public removeTag(editor: any, tag: TagListModel) {
+    editor.annotationConfig.Tags = editor.annotationConfig.Tags.filter(
+      (t: number) => t !== tag.id
+    );
+    this.utilService.updateEditorType(editor);
+    if (editor.annotationConfig.Tags.length === 0) {
+      this.updateTagProps(editor);
     }
   }
 
@@ -449,7 +427,6 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       this.appRef.detachView(this.popoverRef.hostView);
       this.popoverRef.destroy();
       this.popoverRef = null;
-      //this.commentDetails = null;
       const pdfViewerElement = this.elementRef.nativeElement.querySelector(
         'ngx-extended-pdf-viewer'
       );
@@ -516,8 +493,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     editor.remove(editor);
   }
 
-
-  public tagPublicVisibility(index:number): void {
+  public tagPublicVisibility(index: number): void {
     this.publicListVisible[index] = !this.publicListVisible[index];
   }
 
@@ -538,14 +514,10 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     this.hoveredList = null;
   }
 
-  
-
   public ngOnDestroy(): void {
     this.closeCommentPopover;
     const pdfViewerElement = this.elementRef.nativeElement.querySelector(
       'ngx-extended-pdf-viewer'
     );
-    //pdfViewerElement.removeEventListener('keydown', this.onKeyDown);
-    this.subscription?.unsubscribe();
   }
 }

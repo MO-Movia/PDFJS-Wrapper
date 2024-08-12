@@ -1,13 +1,12 @@
 <div class="tag-popover">
-  <div _ngcontent-ng-c2435349743="" class="popContainter">
-    <div _ngcontent-ng-c2435349743="" class="d-flex flex-column">
-      <div _ngcontent-ng-c2435349743="" class="tag-header">
-        <h5 _ngcontent-ng-c2435349743="" id="modal-title" class="modal-title">
+  <div class="popContainter">
+    <div class="d-flex flex-column">
+      <div  class="tag-header">
+        <h5 id="modal-title" class="modal-title">
           Tags
         </h5>
-        <span _ngcontent-ng-c2435349743="" class="m-1"></span>
+        <span class="m-1"></span>
         <button
-          _ngcontent-ng-c2919085671=""
           type="button"
           class="btn close-button"
           (click)="closeTag()"
@@ -30,15 +29,14 @@
         </button>
       </div>
 
-      <div _ngcontent-ng-c3314754245="">
-        <div _ngcontent-ng-c3314754245="" class="col-12 d-flex pt-2 pb-3">
-          <div _ngcontent-ng-c3314754245="" class="col-8 d-flex pt-2">
-            <div _ngcontent-ng-c3314754245="" class="ps-2 align-self-center">
-              <span _ngcontent-ng-c3314754245="" class="filter">Filter:</span>
+      <div>
+        <div class="col-12 d-flex pt-2 pb-3">
+          <div class="col-8 d-flex pt-2">
+            <div class="ps-2 align-self-center">
+              <span class="filter">Filter:</span>
             </div>
-            <div _ngcontent-ng-c3314754245="" class="ps-2">
+            <div  class="ps-2">
               <input
-                _ngcontent-ng-c3314754245=""
                 #filterInput
                 (keyup)="tagSearch(filterInput.value)"
                 placeholder="Enter text"
@@ -53,13 +51,12 @@
             </div>
           </div>
           <div
-            _ngcontent-ng-c3314754245=""
             id="addTagSection"
             class="col-4 text-end align-self-center"
             style="position: relative"
           ></div>
         </div>
-        <div _ngcontent-ng-c3314754245="" class="col-12 tag-list pb-2">
+        <div class="col-12 tag-list pb-2">
           <div class="d-flex flex scrollable-div flex">
             <label
               class="mo-check-label"
@@ -68,9 +65,9 @@
               <span class="tag-name">{{ filteredTags[i].name }}</span>
               <input
                 type="checkbox"
-                class="black-tick checkbox"
-                (click)="checkedTag(filteredTags[i])"
-                [checked]="tag.isChecked"
+                class="black-tick checkbox" 
+                [(ngModel)]="tag.isChecked"
+                (change)="checkedTag(tag)"
                 id="checkbox"
               />
               <span class="checkmark"></span>
@@ -81,14 +78,13 @@
         </div>
 
         <div class="selectedDiv">
-          <label _ngcontent-ng-c1591847081="" class="selected-label">
+          <label class="selected-label">
             <span class="seltag-text">Show selected tags only </span>
             <input
-              (click)="showSelectedTabs()"
-              _ngcontent-ng-c1591847081=""
+              (click)="showSelectedTags($event)"
               type="checkbox"
               id="selectedTags"
-              class="black-tick ng-untouched ng-pristine ng-valid selectedtag-checkmark"
+              class="sel-checkbox ng-untouched ng-pristine ng-valid selectedtag-checkmark"
             />
           </label>
         </div>

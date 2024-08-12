@@ -114,28 +114,28 @@
                     />
                   </svg>
                   <h4 class="tag-name">{{ tag.name }}</h4>
-                  <div class="tag-private-count">{{ tag.textArray.length }}</div>
+                  <div class="tag-private-count">{{ tag.editors.length }}</div>
                 </div>
                 <ul class="col tag-col">
                 
                   <div class="private-span" >
-                    <ng-container *ngFor="let text of tag.textArray; let j = index">
+                    <ng-container *ngFor="let editor of tag.editors; let j = index">
                       <li *ngIf="privateListVisible[i]">
                       <div *ngIf="privateListVisible[i]" class="tag-item-container">
                        
                         <div
                           class="tag-private-list"
                         
-                          (click)="scrollToElement(tag)"
+                          (click)="scrollToElement(editor)"
                         >
-                          {{ text }}
+                          {{ editor.text }}
                       </div>
                    
                         <p
                           tabindex="-1"
                           class="private-item-close"
                           
-                          (click)="removeAnnotation(tag)"
+                          (click)="removeTag(editor,tag)"
                         >
                           X
                         </p>
@@ -167,25 +167,25 @@
                   </svg>
                   <h4 class="tag-name">{{ tag.name }}</h4>
                   <div class="tag-public-count">
-                    {{ tag.textArray.length }}
+                    {{ tag.editors.length }}
                   </div>
                 </div>
                 <ul class="col tag-col">
                   <span class="public-span">
-                    <ng-container *ngFor="let text of tag.textArray; let j = index">
+                    <ng-container *ngFor="let editor of tag.editors; let j = index">
                       <div *ngIf="publicListVisible[i]" class="tag-item-container">
                         <li>
                         <div
                           class="tag-public-list"
-                          (click)="scrollToElement(tag)"
+                          (click)="scrollToElement(editor)"
                         >
-                          {{ text }}
+                          {{ editor.text }}
                       </div>
                     </li>
                         <p
                           tabindex="-1"
                           class="public-item-close"
-                          (click)="removeAnnotation(tag.text)"
+                          (click)="removeTag(editor,tag)"
                         >
                           X
                         </p>
