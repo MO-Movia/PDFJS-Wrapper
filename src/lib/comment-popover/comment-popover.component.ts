@@ -43,5 +43,8 @@ export class CommentPopoverComponent implements AfterViewInit {
     if (event.ctrlKey && event.key === 'Enter') {
       this.onSubmit();
     }
+    else if(event.key === 'Escape' || event.key === 'Esc') {
+      this.closeComment();
+    }
   }
 }
