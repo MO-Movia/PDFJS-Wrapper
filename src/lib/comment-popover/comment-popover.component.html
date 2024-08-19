@@ -28,11 +28,13 @@
   </div>
   <div class="comment-border"></div>
   <textarea
+    #commentInput
     [(ngModel)]="comment"
     rows="4"
     placeholder="Enter your note"
     style="height: 144px"
     class="comment-textarea"
+    (keydown)="handleKeydown($event)"
     (keydown)="$event.stopPropagation()"
   ></textarea>
   <div class="button-container">

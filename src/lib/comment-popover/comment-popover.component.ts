@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, HostListener } from '@angular/core';
+import { Component, Output, EventEmitter, HostListener, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UtilService } from '../util.service';
 
@@ -9,12 +9,20 @@ import { UtilService } from '../util.service';
   standalone: true,
   imports: [FormsModule],
 })
-export class CommentPopoverComponent {
+export class CommentPopoverComponent implements AfterViewInit {
+
+  @ViewChild('commentInput') commentInput!: ElementRef;
+
   @Output() public submitComment = new EventEmitter<string>();
   public comment: string = '';
   public closePopover: boolean = false;
 
-  constructor(public utilService: UtilService) {}
+
+  constructor(public utilService: UtilService) { }
+
+  ngAfterViewInit() {
+    this.commentInput.nativeElement.focus();
+  }
 
   public closeComment(): void {
     const popover = document.querySelector(
@@ -29,5 +37,11 @@ export class CommentPopoverComponent {
   public onSubmit(): void {
     this.closeComment();
     this.submitComment.emit();
+  }
+
+  handleKeydown(event: KeyboardEvent): void {
+    if (event.ctrlKey && event.key === 'Enter') {
+      this.onSubmit();
+    }
   }
 }
