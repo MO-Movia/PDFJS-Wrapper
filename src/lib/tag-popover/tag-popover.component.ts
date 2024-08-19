@@ -85,7 +85,7 @@ export class TagPopoverComponent implements AfterViewInit {
     this.submitTag.emit(this.selectedTag);
   }
 
-  public tagSearch(value: string) {
+  public tagSearch(value: string) {  
     if (value) {
       this.filteredTags = [];
       this.filteredTags = this.allTags
@@ -104,11 +104,11 @@ export class TagPopoverComponent implements AfterViewInit {
   }
 
   handleKeydown(event: KeyboardEvent, index: number): void {
-    const checkboxesArray = this.checkboxes.toArray();
 
     if (event.key === 'Tab') {
       event.preventDefault(); 
-      this.toggleCheckbox(checkboxesArray[index], index);
+      const checkboxElement = this.checkboxes.toArray()[index].nativeElement;
+      checkboxElement.click();
     } else if (event.key === 'ArrowDown') {
       event.preventDefault(); 
       event.stopPropagation();
@@ -117,10 +117,7 @@ export class TagPopoverComponent implements AfterViewInit {
       event.preventDefault();
       event.stopPropagation();
       this.navigateCheckboxes(-1);
-    } else if (event.key === 'Enter') {
-      event.preventDefault(); 
-      this.toggleCheckbox(checkboxesArray[index], index);
-    }
+    } 
   }
 
   private navigateCheckboxes(direction: number): void {
@@ -131,9 +128,4 @@ export class TagPopoverComponent implements AfterViewInit {
     checkboxesArray[this.currentIndex].nativeElement.focus();
   }
 
-  private toggleCheckbox(checkboxElement: ElementRef<HTMLInputElement>, index: number): void {
-    const checkbox = checkboxElement.nativeElement;
-    checkbox.checked = !checkbox.checked;
-    this.checkedTag(this.filteredTags[index]);
-  }
 }
