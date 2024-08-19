@@ -87,6 +87,7 @@ export class TagPopoverComponent implements AfterViewInit {
 
   public tagSearch(value: string) {
     if (value) {
+      this.filteredTags = [];
       this.filteredTags = this.allTags
         .filter((d) => d.name?.toLowerCase().includes(value.toLowerCase()))
         .sort((a, b) => a.name.localeCompare(b.name));

@@ -186,6 +186,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
           AnnotationEditorParamsType.HIGHLIGHT_COLOR,
           '#80EBFF'
         );
+        editor.type = AnnotationActionType.comment;
         editor.annotationConfig.type = AnnotationActionType.comment;
         editor.annotationConfig.comment = commentPopoverInstance.comment;
         editor.annotationConfig.color = '#80EBFF';
@@ -210,6 +211,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
         AnnotationEditorParamsType.HIGHLIGHT_COLOR,
         '#53FFBC'
       );
+      editor.type = AnnotationActionType.tag;
       editor.annotationConfig.color = '#53FFBC';
       editor.annotationConfig.type = AnnotationActionType.tag;
       this.utilService.updateEditorType(editor);
@@ -218,6 +220,8 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
         AnnotationEditorParamsType.HIGHLIGHT_COLOR,
         '#FFFF98'
       );
+      editor.type = AnnotationActionType.highlight;
+      editor.annotationConfig.color = '#FFFF98';
       editor.annotationConfig.type = AnnotationActionType.highlight;
       this.utilService.updateEditorType(editor);
     }
