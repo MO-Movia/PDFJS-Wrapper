@@ -52,7 +52,15 @@ export class TagPopoverComponent implements AfterViewInit {
   ngAfterViewInit() {
     if (this.checkboxes.length > 0) {
       this.currentIndex = 0;
-      this.checkboxes.toArray()[0].nativeElement.focus();
+      const fIndex = this.allTags.findIndex(tag => tag.isChecked);
+      if (fIndex > 0) {
+        this.currentIndex = fIndex;
+        this.checkboxes.toArray()[fIndex].nativeElement.focus();
+      }
+      else {
+        this.checkboxes.toArray()[0].nativeElement.focus();
+      }
+
     }
   }
 
