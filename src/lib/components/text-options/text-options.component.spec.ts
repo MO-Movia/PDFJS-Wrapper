@@ -4,7 +4,7 @@ import { TextOptionsComponent } from './text-options.component';
 describe('TextOptionsComponent', () => {
   let component: TextOptionsComponent;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     const fixture = TestBed.createComponent(TextOptionsComponent);
     component = fixture.componentInstance;
   });
@@ -52,4 +52,10 @@ describe('TextOptionsComponent', () => {
     expect(component.privateTagClicked.emit).toHaveBeenCalled();
     expect(component.removeRequested.emit).toHaveBeenCalled();
   });
+  it('should handle onMouseUp', () => {
+    const spy = spyOn(window,'getSelection').and.returnValue({key:'value'} as unknown as Selection);
+    component.onMouseUp();
+    expect(spy).toHaveBeenCalled();
+  });
+
 });

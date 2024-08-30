@@ -1,9 +1,7 @@
 import {
   Component,
   EventEmitter,
-  Input,
   Output,
-  ViewChild,
   ElementRef,
   QueryList,
   ViewChildren,
@@ -11,7 +9,6 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UtilService } from '../util.service';
-import { MoPdfViewerComponent } from '../mo-pdf-viewer.component';
 import { CommonModule } from '@angular/common';
 import { TagModel } from '../util.service';
 
@@ -33,8 +30,8 @@ export class TagPopoverComponent implements AfterViewInit {
   @Output() public submitTag = new EventEmitter<string>();
   @Output() public tagSelected = new EventEmitter<any>();
 
-  @ViewChild(MoPdfViewerComponent)
-  public pdfViewer!: MoPdfViewerComponent;
+  // @ViewChild(MoPdfViewerComponent)
+  // public pdfViewer!: MoPdfViewerComponent;
 
   @ViewChildren('checkbox')
   private checkboxes!: QueryList<ElementRef<HTMLInputElement>>;
@@ -44,7 +41,7 @@ export class TagPopoverComponent implements AfterViewInit {
   ngOnInit() {
     this.allTags = this.utilService.getTags();
     this.allTags.forEach((tag) => {
-      tag.isChecked = this.editor.annotationConfig.Tags.includes(tag.id);
+      tag.isChecked = this.editor.annotationConfig?.Tags.includes(tag.id);
     });
     this.filteredTags = this.allTags;
   }
@@ -80,7 +77,7 @@ export class TagPopoverComponent implements AfterViewInit {
     });
 
     if (tag.isChecked) {
-      this.editor.annotationConfig.Tags.push(tag.id);
+      this.editor.annotationConfig?.Tags.push(tag.id);
     } else {
       this.editor.annotationConfig.Tags =
         this.editor.annotationConfig.Tags.filter((t: number) => t !== tag.id);

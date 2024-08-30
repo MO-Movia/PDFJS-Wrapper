@@ -21,7 +21,6 @@ import {
   NgbTooltipModule,
   NgbModule,
 } from '@ng-bootstrap/ng-bootstrap';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {
   NgxExtendedPdfViewerModule,
   NgxExtendedPdfViewerComponent,
@@ -57,7 +56,7 @@ import { Subscription } from 'rxjs';
     NgbTooltipModule,
     NgxExtendedPdfViewerModule,
     NgbModule,
-    BrowserAnimationsModule,
+    // BrowserAnimationsModule,
     FormsModule,
   ],
   providers: [provideAnimations(), UtilService],
@@ -79,8 +78,8 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   }
   @Input() public savedAnnotations: AnnotationItem[] = [];
   @Output() public annotationUpdated = new EventEmitter<AnnotationItem[]>();
-  public tagListPublic: any[] = [];
-  public tagListPrivate: any[] = [];
+  public tagListPublic: TagListModel[] = [];
+  public tagListPrivate: TagListModel[] = [];
   public commentList: any[] = [];
   public isOpenTag: boolean = false;
   public isOpenComment: boolean = false;
@@ -249,22 +248,22 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     const targetPageIndex = editor.pageIndex;
     const pageElement =
       document.getElementsByClassName('textLayer')[targetPageIndex];
-      if (pageElement) {
-          const pageRect = pageElement.getBoundingClientRect();
-          popoverElement.style.position = 'absolute';
-          if (selectedTextRect.bottom > pageRect.bottom - 260) {
-            popoverElement.style.top = 'calc(100% - 264px)';
-          } else {
-            popoverElement.style.top = '60px';
-          }
-    
-          if(selectedTextRect.left >pageRect.left - 173 ){
-            popoverElement.style.left = 'calc(100% - 80px)';
-          }
-          else{
-            popoverElement.style.left = '-60px';
-          } 
-        }
+    if (pageElement) {
+      const pageRect = pageElement.getBoundingClientRect();
+      popoverElement.style.position = 'absolute';
+      if (selectedTextRect.bottom > pageRect.bottom - 260) {
+        popoverElement.style.top = 'calc(100% - 264px)';
+      } else {
+        popoverElement.style.top = '60px';
+      }
+
+      if (selectedTextRect.left > pageRect.left - 173) {
+        popoverElement.style.left = 'calc(100% - 80px)';
+      }
+      else {
+        popoverElement.style.left = '-60px';
+      }
+    }
     const pdfViewerElement = this.elementRef.nativeElement.querySelector(
       'ngx-extended-pdf-viewer'
     );
@@ -293,21 +292,21 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     const targetPageIndex = editor.pageIndex;
     const pageElement =
       document.getElementsByClassName('textLayer')[targetPageIndex];
-      if (pageElement) {
-        const pageRect = pageElement.getBoundingClientRect();
-        popoverElement.style.position = 'absolute';
-        if (selectedTextRect.bottom > pageRect.bottom - 270) {
-          popoverElement.style.top = 'calc(100% - 264px)';
-        } else {
-          popoverElement.style.top = '60px';
-        }
-        if(selectedTextRect.left >pageRect.left - 173 ){
-          popoverElement.style.left = 'calc(100% - 80px)';
-        }
-        else{
-          popoverElement.style.left = '-60px';
-        } 
+    if (pageElement) {
+      const pageRect = pageElement.getBoundingClientRect();
+      popoverElement.style.position = 'absolute';
+      if (selectedTextRect.bottom > pageRect.bottom - 270) {
+        popoverElement.style.top = 'calc(100% - 264px)';
+      } else {
+        popoverElement.style.top = '60px';
       }
+      if (selectedTextRect.left > pageRect.left - 173) {
+        popoverElement.style.left = 'calc(100% - 80px)';
+      }
+      else {
+        popoverElement.style.left = '-60px';
+      }
+    }
     const pdfViewerElement = this.elementRef.nativeElement.querySelector(
       'ngx-extended-pdf-viewer'
     );
@@ -316,7 +315,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     this.renderer.listen('document', 'click', this.onDocumentClickComment);
   }
 
-  public onTextLayerRendered(event: any): void {
+  public onTextLayerRendered(event: PageRenderEvent): void {
     this.savedAnnotations.sort((a, b) => a.pageNumber - b.pageNumber);
     setTimeout(() => {
       this.notRenderedPages = this.notRenderedPages.filter(
@@ -438,7 +437,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     }
   }
 
-  public commntDropdownVisible(element: HTMLElement, editor: any): void {
+  public commntDropdownVisible(element: HTMLElement): void {
     const allDropdowns = document.querySelectorAll('.dropdown-content');
     allDropdowns.forEach((dropdown) => {
       (dropdown as HTMLElement).style.display = 'none';
@@ -520,7 +519,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
 
   public ngOnDestroy(): void {
     this.closeCommentPopover;
-    const pdfViewerElement = this.elementRef.nativeElement.querySelector(
+    this.elementRef.nativeElement.querySelector(
       'ngx-extended-pdf-viewer'
     );
   }

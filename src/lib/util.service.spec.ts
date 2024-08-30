@@ -1,62 +1,58 @@
-// import { TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 
-// import { UtilService } from './util.service';
+import { UtilService } from './util.service';
 
-// describe('UtilService', () => {
-//   let service: UtilService;
+describe('UtilService', () => {
+  let service: UtilService;
 
-//   beforeEach(() => {
-//     TestBed.configureTestingModule({});
-//     service = TestBed.inject(UtilService);
-//   });
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(UtilService);
+  });
 
-//   it('should be created', () => {
-//     expect(service).toBeTruthy();
-//   });
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+  it('should handle annotationDataUpdated', () => {
+    expect(service.annotationDataUpdated()).toBeFalsy();
+  });
+  it('should handle gethighlightText', () => {
+    service.annotations = [{ annotationConfig: { type: 'highlight' } }];
+    expect(service.gethighlightText()).toBeDefined();
+  });
+  it('should handle getCommentList', () => {
+    service.annotations = [{ annotationConfig: { type: 'highlight' } }];
+    expect(service.getCommentList()).toBeDefined();
+  });
+  it('should handle addEditor', () => {
+    service.annotations = [{ annotationConfig: { type: 'highlight', Tags: [1, 2] } }];
+    const editor = { annotationConfig: { Tags: [{}] }, _uiManager: { setSelected: () => { } } };
+    const spy = spyOn(service, 'annotationDataUpdated');
+    service.addEditor(editor);
+    expect(spy).toHaveBeenCalled();
+  });
+  it('should handle getEditor', () => {
+    service.annotations = [{ annotationConfig: { type: 'highlight' }, id: 'id' }];
+    expect(service.getEditor('id')).toEqual({ annotationConfig: { type: 'highlight' }, id: 'id' });
+  });
+  it('should handle updateEditorType', () => {
+    const spy = spyOn(service, 'annotationDataUpdated');
+    service.annotations = [{ annotationConfig: { type: 'highlight' }, id: 'id' }];
+    const editor = { id: 'id', annotationConfig: { Tags: [{}] }, _uiManager: { setSelected: () => { } } };
+    service.updateEditorType(editor);
+    expect(spy).toHaveBeenCalled();
+  });
+  it('should handle removeAnnotation', () => {
+    service.annotations = [{ annotationConfig: { type: 'highlight', Tags: [1, 2] } }];
+    const spy = spyOn(service, 'annotationDataUpdated');
+    service.removeAnnotation('id');
+    expect(spy).toHaveBeenCalled();
+  });
+  it('should handle getAnnotationConfigs', () => {
+    service.annotations = [{ annotationConfig: { type: 'highlight' }, id: 'id' }];
+    expect(service.getAnnotationConfigs()).toBeDefined();
+  });
 
-//   it('should add a tag to tagListPrivate', () => {
-//     const tag = 'newTag';
-//     service.updateTagListPrivate(tag);
-//     expect(service.tagListPrivate).toContain(tag);
-//   });
 
-//   it('should return the correct tag list', () => {
-//     const initialTags = ['tag1', 'tag2', 'tag3'];
-//     service.tagListPrivate = initialTags;
-//     const result = service.getTagListPrivate();
-//     expect(result).toEqual(initialTags);
-//   });
 
-//   it('should add a tag to tagListPublic', () => {
-//     const tagToAdd = 'newTag';
-//     service.updateTagListPublic(tagToAdd);
-//     expect(service.tagListPublic).toContain(tagToAdd);
-//   });
-
-//   it('should return the correct tag list', () => {
-//     const initialTags = ['tag1', 'tag2', 'tag3'];
-//     service.tagListPublic = initialTags;
-//     const result = service.getTagListPublic();
-//     expect(result).toEqual(initialTags);
-//   });
-
-//   it('should return the correct highlight list', () => {
-//     const initialHighlights = ['highlight1', 'highlight2', 'highlight3'];
-//     service.highlightList = initialHighlights;
-//     const result = service.gethighlightText();
-//     expect(result).toEqual(initialHighlights);
-//   });
-
-//   it('should add a highlight to highlightList', () => {
-//     const highlightToAdd = 'New highlight';
-//     service.updateHighlightList(highlightToAdd);
-//     expect(service.highlightList).toContain(highlightToAdd);
-//   });
-
-//   it('should update highlightList with new array', () => {
-//     const newHighlights = ['highlight1', 'highlight2', 'highlight3'];
-//     service.updatedHighlightList(newHighlights);
-//     expect(service.highlightList).toEqual(newHighlights);
-//   });
-
-// });
+});

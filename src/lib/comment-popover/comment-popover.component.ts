@@ -1,4 +1,7 @@
-import { Component, Output, EventEmitter, HostListener, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import {
+  Component, Output, EventEmitter
+  , AfterViewInit, ElementRef, ViewChild
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UtilService } from '../util.service';
 
@@ -43,7 +46,7 @@ export class CommentPopoverComponent implements AfterViewInit {
     if (event.ctrlKey && event.key === 'Enter') {
       this.onSubmit();
     }
-    else if(event.key === 'Escape' || event.key === 'Esc') {
+    else if (event.key === 'Escape' || event.key === 'Esc') {
       this.closeComment();
     }
   }

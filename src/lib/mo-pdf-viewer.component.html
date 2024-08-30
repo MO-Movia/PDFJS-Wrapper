@@ -66,6 +66,8 @@
                         <div
                           class="highlight-span"
                           (click)="scrollToElement(highlight)"
+                          (keydown)="scrollToElement(highlight)"
+                          tabindex="0"
                         >
                           {{ highlight?.text }}
                       </div>
@@ -77,6 +79,7 @@
                           hoveredIndex === i && hoveredList === 'highlight'
                         "
                         (click)="removeAnnotation(highlight)"
+                        (keydown)="removeAnnotation(highlight)"
                       >
                         X
                       </div>
@@ -125,8 +128,9 @@
                        
                         <div
                           class="tag-private-list"
-                        
                           (click)="scrollToElement(editor)"
+                          (keydown)="scrollToElement(editor)"
+                          tabindex="0"
                         >
                           {{ editor.text }}
                       </div>
@@ -134,7 +138,7 @@
                         <p
                           tabindex="-1"
                           class="private-item-close"
-                          
+                          (keydown)="removeTag(editor,tag)"
                           (click)="removeTag(editor,tag)"
                         >
                           X
@@ -178,6 +182,8 @@
                         <div
                           class="tag-public-list"
                           (click)="scrollToElement(editor)"
+                          (keydown)="scrollToElement(editor)"
+                          tabindex="0"
                         >
                           {{ editor.text }}
                       </div>
@@ -186,6 +192,7 @@
                           tabindex="-1"
                           class="public-item-close"
                           (click)="removeTag(editor,tag)"
+                          (keydown)="removeTag(editor,tag)"
                         >
                           X
                         </p>
@@ -224,6 +231,7 @@
                     class="comment-box"
                     tabindex="-1"
                     (click)="scrollToElement(comment)"
+                    (keydown)="scrollToElement(comment)"
                   >
                     {{
                       comment?.annotationConfig?.comment
@@ -241,7 +249,7 @@
                         id="comment-dropdown"
                         #commentDropdown
                         (click)="
-                          commntDropdownVisible(commentDropdown, comment)
+                          commntDropdownVisible(commentDropdown)
                         "
                       >
                         <path
