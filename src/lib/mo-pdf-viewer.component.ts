@@ -35,11 +35,10 @@ import {
 import { CommentPopoverComponent } from './comment-popover/comment-popover.component';
 import { TagPopoverComponent } from './tag-popover/tag-popover.component';
 import {
-
   faTag,
   faTrash,
   faHighlighter,
-  faMessage
+  faMessage,
 } from '@fortawesome/free-solid-svg-icons';
 import { TagModel, UtilService, TagListModel } from './util.service';
 
@@ -259,8 +258,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
 
       if (selectedTextRect.left > pageRect.left - 173) {
         popoverElement.style.left = 'calc(100% - 80px)';
-      }
-      else {
+      } else {
         popoverElement.style.left = '-60px';
       }
     }
@@ -302,8 +300,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       }
       if (selectedTextRect.left > pageRect.left - 173) {
         popoverElement.style.left = 'calc(100% - 80px)';
-      }
-      else {
+      } else {
         popoverElement.style.left = '-60px';
       }
     }
@@ -518,9 +515,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   }
 
   public ngOnDestroy(): void {
-    this.closeCommentPopover;
-    this.elementRef.nativeElement.querySelector(
-      'ngx-extended-pdf-viewer'
-    );
+    this.closeCommentPopover();
+    this.elementRef.nativeElement.querySelector('ngx-extended-pdf-viewer');
   }
 }

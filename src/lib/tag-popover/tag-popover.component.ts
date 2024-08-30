@@ -5,12 +5,12 @@ import {
   ElementRef,
   QueryList,
   ViewChildren,
-  AfterViewInit
+  AfterViewInit,
+  OnInit
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { UtilService } from '../util.service';
+import { UtilService, TagModel } from '../util.service';
 import { CommonModule } from '@angular/common';
-import { TagModel } from '../util.service';
 
 @Component({
   selector: 'mo-app-tag-popover',
@@ -19,7 +19,7 @@ import { TagModel } from '../util.service';
   standalone: true,
   imports: [FormsModule, CommonModule],
 })
-export class TagPopoverComponent implements AfterViewInit {
+export class TagPopoverComponent implements AfterViewInit, OnInit {
   public editor: any = {};
   public closePopover: boolean = false;
   public selectedTag: string = '';

@@ -1,16 +1,22 @@
 import {
-  Component, Output, EventEmitter
-  , AfterViewInit, ElementRef, ViewChild
+  Component,
+  Output,
+  EventEmitter,
+  AfterViewInit,
+  ElementRef,
+  ViewChild
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UtilService } from '../util.service';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 @Component({
   selector: 'mo-app-comment-popover',
   templateUrl: './comment-popover.component.html',
   styleUrls: ['./comment-popover.component.scss'],
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, FontAwesomeModule],
 })
 export class CommentPopoverComponent implements AfterViewInit {
 
@@ -28,9 +34,7 @@ export class CommentPopoverComponent implements AfterViewInit {
   }
 
   public closeComment(): void {
-    const popover = document.querySelector(
-      '.comment-popover-content'
-    ) as HTMLElement;
+    const popover = document.querySelector('.comment-popover-content') as HTMLElement;
     if (!this.closePopover) {
       popover.style.display = 'none';
     }

@@ -33,7 +33,8 @@ export class UtilService {
 
   public getCommentList(): any[] {
     return this.annotations.filter(
-      (t) => t.annotationConfig.type === AnnotationActionType.comment);
+      (t) => t.annotationConfig.type === AnnotationActionType.comment
+    );
   }
 
   public addEditor(editor: any): void {
@@ -85,7 +86,8 @@ export class UtilService {
 
     this.getTags().forEach((tag) => {
       const annotations = this.annotations.filter((d) =>
-        d.annotationConfig.Tags.includes(tag.id));
+        d.annotationConfig.Tags.includes(tag.id)
+      );
       if (annotations.length > 0) {
         matchingTags.push({
           ...tag,
@@ -107,5 +109,5 @@ export class UtilService {
     ];
   }
 
-  constructor() { }
+  constructor() {}
 }
