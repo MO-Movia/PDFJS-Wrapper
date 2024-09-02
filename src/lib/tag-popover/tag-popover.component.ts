@@ -6,7 +6,7 @@ import {
   QueryList,
   ViewChildren,
   AfterViewInit,
-  OnInit
+  OnInit,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UtilService, TagModel } from '../util.service';
@@ -36,9 +36,9 @@ export class TagPopoverComponent implements AfterViewInit, OnInit {
   @ViewChildren('checkbox')
   private checkboxes!: QueryList<ElementRef<HTMLInputElement>>;
 
-  constructor(public utilService: UtilService) { }
+  constructor(public utilService: UtilService) {}
 
-  ngOnInit() {
+  public ngOnInit(): void {
     this.allTags = this.utilService.getTags();
     this.allTags.forEach((tag) => {
       tag.isChecked = this.editor.annotationConfig?.Tags.includes(tag.id);
@@ -46,18 +46,16 @@ export class TagPopoverComponent implements AfterViewInit, OnInit {
     this.filteredTags = this.allTags;
   }
 
-  ngAfterViewInit() {
+  public ngAfterViewInit(): void {
     if (this.checkboxes.length > 0) {
       this.currentIndex = 0;
-      const fIndex = this.allTags.findIndex(tag => tag.isChecked);
+      const fIndex = this.allTags.findIndex((tag) => tag.isChecked);
       if (fIndex > 0) {
         this.currentIndex = fIndex;
         this.checkboxes.toArray()[fIndex].nativeElement.focus();
-      }
-      else {
+      } else {
         this.checkboxes.toArray()[0].nativeElement.focus();
       }
-
     }
   }
 
@@ -69,7 +67,7 @@ export class TagPopoverComponent implements AfterViewInit, OnInit {
     this.closePopover = !this.closePopover;
   }
 
-  checkedTag(tag: TagModel) {
+  public checkedTag(tag: TagModel): void {
     this.allTags.forEach((aTag) => {
       if (aTag.id === tag.id) {
         aTag.isChecked = tag.isChecked;
@@ -90,7 +88,7 @@ export class TagPopoverComponent implements AfterViewInit, OnInit {
     this.submitTag.emit(this.selectedTag);
   }
 
-  public tagSearch(value: string) {  
+  public tagSearch(value: string): void {
     if (value) {
       this.filteredTags = [];
       this.filteredTags = this.allTags
@@ -101,36 +99,36 @@ export class TagPopoverComponent implements AfterViewInit, OnInit {
     }
   }
 
-  public showSelectedTags(event: Event) {
+  public showSelectedTags(event: Event): void {
     const selectedTag = event.target as HTMLInputElement;
     this.filteredTags = selectedTag.checked
       ? this.allTags.filter((tag) => tag.isChecked)
       : this.allTags;
   }
 
-  handleKeydown(event: KeyboardEvent, index: number): void {
-
+  public handleKeydown(event: KeyboardEvent, index: number): void {
     if (event.key === 'Tab') {
-      event.preventDefault(); 
+      event.preventDefault();
       const checkboxElement = this.checkboxes.toArray()[index].nativeElement;
       checkboxElement.click();
     } else if (event.key === 'ArrowDown') {
-      event.preventDefault(); 
+      event.preventDefault();
       event.stopPropagation();
       this.navigateCheckboxes(1);
     } else if (event.key === 'ArrowUp') {
       event.preventDefault();
       event.stopPropagation();
       this.navigateCheckboxes(-1);
-    } 
+    }
   }
 
   private navigateCheckboxes(direction: number): void {
     const checkboxesArray = this.checkboxes.toArray();
     if (checkboxesArray.length === 0) return;
 
-    this.currentIndex = (this.currentIndex + direction + checkboxesArray.length) % checkboxesArray.length;
+    this.currentIndex =
+      (this.currentIndex + direction + checkboxesArray.length) %
+      checkboxesArray.length;
     checkboxesArray[this.currentIndex].nativeElement.focus();
   }
-
 }

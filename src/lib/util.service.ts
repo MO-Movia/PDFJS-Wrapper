@@ -17,24 +17,20 @@ export interface TagListModel extends TagModel {
 export class UtilService {
   public annotations: any[] = [];
   public tags = new BehaviorSubject<TagListModel[]>([]);
-  tags$ = this.tags.asObservable();
+  public tags$ = this.tags.asObservable();
   private annotationUpdated = new Subject<void>();
-  annotationUpdated$ = this.annotationUpdated.asObservable();
+  public annotationUpdated$ = this.annotationUpdated.asObservable();
 
-  annotationDataUpdated() {
+  public annotationDataUpdated(): void {
     this.annotationUpdated.next();
   }
 
   public gethighlightText(): any[] {
-    return this.annotations.filter(
-      (t) => t.annotationConfig.type === AnnotationActionType.highlight
-    );
+    return this.annotations.filter((t) => t.annotationConfig.type === AnnotationActionType.highlight);
   }
 
   public getCommentList(): any[] {
-    return this.annotations.filter(
-      (t) => t.annotationConfig.type === AnnotationActionType.comment
-    );
+    return this.annotations.filter((t) => t.annotationConfig.type === AnnotationActionType.comment);
   }
 
   public addEditor(editor: any): void {
@@ -64,7 +60,7 @@ export class UtilService {
     this.annotationDataUpdated();
     this.updateRightPanelTags();
   }
-  private updateRightPanelTags() {
+  private updateRightPanelTags(): void {
     this.tags.next(this.getTagList());
   }
   public getAnnotationConfigs(): AnnotationItem[] {
@@ -86,8 +82,7 @@ export class UtilService {
 
     this.getTags().forEach((tag) => {
       const annotations = this.annotations.filter((d) =>
-        d.annotationConfig.Tags.includes(tag.id)
-      );
+        d.annotationConfig.Tags.includes(tag.id));
       if (annotations.length > 0) {
         matchingTags.push({
           ...tag,

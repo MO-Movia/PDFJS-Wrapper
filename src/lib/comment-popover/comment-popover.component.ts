@@ -4,7 +4,7 @@ import {
   EventEmitter,
   AfterViewInit,
   ElementRef,
-  ViewChild
+  ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UtilService } from '../util.service';
@@ -19,17 +19,15 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
   imports: [FormsModule, FontAwesomeModule],
 })
 export class CommentPopoverComponent implements AfterViewInit {
-
-  @ViewChild('commentInput') commentInput!: ElementRef;
+  @ViewChild('commentInput') public commentInput!: ElementRef;
 
   @Output() public submitComment = new EventEmitter<string>();
   public comment: string = '';
   public closePopover: boolean = false;
 
+  constructor(public utilService: UtilService) {}
 
-  constructor(public utilService: UtilService) { }
-
-  ngAfterViewInit() {
+  public ngAfterViewInit(): void {
     this.commentInput.nativeElement.focus();
   }
 
@@ -46,11 +44,10 @@ export class CommentPopoverComponent implements AfterViewInit {
     this.submitComment.emit();
   }
 
-  handleKeydown(event: KeyboardEvent): void {
+  public handleKeydown(event: KeyboardEvent): void {
     if (event.ctrlKey && event.key === 'Enter') {
       this.onSubmit();
-    }
-    else if (event.key === 'Escape' || event.key === 'Esc') {
+    } else if (event.key === 'Escape' || event.key === 'Esc') {
       this.closeComment();
     }
   }
