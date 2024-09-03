@@ -337,6 +337,7 @@
                           tabindex="-1"
                           style="height: 35px"
                           (click)="removeComment(comment)"
+                          (keydown.enter)="removeComment(comment)"
                         >
                           Delete
 
@@ -356,6 +357,7 @@
                         </li>
                         <li
                           (click)="editComment(comment)"
+                          (keydown.enter)="editComment(comment)"
                           *ngIf="!comment.editMode"
                           tabindex="-1"
                           style="height: 35px"
@@ -428,7 +430,7 @@
                 selectedSearchCategory === category.label
               "
               (click)="selectSearchCategory(category.label)"
-              (keyup.enter)="selectSearchCategory(category.label)"
+              (keydown.enter)="selectSearchCategory(category.label)"
               [ngbTooltip]="category.label"
               tabindex="-1"
             >
