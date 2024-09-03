@@ -11,13 +11,18 @@ import {
 import { FormsModule } from '@angular/forms';
 import { UtilService, TagModel } from '../util.service';
 import { CommonModule } from '@angular/common';
+import {
+  faTimes
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+
 
 @Component({
   selector: 'mo-app-tag-popover',
   templateUrl: './tag-popover.component.html',
   styleUrls: ['./tag-popover.component.scss'],
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, FontAwesomeModule],
 })
 export class TagPopoverComponent implements AfterViewInit, OnInit {
   public editor: any = {};
@@ -26,6 +31,9 @@ export class TagPopoverComponent implements AfterViewInit, OnInit {
   public filteredTags: TagModel[] = [];
   public allTags: TagModel[] = [];
   private currentIndex: number = 0;
+  public I = {
+    faTimes
+  };
 
   @Output() public submitTag = new EventEmitter<string>();
   @Output() public tagSelected = new EventEmitter<any>();

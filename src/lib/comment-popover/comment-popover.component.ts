@@ -9,7 +9,9 @@ import {
 import { FormsModule } from '@angular/forms';
 import { UtilService } from '../util.service';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import '@fortawesome/fontawesome-free/css/all.min.css';
+import {
+  faTimes
+} from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'mo-app-comment-popover',
@@ -22,6 +24,9 @@ export class CommentPopoverComponent implements AfterViewInit {
   @ViewChild('commentInput') public commentInput!: ElementRef;
 
   @Output() public submitComment = new EventEmitter<string>();
+  public I = {
+    faTimes
+  };
   public comment: string = '';
   public closePopover: boolean = false;
 
