@@ -2,8 +2,7 @@ import {
   Component,
   Input,
   ViewChild,
-  ComponentFactoryResolver,
-  Injector,
+  ViewContainerRef,
   ApplicationRef,
   ElementRef,
   OnDestroy,
@@ -26,7 +25,7 @@ import {
   AnnotationActionType,
   ShowCommentTagPopoverDetails,
   AnnotationDeleteEvent,
-  AnnotationItem,
+  AnnotationItem
 } from 'ngx-extended-pdf-viewer';
 import { CommentPopoverComponent } from './comment-popover/comment-popover.component';
 import { TagPopoverComponent } from './tag-popover/tag-popover.component';
@@ -107,8 +106,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   private callExecuted: boolean = false;
 
   constructor(
-    private resolver: ComponentFactoryResolver,
-    private injector: Injector,
+    private viewContainerRef: ViewContainerRef,
     private appRef: ApplicationRef,
     private elementRef: ElementRef,
     public utilService: UtilService,
@@ -216,14 +214,11 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   public showTagPopover(editor: any): void {
     this.closeCommentPopover();
     this.isOpenTag = true;
-    const popoverFactory =
-      this.resolver.resolveComponentFactory(TagPopoverComponent);
 
-    this.popoverRef = popoverFactory.create(this.injector);
-    this.appRef.attachView(this.popoverRef.hostView);
+    this.popoverRef = this.viewContainerRef.createComponent(TagPopoverComponent)
     this.popoverRef.instance.editor = editor;
 
-    const popoverElement = (this.popoverRef.hostView as any)
+    const popoverElement = (this.popoverRef.hostView)
       .rootNodes[0] as HTMLElement;
     popoverElement.style.display = 'block';
 
@@ -259,10 +254,8 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   public showCommentPopover(editor: any): void {
     this.closeCommentPopover();
     this.isOpenComment = true;
-    const popoverFactory = this.resolver.resolveComponentFactory(CommentPopoverComponent);
-    this.popoverRef = popoverFactory.create(this.injector);
-    this.appRef.attachView(this.popoverRef.hostView);
-    const popoverElement = (this.popoverRef.hostView as any)
+    this.popoverRef =this.viewContainerRef.createComponent(CommentPopoverComponent);
+    const popoverElement = (this.popoverRef.hostView)
       .rootNodes[0] as HTMLElement;
     popoverElement.style.display = 'block';
 
@@ -330,7 +323,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   }
 
   public onDocumentClickTag = (event: MouseEvent): void => {
-    if (this.popoverRef && this.popoverRef.hostView) {
+    if (this.popoverRef?.hostView) {
       const clickedInsidePopover =
         this.popoverRef.hostView.rootNodes[0].contains(event.target as Node);
 
@@ -353,7 +346,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     }
   };
   public onDocumentClickComment = (event: MouseEvent): void => {
-    if (this.popoverRef && this.popoverRef.hostView) {
+    if (this.popoverRef?.hostView) {
       const clickedInsidePopover =
         this.popoverRef.hostView.rootNodes[0].contains(event.target as Node);
 
