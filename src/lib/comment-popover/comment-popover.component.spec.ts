@@ -20,19 +20,24 @@ describe('CommentPopoverComponent', () => {
     expect(component).toBeTruthy();
   });
   it('should handle onSubmit', () => {
-    const spy = spyOn(component.submitComment,'emit');
+    const spy = spyOn(component.submitComment, 'emit');
     component.onSubmit();
     expect(spy).toHaveBeenCalled();
   });
   it('should handle handleKeydown when event.ctrlKey && event.key === Enter', () => {
-    const spy = spyOn(component,'onSubmit');
-    component.handleKeydown({ctrlKey:true,key:'Enter'} as unknown as KeyboardEvent);
+    const spy = spyOn(component, 'onSubmit');
+    component.handleKeydown({
+      ctrlKey: true,
+      key: 'Enter',
+    } as unknown as KeyboardEvent);
     expect(spy).toHaveBeenCalled();
   });
   it('should handle handleKeydown when event.key === Escape || event.key === Esc', () => {
-    const spy = spyOn(component,'closeComment');
-    component.handleKeydown({ctrlKey:true,key:'Esc'} as unknown as KeyboardEvent);
+    const spy = spyOn(component, 'closeComment');
+    component.handleKeydown({
+      ctrlKey: true,
+      key: 'Esc',
+    } as unknown as KeyboardEvent);
     expect(spy).toHaveBeenCalled();
   });
-
 });

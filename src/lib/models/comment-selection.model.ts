@@ -6,5 +6,5 @@ export interface CommentSelection {
   text: string;
   comment: string;
   editMode: boolean;
-  isHovered:boolean;
+  isHovered: boolean;
 }

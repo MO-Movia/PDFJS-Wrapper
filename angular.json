@@ -29,14 +29,19 @@
           "options": {
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
-            "polyfills": ["zone.js", "zone.js/testing"]
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ]
           },
           "configurations": {
             "jenkins": {
               "browsers": "ChromeHeadless",
               "codeCoverage": true,
               "progress": false,
-              "reporters": ["junit"],
+              "reporters": [
+                "junit"
+              ],
               "watch": false
             }
           }
@@ -44,14 +49,19 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": ["**/*.ts", "**/*.html"]
+            "lintFilePatterns": [
+              "**/*.ts",
+              "**/*.html"
+            ]
           }
         }
       }
     }
   },
   "cli": {
-    "schematicCollections": ["@angular-eslint/schematics"],
+    "schematicCollections": [
+      "@angular-eslint/schematics"
+    ],
     "analytics": false
   }
 }

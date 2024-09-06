@@ -53,9 +53,10 @@ describe('TextOptionsComponent', () => {
     expect(component.removeRequested.emit).toHaveBeenCalled();
   });
   it('should handle onMouseUp', () => {
-    const spy = spyOn(window,'getSelection').and.returnValue({key:'value'} as unknown as Selection);
+    const spy = spyOn(window, 'getSelection').and.returnValue({
+      key: 'value',
+    } as unknown as Selection);
     component.onMouseUp();
     expect(spy).toHaveBeenCalled();
   });
-
 });

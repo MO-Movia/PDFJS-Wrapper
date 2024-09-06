@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { AnnotationActionType, AnnotationItem, highlightEditor } from 'ngx-extended-pdf-viewer';
-
+import {
+  AnnotationActionType,
+  AnnotationItem,
+  highlightEditor,
+} from 'ngx-extended-pdf-viewer';
 
 export interface TagModel {
   id: number;
@@ -27,11 +30,15 @@ export class UtilService {
   }
 
   public gethighlightText(): highlightEditor[] {
-    return this.annotations.filter((t) => t.annotationConfig.type === AnnotationActionType.highlight);
+    return this.annotations.filter(
+      (t) => t.annotationConfig.type === AnnotationActionType.highlight
+    );
   }
 
   public getCommentList(): highlightEditor[] {
-    return this.annotations.filter((t) => t.annotationConfig.type === AnnotationActionType.comment);
+    return this.annotations.filter(
+      (t) => t.annotationConfig.type === AnnotationActionType.comment
+    );
   }
 
   public addEditor(editor: highlightEditor): void {
@@ -68,22 +75,13 @@ export class UtilService {
     return this.annotations.map((a) => a.annotationConfig);
   }
 
-  // public getTagListPrivate(): TagModel[] {
-  //   const tags = this.getAnnotatedTags();
-  //   return tags.filter((tag) => tag.isPrivate);
-  // }
-
-  // public getTagListPublic(): TagModel[] {
-  //   const tags = this.getAnnotatedTags();
-  //   return tags.filter((tag) => !tag.isPrivate);
-  // }
-
   public getTagList(): TagListModel[] {
     const matchingTags: TagListModel[] = [];
 
     this.getTags().forEach((tag) => {
       const annotations = this.annotations.filter((d) =>
-        d.annotationConfig.Tags.includes(tag.id));
+        d.annotationConfig.Tags.includes(tag.id)
+      );
       if (annotations.length > 0) {
         matchingTags.push({
           ...tag,

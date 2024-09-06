@@ -1,32 +1,13 @@
-<div
-  class="btn-group"
-  id="btnGroup"
-  [style]="selectedText ? { display: 'block' } : { display: 'none' }"
->
-  <button
-    type="button"
-    title="Highlight"
-    class="btn btn-sm btn-secondary"
-    (click)="onHighlightClicked()"
-  >
+<div class="btn-group" id="btnGroup" [style]="selectedText ? { display: 'block' } : { display: 'none' }">
+  <button type="button" title="Highlight" class="btn btn-sm btn-secondary" (click)="onHighlightClicked()">
     <fa-icon class="mx-auto my-auto" [icon]="I.faHighlighter"></fa-icon>
   </button>
 
-  <button
-    type="button"
-    title="Tag"
-    class="btn btn-sm btn-secondary"
-    (click)="onTagClicked()"
-  >
+  <button type="button" title="Tag" class="btn btn-sm btn-secondary" (click)="onTagClicked()">
     <fa-icon class="mx-auto my-auto" [icon]="I.faTag"></fa-icon>
   </button>
 
-  <button
-    type="button"
-    title="Comment"
-    class="btn btn-sm btn-secondary"
-    (click)="onCommentClicked()"
-  >
+  <button type="button" title="Comment" class="btn btn-sm btn-secondary" (click)="onCommentClicked()">
     <fa-icon class="mx-auto my-auto" [icon]="I.faMessage"></fa-icon>
   </button>
 </div>

@@ -4,28 +4,18 @@
       <div class="row h-100">
         <div class="row flex-grow-1">
           <div class="col h-100">
-            <ngx-extended-pdf-viewer
-              #pdfViewer
-              (commentTagEvent)="commentTagPopover($event)"
-              (highlightArrayEvent)="showHighlightedArray($event)"
-              [minifiedJSLibraries]="false"
-              [customToolbar]="additionalButtons"
-              [src]="pdfSrc"
-              [textLayer]="true"
-              (pageRendered)="onPageRendered($event)"
-              (textLayerRendered)="onTextLayerRendered($event)"
-              (annotationRemovedEvent)="annotationDeleted($event)"
-            >
+            <ngx-extended-pdf-viewer #pdfViewer (commentTagEvent)="commentTagPopover($event)"
+              (highlightArrayEvent)="showHighlightedArray($event)" [minifiedJSLibraries]="false"
+              [customToolbar]="additionalButtons" [src]="pdfSrc" [textLayer]="true"
+              (pageRendered)="onPageRendered($event)" (textLayerRendered)="onTextLayerRendered($event)"
+              (annotationRemovedEvent)="annotationDeleted($event)">
             </ngx-extended-pdf-viewer>
             <ng-template #additionalButtons>
               <div id="toolbarViewer">
                 <div id="toolbarViewerLeft">
                   <pdf-toggle-sidebar></pdf-toggle-sidebar>
                   <div class="toolbarButtonSpacer"></div>
-                  <pdf-find-button
-                    [showFindButton]="true"
-                    [textLayer]="true"
-                  ></pdf-find-button>
+                  <pdf-find-button [showFindButton]="true" [textLayer]="true"></pdf-find-button>
                   <pdf-paging-area></pdf-paging-area>
                 </div>
                 <pdf-zoom-toolbar></pdf-zoom-toolbar>
@@ -39,48 +29,27 @@
       </div>
     </as-split-area>
     <as-split-area [size]="30" class="right-panel">
-      <div
-        class="search-category"
-        *ngIf="selectedSearchCategory === 'Highlights'"
-      >
+      <div class="search-category" *ngIf="selectedSearchCategory === 'Highlights'">
         <div class="row">
           <div class="col">
             <h3 class="right-panel-title">Highlights:</h3>
           </div>
         </div>
         <div class="row flex-grow-1 highlight-container">
-          <div
-            class="highlightlist"
-          >
-            <ng-container
-              *ngFor="let highlight of highlightList; let i = index"
-            >
-              <div
-                class="highlight-list"
-                (mouseenter)="onMouseEnter('highlight', i)"
-                (mouseleave)="onMouseLeave()"
-              >
+          <div class="highlightlist">
+            <ng-container *ngFor="let highlight of highlightList; let i = index">
+              <div class="highlight-list" (mouseenter)="onMouseEnter('highlight', i)" (mouseleave)="onMouseLeave()">
                 <ul class="col">
                   <li class="highlights-list">
                     <div class="highlightList">
-                        <div
-                          class="highlight-span"
-                          (click)="scrollToElement(highlight)"
-                          (keydown)="scrollToElement(highlight)"
-                          tabindex="-1"
-                        >
-                          {{ highlight?.text }}
+                      <div class="highlight-span" (click)="scrollToElement(highlight)"
+                        (keydown)="scrollToElement(highlight)" tabindex="-1">
+                        {{ highlight?.text }}
                       </div>
-                     
-                      <div
-                        tabindex="-1"
-                        class="highlight-close"
-                        [class.visible]="
+
+                      <div tabindex="-1" class="highlight-close" [class.visible]="
                           hoveredIndex === i && hoveredList === 'highlight'
-                        "
-                        (click)="removeAnnotation(highlight)"
-                        (keydown)="removeAnnotation(highlight)"
-                      >
+                        " (click)="removeAnnotation(highlight)" (keydown)="removeAnnotation(highlight)">
                         X
                       </div>
                     </div>
@@ -100,76 +69,57 @@
         </div>
         <ul ngbNav #nav="ngbNav" class="nav-tabs taglist-tab">
           <li [ngbNavItem]="1">
-            <button ngbNavLink type="button" class="tab-private" role="tab">Private Tag</button>
-            
+            <button ngbNavLink type="button" class="tab-private" role="tab">
+              Private Tag
+            </button>
+
             <ng-template ngbNavContent>
               <div *ngFor="let tag of tagListPrivate; let i = index" class="privateList">
                 <div>
-                  <svg
-                    class="collapse-svg"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 448 512"
-                    (click)="tagPrivateVisibility(i)"
-                    (keyup)="tagPrivateVisibility(i)"
-                    [style.rotate]="privateListVisible[i] ? '0deg' : '180deg'"
-                  >
+                  <svg class="collapse-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"
+                    (click)="tagPrivateVisibility(i)" (keyup)="tagPrivateVisibility(i)"
+                    [style.rotate]="privateListVisible[i] ? '0deg' : '180deg'">
                     <path
-                      d="M201.4 137.4c12.5-12.5 32.8-12.5 45.3 0l160 160c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L224 205.3 86.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l160-160z"
-                    />
+                      d="M201.4 137.4c12.5-12.5 32.8-12.5 45.3 0l160 160c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L224 205.3 86.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l160-160z" />
                   </svg>
                   <h4 class="tag-name">{{ tag.name }}</h4>
                   <div class="tag-private-count">{{ tag.editors.length }}</div>
                 </div>
                 <ul class="col tag-col">
-                
-                  <div class="private-span" >
+                  <div class="private-span">
                     <ng-container *ngFor="let editor of tag.editors; let j = index">
                       <li *ngIf="privateListVisible[i]">
-                      <div *ngIf="privateListVisible[i]" class="tag-item-container">
-                       
-                        <div
-                          class="tag-private-list"
-                          (click)="scrollToElement(editor)"
-                          (keydown)="scrollToElement(editor)"
-                          tabindex="-1"
-                        >
-                          {{ editor.text }}
-                      </div>
-                   
-                        <p
-                          tabindex="-1"
-                          class="private-item-close"
-                          (keydown)="removeTag(editor,tag)"
-                          (click)="removeTag(editor,tag)"
-                        >
-                          X
-                        </p>
-                      </div>
-                    </li>
+                        <div *ngIf="privateListVisible[i]" class="tag-item-container">
+                          <div class="tag-private-list" (click)="scrollToElement(editor)"
+                            (keydown)="scrollToElement(editor)" tabindex="-1">
+                            {{ editor.text }}
+                          </div>
+
+                          <p tabindex="-1" class="private-item-close" (keydown)="removeTag(editor, tag)"
+                            (click)="removeTag(editor, tag)">
+                            X
+                          </p>
+                        </div>
+                      </li>
                     </ng-container>
                   </div>
-                
                 </ul>
               </div>
-            </ng-template> 
+            </ng-template>
           </li>
           <li [ngbNavItem]="2">
-            <button ngbNavLink type="button" class="tab-public" role="tab">Public Tag</button>
-            
+            <button ngbNavLink type="button" class="tab-public" role="tab">
+              Public Tag
+            </button>
+
             <ng-template ngbNavContent>
               <div *ngFor="let tag of tagListPublic; let i = index" class="publicList">
                 <div>
-                  <svg
-                    class="collapse-svg"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 448 512"
-                    (click)="tagPublicVisibility(i)"
-                    (keyup)="tagPublicVisibility(i)"
-                    [style.rotate]="publicListVisible[i] ? '0deg' : '180deg'"
-                  >
+                  <svg class="collapse-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"
+                    (click)="tagPublicVisibility(i)" (keyup)="tagPublicVisibility(i)"
+                    [style.rotate]="publicListVisible[i] ? '0deg' : '180deg'">
                     <path
-                      d="M201.4 137.4c12.5-12.5 32.8-12.5 45.3 0l160 160c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L224 205.3 86.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l160-160z"
-                    />
+                      d="M201.4 137.4c12.5-12.5 32.8-12.5 45.3 0l160 160c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L224 205.3 86.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l160-160z" />
                   </svg>
                   <h4 class="tag-name">{{ tag.name }}</h4>
                   <div class="tag-public-count">
@@ -181,21 +131,13 @@
                     <ng-container *ngFor="let editor of tag.editors; let j = index">
                       <div *ngIf="publicListVisible[i]" class="tag-item-container">
                         <li>
-                        <div
-                          class="tag-public-list"
-                          (click)="scrollToElement(editor)"
-                          (keydown)="scrollToElement(editor)"
-                          tabindex="-1"
-                        >
-                          {{ editor.text }}
-                      </div>
-                    </li>
-                        <p
-                          tabindex="-1"
-                          class="public-item-close"
-                          (click)="removeTag(editor,tag)"
-                          (keydown)="removeTag(editor,tag)"
-                        >
+                          <div class="tag-public-list" (click)="scrollToElement(editor)"
+                            (keydown)="scrollToElement(editor)" tabindex="-1">
+                            {{ editor.text }}
+                          </div>
+                        </li>
+                        <p tabindex="-1" class="public-item-close" (click)="removeTag(editor, tag)"
+                          (keydown)="removeTag(editor, tag)">
                           X
                         </p>
                       </div>
@@ -204,15 +146,11 @@
                 </ul>
               </div>
             </ng-template>
-            
           </li>
-        </ul> 
+        </ul>
         <div [ngbNavOutlet]="nav" class="mt-2"></div>
       </div>
-      <div
-        class="search-category"
-        *ngIf="selectedSearchCategory === 'Notes'"
-      >
+      <div class="search-category" *ngIf="selectedSearchCategory === 'Notes'">
         <div class="row">
           <div class="col">
             <h3 class="right-panel-title">Notes:</h3>
@@ -220,93 +158,42 @@
         </div>
         <div class="row flex-grow-1 comment-container">
           <div class="col h-100 mt-2">
-            <div
-              *ngFor="let comment of commentList; let i = index"
-              class="clickable align-items-center"
-              id="comment-row"
-              [attr.tabindex]="0"
-              tabindex="-1"
-            >
+            <div *ngFor="let comment of commentList; let i = index" class="clickable align-items-center"
+              id="comment-row" [attr.tabindex]="0" tabindex="-1">
               <div class="col">
                 <div class="row_comments container-icon">
-                  <div
-                    class="comment-box"
-                    tabindex="-1"
-                    (click)="scrollToElement(comment)"
-                    (keydown)="scrollToElement(comment)"
-                  >
-                    {{
-                      comment?.annotationConfig?.comment
-                    }}
+                  <div class="comment-box" tabindex="-1" (click)="scrollToElement(comment)"
+                    (keydown)="scrollToElement(comment)">
+                    {{ comment?.annotationConfig?.comment }}
                   </div>
                   <span class="icon-span">
                     <div class="svg-icon">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        fill="currentColor"
-                        class="bi bi-three-dots-vertical"
-                        viewBox="0 0 16 16"
-                        id="comment-dropdown"
-                        #commentDropdown
-                        (click)="
-                          commntDropdownVisible(commentDropdown)
-                        "
-                        (keyup)="commntDropdownVisible(commentDropdown)"
-                      >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-three-dots-vertical" viewBox="0 0 16 16" id="comment-dropdown" #commentDropdown
+                        (click)="commntDropdownVisible(commentDropdown)"
+                        (keyup)="commntDropdownVisible(commentDropdown)">
                         <path
-                          d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"
-                        />
+                          d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0" />
                       </svg>
                     </div>
-                    <ul
-                      class="dropdown-content"
-                      style="top: 16px; display: none"
-                    >
-                      <li
-                        (click)="removeAnnotation(comment)"
-                        (keyup)="removeAnnotation(comment)"
-                        tabindex="-1"
-                        style="height: 35px"
-                      >
+                    <ul class="dropdown-content" style="top: 16px; display: none">
+                      <li (click)="removeAnnotation(comment)" (keyup)="removeAnnotation(comment)" tabindex="-1"
+                        style="height: 35px">
                         Delete
-                        <button
-                          type="button"
-                          title="Remove Comment"
-                          class="btn btn-danger btn-sm ms-1"
-                          id="trash_button_comment"
-                        >
-                          <fa-icon
-                            class="mx-auto my-auto"
-                            id="trash_icon_comment"
-                            [icon]="I.faTrash"
-                          />
+                        <button type="button" title="Remove Comment" class="btn btn-danger btn-sm ms-1"
+                          id="trash_button_comment">
+                          <fa-icon class="mx-auto my-auto" id="trash_icon_comment" [icon]="I.faTrash" />
                         </button>
                       </li>
-                      <li
-                        *ngIf="!comment.showEdit"
-                        tabindex="-1"
-                        style="height: 35px"
-                        (click)="editComment(comment)"
-                        (keyup)="editComment(comment)"
-                      >
+                      <li *ngIf="!comment.showEdit" tabindex="-1" style="height: 35px" (click)="editComment(comment)"
+                        (keyup)="editComment(comment)">
                         Edit
-                        <button
-                          type="button"
-                          title="Edit Comment"
-                          class="btn btn-primary btn-sm ms-1"
-                          id="edit_button_comment"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 576 512"
-                            class="edit_comment_svg"
-                            id="edit_icon_comment"
-                          >
+                        <button type="button" title="Edit Comment" class="btn btn-primary btn-sm ms-1"
+                          id="edit_button_comment">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" class="edit_comment_svg"
+                            id="edit_icon_comment">
                             <path
-                              d="M402.3 344.9l32-32c5-5 13.7-1.5 13.7 5.7V464c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V112c0-26.5 21.5-48 48-48h273.5c7.1 0 10.7 8.6 5.7 13.7l-32 32c-1.5 1.5-3.5 2.3-5.7 2.3H48v352h352V350.5c0-2.1 .8-4.1 2.3-5.6zm156.6-201.8L296.3 405.7l-90.4 10c-26.2 2.9-48.5-19.2-45.6-45.6l10-90.4L432.9 17.1c22.9-22.9 59.9-22.9 82.7 0l43.2 43.2c22.9 22.9 22.9 60 .1 82.8zM460.1 174L402 115.9 216.2 301.8l-7.3 65.3 65.3-7.3L460.1 174zm64.8-79.7l-43.2-43.2c-4.1-4.1-10.8-4.1-14.8 0L436 82l58.1 58.1 30.9-30.9c4-4.2 4-10.8-.1-14.9z"
-                            />
+                              d="M402.3 344.9l32-32c5-5 13.7-1.5 13.7 5.7V464c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V112c0-26.5 21.5-48 48-48h273.5c7.1 0 10.7 8.6 5.7 13.7l-32 32c-1.5 1.5-3.5 2.3-5.7 2.3H48v352h352V350.5c0-2.1 .8-4.1 2.3-5.6zm156.6-201.8L296.3 405.7l-90.4 10c-26.2 2.9-48.5-19.2-45.6-45.6l10-90.4L432.9 17.1c22.9-22.9 59.9-22.9 82.7 0l43.2 43.2c22.9 22.9 22.9 60 .1 82.8zM460.1 174L402 115.9 216.2 301.8l-7.3 65.3 65.3-7.3L460.1 174zm64.8-79.7l-43.2-43.2c-4.1-4.1-10.8-4.1-14.8 0L436 82l58.1 58.1 30.9-30.9c4-4.2 4-10.8-.1-14.9z" />
                           </svg>
                         </button>
                       </li>
@@ -317,24 +204,13 @@
                 <div class="row mt-2">
                   <div class="ms-3 w-100">
                     <div *ngIf="comment.showEdit">
-                      <textarea
-                        placeholder="Type your Reply"
-                        title="Comment"
-                        class="form-control"
-                        id="comments-textarea"
-                        [(ngModel)]="comment.tempComment"
-                      ></textarea>
-                      <button
-                        class="button comment_submit btn btn-primary btn-sm"
-                        (click)="submitComment(comment)"
-                        [disabled]="comment?.tempComment?.trim()?.length === 0"
-                      >
+                      <textarea placeholder="Type your Reply" title="Comment" class="form-control"
+                        id="comments-textarea" [(ngModel)]="comment.tempComment"></textarea>
+                      <button class="button comment_submit btn btn-primary btn-sm" (click)="submitComment(comment)"
+                        [disabled]="comment?.tempComment?.trim()?.length === 0">
                         Submit
                       </button>
-                      <button
-                        class="button close-comment btn btn-primary btn-sm"
-                        (click)="comment.showEdit = false"
-                      >
+                      <button class="button close-comment btn btn-primary btn-sm" (click)="comment.showEdit = false">
                         Close
                       </button>
                     </div>
@@ -347,33 +223,16 @@
       </div>
 
       <div class="row">
-        <ul
-          ngbNav
-          #nav="ngbNav"
-          class="nav nav-pills nav-tabs"
-          orientation="vertical"
-          tabindex="-1"
-        >
+        <ul ngbNav #nav="ngbNav" class="nav nav-pills nav-tabs" orientation="vertical" tabindex="-1">
           <ng-container *ngFor="let category of searchCategories">
-            <li
-              class="ccc clickable top-category"
-              [class.active-top-category]="
+            <li class="ccc clickable top-category" [class.active-top-category]="
                 selectedSearchCategory === category.label
-              "
-              (click)="selectSearchCategory(category.label)"
-              (keyup)="selectSearchCategory(category.label)"
-              (keyup.enter)="selectSearchCategory(category.label)"
-              [ngbTooltip]="category.label"
-              tabindex="-1"
-            >
+              " (click)="selectSearchCategory(category.label)" (keyup)="selectSearchCategory(category.label)"
+              (keyup.enter)="selectSearchCategory(category.label)" [ngbTooltip]="category.label" tabindex="-1">
               <a class="nav-link">
                 <div class="row d-flex my-2">
                   <div class="col-auto mx-auto right-icons">
-                    <fa-icon
-                      class="mx-auto my-auto"
-                      size="2x"
-                      [icon]="category.icon"
-                    ></fa-icon>
+                    <fa-icon class="mx-auto my-auto" size="2x" [icon]="category.icon"></fa-icon>
                   </div>
                 </div>
               </a>

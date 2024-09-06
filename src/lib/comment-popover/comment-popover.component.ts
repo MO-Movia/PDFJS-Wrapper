@@ -23,7 +23,7 @@ export class CommentPopoverComponent implements AfterViewInit {
 
   @Output() public submitComment = new EventEmitter<string>();
   public I = {
-    faTimes
+    faTimes,
   };
   public comment: string = '';
   public closePopover: boolean = false;
@@ -35,7 +35,9 @@ export class CommentPopoverComponent implements AfterViewInit {
   }
 
   public closeComment(): void {
-    const popover = document.querySelector('.comment-popover-content') as HTMLElement;
+    const popover = document.querySelector(
+      '.comment-popover-content'
+    ) as HTMLElement;
     if (!this.closePopover) {
       popover.style.display = 'none';
     }
