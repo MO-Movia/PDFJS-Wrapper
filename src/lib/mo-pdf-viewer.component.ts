@@ -10,6 +10,7 @@ import {
   OnInit,
   Output,
   EventEmitter,
+  ComponentRef,
 } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { provideAnimations } from '@angular/platform-browser/animations';
@@ -25,7 +26,8 @@ import {
   AnnotationActionType,
   ShowCommentTagPopoverDetails,
   AnnotationDeleteEvent,
-  AnnotationItem
+  AnnotationItem,
+  highlightEditor,
 } from 'ngx-extended-pdf-viewer';
 import { CommentPopoverComponent } from './comment-popover/comment-popover.component';
 import { TagPopoverComponent } from './tag-popover/tag-popover.component';
@@ -74,14 +76,13 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   @Output() public annotationUpdated = new EventEmitter<AnnotationItem[]>();
   public tagListPublic: TagListModel[] = [];
   public tagListPrivate: TagListModel[] = [];
-  public commentList: any[] = [];
+  public commentList: highlightEditor[] = [];
   public isOpenTag: boolean = false;
   public isOpenComment: boolean = false;
   public publicListVisible: boolean[] = [];
   public privateListVisible: boolean[] = [];
   public isHovered: boolean = false;
   public tags: TagModel[] = [];
-  public submitSubscription: any;
   private notRenderedPages: number[] = [];
   public subscription: Subscription | undefined;
   private requestedPages: number[] = [];
@@ -96,10 +97,9 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     pdfViewerElement.addEventListener('scroll', this.onPdfViewerScroll);
   }
 
-  private popoverRef: any;
-  public previousScrollTop = 0;
+  private popoverRef: ComponentRef<TagPopoverComponent | CommentPopoverComponent> | null = null;  public previousScrollTop = 0;
   public previousScrollLeft = 0;
-  public highlightList: any[] = [];
+  public highlightList: highlightEditor[] = [];
   public dropdownVisible: any = {};
   public hoveredList: 'private' | 'public' | null | 'highlight' = null;
   public hoveredIndex: number | null = null;
@@ -158,7 +158,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     this.selectedSearchCategory = category;
   }
 
-  public showHighlightedArray(editor: any) {
+  public showHighlightedArray(editor: highlightEditor): void {
     this.utilService.addEditor(editor);
   }
 
@@ -168,8 +168,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     if (data.type === AnnotationActionType.comment) {
       this.showCommentPopover(editor);
 
-      const commentPopoverInstance = this.popoverRef
-        .instance as CommentPopoverComponent;
+      const commentPopoverInstance = this.popoverRef?.instance as CommentPopoverComponent;
       commentPopoverInstance.comment = editor.annotationConfig.comment;
       commentPopoverInstance.submitComment.subscribe(() => {
         editor.updateParams(AnnotationEditorParamsType.HIGHLIGHT_COLOR,
@@ -182,8 +181,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       });
     } else if (data.type === AnnotationActionType.tag) {
       this.showTagPopover(editor);
-      const tagPopoverInstance = this.popoverRef
-        .instance as TagPopoverComponent;
+      const tagPopoverInstance = this.popoverRef?.instance as TagPopoverComponent;
 
       tagPopoverInstance.tagSelected.subscribe((activeEditor) => {
         editor.annotationConfig.Tags = activeEditor.annotationConfig.Tags;
@@ -193,7 +191,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     }
   }
 
-  public updateTagProps(editor: any) {
+  public updateTagProps(editor: highlightEditor): void {
     if (editor.annotationConfig.Tags.length > 0) {
       editor.updateParams(AnnotationEditorParamsType.HIGHLIGHT_COLOR,
         '#53FFBC');
@@ -211,11 +209,11 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     }
   }
 
-  public showTagPopover(editor: any): void {
+  public showTagPopover(editor: highlightEditor): void {
     this.closeCommentPopover();
     this.isOpenTag = true;
 
-    this.popoverRef = this.viewContainerRef.createComponent(TagPopoverComponent)
+    this.popoverRef = this.viewContainerRef.createComponent(TagPopoverComponent);
     this.popoverRef.instance.editor = editor;
 
     const popoverElement = (this.popoverRef.hostView)
@@ -251,7 +249,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     );
   }
 
-  public showCommentPopover(editor: any): void {
+  public showCommentPopover(editor: highlightEditor): void {
     this.closeCommentPopover();
     this.isOpenComment = true;
     this.popoverRef =this.viewContainerRef.createComponent(CommentPopoverComponent);
@@ -314,7 +312,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       });
     }
   }
-  public removeTag(editor: any, tag: TagListModel): void {
+  public removeTag(editor: highlightEditor, tag: TagListModel): void {
     editor.annotationConfig.Tags = editor.annotationConfig.Tags.filter((t: number) => t !== tag.id);
     this.utilService.updateEditorType(editor);
     if (editor.annotationConfig.Tags.length === 0) {
@@ -370,7 +368,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     }
   };
 
-  public scrollToElement(editor: any): void {
+  public scrollToElement(editor: highlightEditor): void {
     document.getElementById(`${editor.id}`)?.scrollIntoView({
       block: 'center',
       inline: 'center',
@@ -437,18 +435,18 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     this.utilService.removeAnnotation(event.id);
   }
 
-  public submitComment(editor: any): void {
+  public submitComment(editor: highlightEditor): void {
     editor.annotationConfig.comment = editor.tempComment;
     editor.showEdit = false;
   }
 
-  public editComment(editor: any): void {
+  public editComment(editor: highlightEditor): void {
     this.commentList.forEach((c) => (c.showEdit = false));
     editor.tempComment = editor.annotationConfig.comment;
     editor.showEdit = true;
   }
 
-  public removeAnnotation(editor: any): void {
+  public removeAnnotation(editor: highlightEditor): void {
     editor.remove(editor);
   }
 

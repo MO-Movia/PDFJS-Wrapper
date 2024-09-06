@@ -26,7 +26,7 @@ describe('UtilService', () => {
   });
   it('should handle addEditor', () => {
     service.annotations = [{ annotationConfig: { type: 'highlight', Tags: [1, 2] } }];
-    const editor = { annotationConfig: { Tags: [{}] }, _uiManager: { setSelected: () => { } } };
+    const editor = { annotationConfig: { Tags: [{}] }, _uiManager: { setSelected: (): void => { } } };
     const spy = spyOn(service, 'annotationDataUpdated');
     service.addEditor(editor);
     expect(spy).toHaveBeenCalled();
@@ -38,7 +38,7 @@ describe('UtilService', () => {
   it('should handle updateEditorType', () => {
     const spy = spyOn(service, 'annotationDataUpdated');
     service.annotations = [{ annotationConfig: { type: 'highlight' }, id: 'id' }];
-    const editor = { id: 'id', annotationConfig: { Tags: [{}] }, _uiManager: { setSelected: () => { } } };
+    const editor = { id: 'id', annotationConfig: { Tags: [{}] }, _uiManager: { setSelected: (): void => { } } };
     service.updateEditorType(editor);
     expect(spy).toHaveBeenCalled();
   });

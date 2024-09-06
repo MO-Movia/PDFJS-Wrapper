@@ -9,9 +9,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { UtilService } from '../util.service';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import {
-  faTimes
-} from '@fortawesome/free-solid-svg-icons';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'mo-app-comment-popover',

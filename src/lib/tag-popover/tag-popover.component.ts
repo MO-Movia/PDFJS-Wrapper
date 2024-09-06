@@ -11,10 +11,9 @@ import {
 import { FormsModule } from '@angular/forms';
 import { UtilService, TagModel } from '../util.service';
 import { CommonModule } from '@angular/common';
-import {
-  faTimes
-} from '@fortawesome/free-solid-svg-icons';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { highlightEditor } from 'ngx-extended-pdf-viewer';
 
 
 @Component({
@@ -25,7 +24,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
   imports: [FormsModule, CommonModule, FontAwesomeModule],
 })
 export class TagPopoverComponent implements AfterViewInit, OnInit {
-  public editor: any = {};
+  public editor: highlightEditor = {};
   public closePopover: boolean = false;
   public selectedTag: string = '';
   public filteredTags: TagModel[] = [];
@@ -36,7 +35,7 @@ export class TagPopoverComponent implements AfterViewInit, OnInit {
   };
 
   @Output() public submitTag = new EventEmitter<string>();
-  @Output() public tagSelected = new EventEmitter<any>();
+  @Output() public tagSelected = new EventEmitter<highlightEditor>();
 
   // @ViewChild(MoPdfViewerComponent)
   // public pdfViewer!: MoPdfViewerComponent;

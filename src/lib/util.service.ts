@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { AnnotationActionType, AnnotationItem } from 'ngx-extended-pdf-viewer';
+import { AnnotationActionType, AnnotationItem, highlightEditor } from 'ngx-extended-pdf-viewer';
+
 
 export interface TagModel {
   id: number;
@@ -9,13 +10,13 @@ export interface TagModel {
   isChecked?: boolean;
 }
 export interface TagListModel extends TagModel {
-  editors: any[];
+  editors: highlightEditor[];
 }
 @Injectable({
   providedIn: 'root',
 })
 export class UtilService {
-  public annotations: any[] = [];
+  public annotations: highlightEditor[] = [];
   public tags = new BehaviorSubject<TagListModel[]>([]);
   public tags$ = this.tags.asObservable();
   private annotationUpdated = new Subject<void>();
@@ -25,15 +26,15 @@ export class UtilService {
     this.annotationUpdated.next();
   }
 
-  public gethighlightText(): any[] {
+  public gethighlightText(): highlightEditor[] {
     return this.annotations.filter((t) => t.annotationConfig.type === AnnotationActionType.highlight);
   }
 
-  public getCommentList(): any[] {
+  public getCommentList(): highlightEditor[] {
     return this.annotations.filter((t) => t.annotationConfig.type === AnnotationActionType.comment);
   }
 
-  public addEditor(editor: any): void {
+  public addEditor(editor: highlightEditor): void {
     this.annotations.push(editor);
     this.annotationDataUpdated();
     if (editor.annotationConfig?.Tags?.length > 0) {
@@ -41,11 +42,11 @@ export class UtilService {
     }
   }
 
-  public getEditor(id: string): any {
+  public getEditor(id: string): highlightEditor {
     return this.annotations.find((t) => t.id === id);
   }
 
-  public updateEditorType(editor: any): void {
+  public updateEditorType(editor: highlightEditor): void {
     const editorIndex = this.annotations.findIndex((t) => t.id === editor.id);
     if (editorIndex > -1) {
       this.annotations[editorIndex] = editor;
