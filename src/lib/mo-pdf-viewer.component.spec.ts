@@ -2,7 +2,7 @@ import {
   ComponentFixture,
   fakeAsync,
   flush,
-  TestBed
+  TestBed,
 } from '@angular/core/testing';
 import { MoPdfViewerComponent } from './mo-pdf-viewer.component';
 import { ComponentFactoryResolver, CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
@@ -14,9 +14,8 @@ import {
   AnnotationItem,
   NgxExtendedPdfViewerService,
   PageRenderEvent,
-  PDFPageView
+  PDFPageView,
 } from 'ngx-extended-pdf-viewer';
-
 
 describe('MoPdfViewerComponent', () => {
   let component: MoPdfViewerComponent;
@@ -26,25 +25,40 @@ describe('MoPdfViewerComponent', () => {
     await TestBed.configureTestingModule({
       imports: [MoPdfViewerComponent],
       schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA],
-      providers: [{
-        provide: ComponentFactoryResolver,
-        useValue: { 
-          resolveComponentFactory: (): { create: () => { instance: { submitComment: () => Observable<unknown> } } } => { 
-            return { 
-              create: (): { instance: { submitComment: () => Observable<unknown> } } => { 
-                return { 
-                  instance: { 
-                    submitComment: (): Observable<unknown> => { 
-                      return of({}); 
-                    } 
-                  } 
-                }; 
-              } 
-            }; 
-          } 
-        }
-      },
-      { provide: NgxExtendedPdfViewerService, useValue: { setAnnotation: (): unknown => { return {}; } } }]
+      providers: [
+        {
+          provide: ComponentFactoryResolver,
+          useValue: {
+            resolveComponentFactory: (): {
+              create: () => {
+                instance: { submitComment: () => Observable<unknown> };
+              };
+            } => {
+              return {
+                create: (): {
+                  instance: { submitComment: () => Observable<unknown> };
+                } => {
+                  return {
+                    instance: {
+                      submitComment: (): Observable<unknown> => {
+                        return of({});
+                      },
+                    },
+                  };
+                },
+              };
+            },
+          },
+        },
+        {
+          provide: NgxExtendedPdfViewerService,
+          useValue: {
+            setAnnotation: (): unknown => {
+              return {};
+            },
+          },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MoPdfViewerComponent);
@@ -52,24 +66,34 @@ describe('MoPdfViewerComponent', () => {
 
     component.utilService = {
       annotationUpdated$: of({}),
-      getAnnotationConfigs: () => { return [{}] as unknown as AnnotationItem[]; },
-      tags$: of([{ isPrivate: true },
-        { isPrivate: false }] as unknown as TagListModel[]),
-      getEditor: () => { return { pageIndex: 0, annotationConfig: { comment: 'Comment' } }; }
-      , updateEditorType: () => { return {}; },
-      removeAnnotation: () => { },
-      gethighlightText: () => { },
-      getCommentList: () => { },
-      addEditor: () => { }
+      getAnnotationConfigs: () => {
+        return [{}] as unknown as AnnotationItem[];
+      },
+      tags$: of([
+        { isPrivate: true },
+        { isPrivate: false },
+      ] as unknown as TagListModel[]),
+      getEditor: () => {
+        return { pageIndex: 0, annotationConfig: { comment: 'Comment' } };
+      },
+      updateEditorType: () => {
+        return {};
+      },
+      removeAnnotation: () => {},
+      gethighlightText: () => {},
+      getCommentList: () => {},
+      addEditor: () => {},
     } as unknown as UtilService;
 
     fixture.detectChanges();
     const el = document.createElement('div');
     spyOn(document, 'querySelector').and.returnValue(el);
-    spyOn(document, 'getElementsByClassName').and.returnValue([el] as unknown as HTMLCollectionOf<Element>);
+    spyOn(document, 'getElementsByClassName').and.returnValue([
+      el,
+    ] as unknown as HTMLCollectionOf<Element>);
     component.showTagPopover({
       id: 'id',
-      type: 'Comment' as unknown as AnnotationActionType
+      type: 'Comment' as unknown as AnnotationActionType,
     });
   });
 
@@ -79,29 +103,34 @@ describe('MoPdfViewerComponent', () => {
   it('should handle commentTagPopover', () => {
     expect(component.commentTagPopover({
       id: 'id',
-      type: 'Comment' as unknown as AnnotationActionType
+      type: 'Comment' as unknown as AnnotationActionType,
     })).toBeUndefined();
   });
   it('should handle commentTagPopover when data.type === AnnotationActionType.tag', () => {
-
     expect(component.commentTagPopover({
       id: 'id',
-      type: 'Tag' as unknown as AnnotationActionType
+      type: 'Tag' as unknown as AnnotationActionType,
     })).toBeUndefined();
   });
   it('should handle updateTagProps', () => {
     const spy = spyOn(component.utilService, 'updateEditorType');
     component.updateTagProps({
-      pageIndex: 0, annotationConfig: { comment: 'Comment', Tags: [{}] },
-      updateParams: () => { return {}; }
+      pageIndex: 0,
+      annotationConfig: { comment: 'Comment', Tags: [{}] },
+      updateParams: () => {
+        return {};
+      },
     });
     expect(spy).toHaveBeenCalled();
   });
   it('should handle updateTagProps when annotationConfig.Tags length 0', () => {
     const spy = spyOn(component.utilService, 'updateEditorType');
     component.updateTagProps({
-      pageIndex: 0, annotationConfig: { comment: 'Comment', Tags: [] },
-      updateParams: () => { return {}; }
+      pageIndex: 0,
+      annotationConfig: { comment: 'Comment', Tags: [] },
+      updateParams: () => {
+        return {};
+      },
     });
     expect(spy).toHaveBeenCalled();
   });
@@ -109,7 +138,7 @@ describe('MoPdfViewerComponent', () => {
     component.savedAnnotations = [];
     component.onTextLayerRendered({
       pageNumber: 0,
-      source:{} as unknown as PDFPageView
+      source: {} as unknown as PDFPageView,
     });
     expect(component.savedAnnotations.length).toBe(0);
     flush();
@@ -119,7 +148,9 @@ describe('MoPdfViewerComponent', () => {
     const el1 = document.createElement('tag');
     const el = document.createElement('tag');
     el.appendChild(el1);
-    spyOn(document, 'querySelectorAll').and.returnValue([el] as unknown as NodeListOf<Element>);
+    spyOn(document, 'querySelectorAll').and.returnValue([
+      el,
+    ] as unknown as NodeListOf<Element>);
     component.onDocumentClickTag({} as unknown as MouseEvent);
     expect(component.isOpenTag).toBeFalse();
   });
@@ -127,7 +158,9 @@ describe('MoPdfViewerComponent', () => {
     const el1 = document.createElement('tag');
     const el = document.createElement('tag');
     el.appendChild(el1);
-    spyOn(document, 'querySelectorAll').and.returnValue([el] as unknown as NodeListOf<Element>);
+    spyOn(document, 'querySelectorAll').and.returnValue([
+      el,
+    ] as unknown as NodeListOf<Element>);
     component.onDocumentClickTag({ target: el } as unknown as MouseEvent);
     expect(component.isOpenTag).toBeTrue();
   });
@@ -135,7 +168,9 @@ describe('MoPdfViewerComponent', () => {
     const el1 = document.createElement('comment');
     const el = document.createElement('comment');
     el.appendChild(el1);
-    spyOn(document, 'querySelectorAll').and.returnValue([el] as unknown as NodeListOf<Element>);
+    spyOn(document, 'querySelectorAll').and.returnValue([
+      el,
+    ] as unknown as NodeListOf<Element>);
     component.onDocumentClickComment({ target: el } as unknown as MouseEvent);
     expect(component.isOpenComment).toBeFalse();
   });
@@ -149,12 +184,18 @@ describe('MoPdfViewerComponent', () => {
   });
   it('should handle commntDropdownVisible   ', () => {
     const el3 = document.createElement('tag');
-    spyOn(document, 'querySelectorAll').and.returnValue([el3] as unknown as NodeListOf<Element>);
+    spyOn(document, 'querySelectorAll').and.returnValue([
+      el3,
+    ] as unknown as NodeListOf<Element>);
     const el2 = document.createElement('span');
     const el1 = document.createElement('span');
-    el1.querySelector = (): Element | null => { return el2; };
+    el1.querySelector = (): Element | null => {
+      return el2;
+    };
     const el = document.createElement('div');
-    el.closest = (): Element | null => { return el1; };
+    el.closest = (): Element | null => {
+      return el1;
+    };
     expect(component.commntDropdownVisible(el)).toBeUndefined();
   });
 
@@ -171,70 +212,79 @@ describe('MoPdfViewerComponent', () => {
     expect(spy).toHaveBeenCalled();
   });
   it('should handle onPageRendered ', () => {
-    expect(component.onPageRendered({ pageNumber: null } as unknown as PageRenderEvent)).toBeUndefined();
+    expect(component.onPageRendered({
+      pageNumber: null,
+    } as unknown as PageRenderEvent)).toBeUndefined();
   });
   it('should handle removeTag ', () => {
     const spy = spyOn(component, 'updateTagProps');
-    component.removeTag({ annotationConfig: { Tags: [] } }, { editors: [], id: 1, name: 'name', isPrivate: true });
+    component.removeTag({ annotationConfig: { Tags: [] } },
+      { editors: [], id: 1, name: 'name', isPrivate: true });
     expect(spy).toHaveBeenCalled();
   });
   it('should handle removeTag when Tags.length > 0', () => {
     const spy = spyOn(component, 'updateTagProps');
-    component.removeTag({ annotationConfig: { Tags: [2, 3, 4] } }, { editors: [], id: 1, name: 'name', isPrivate: true });
+    component.removeTag({ annotationConfig: { Tags: [2, 3, 4] } },
+      { editors: [], id: 1, name: 'name', isPrivate: true });
     expect(spy).not.toHaveBeenCalled();
   });
   it('should handle scrollToElement ', () => {
-    const editor: { 
-      annotationConfig: { Tags: string[] }, 
-      _uiManager: { setSelected: () => void } 
-    } = { 
-      annotationConfig: { Tags: [] }, 
-      _uiManager: { setSelected: (): void => { } } 
+    const editor: {
+      annotationConfig: { Tags: string[] };
+      _uiManager: { setSelected: () => void };
+    } = {
+      annotationConfig: { Tags: [] },
+      _uiManager: { setSelected: (): void => {} },
     };
     const spy = spyOn(editor._uiManager, 'setSelected');
     component.scrollToElement(editor);
     expect(spy).toHaveBeenCalled();
   });
   it('should handle annotationDeleted ', () => {
-    expect(component.annotationDeleted({ id: 'id' } as unknown as AnnotationDeleteEvent)).toBeUndefined();
+    expect(component.annotationDeleted({
+      id: 'id',
+    } as unknown as AnnotationDeleteEvent)).toBeUndefined();
   });
   it('should handle submitComment ', () => {
-    expect(component.submitComment({ annotationConfig: { Tags: [] }, _uiManager: { setSelected: () => { } } })).toBeUndefined();
+    expect(component.submitComment({
+      annotationConfig: { Tags: [] },
+      _uiManager: { setSelected: () => {} },
+    })).toBeUndefined();
   });
   it('should handle editComment ', () => {
-    const editor: { 
-      annotationConfig: { Tags: string[] }, 
-      _uiManager: { setSelected: () => void }, 
-      showEdit: boolean 
-    } = { 
-      annotationConfig: { Tags: [] }, 
-      _uiManager: { setSelected: (): void => { } }, 
-      showEdit: false 
+    const editor: {
+      annotationConfig: { Tags: string[] };
+      _uiManager: { setSelected: () => void };
+      showEdit: boolean;
+    } = {
+      annotationConfig: { Tags: [] },
+      _uiManager: { setSelected: (): void => {} },
+      showEdit: false,
     };
     component.editComment(editor);
     expect(editor.showEdit).toBeTrue();
   });
   it('should handle editComment ', () => {
     component.commentList = [{ showEdit: true }];
-    const editor: { 
-      annotationConfig: { Tags: string[] }, 
-      _uiManager: { setSelected: () => void }, 
-      showEdit: boolean 
-    } = { 
-      annotationConfig: { Tags: [] }, 
-      _uiManager: { setSelected: (): void => { } }, 
-      showEdit: false 
+    const editor: {
+      annotationConfig: { Tags: string[] };
+      _uiManager: { setSelected: () => void };
+      showEdit: boolean;
+    } = {
+      annotationConfig: { Tags: [] },
+      _uiManager: { setSelected: (): void => {} },
+      showEdit: false,
     };
     component.editComment(editor);
     expect(editor.showEdit).toBeTrue();
   });
   it('should handle removeAnnotation ', () => {
-    const editor: { 
-      annotationConfig: { Tags: string[] }, 
-      remove: () => void 
-    } = { 
-      annotationConfig: { Tags: [] }, 
-      remove: (): void => { } 
+    const editor: {
+      annotationConfig: { Tags: string[] };
+      remove: () => void;
+    } = {
+      annotationConfig: { Tags: [] },
+      remove: (): void => {},
     };
     const spy = spyOn(editor, 'remove');
     component.removeAnnotation(editor);
@@ -270,10 +320,11 @@ describe('MoPdfViewerComponent', () => {
   });
   it('should handle showHighlightedArray ', () => {
     const spy = spyOn(component.utilService, 'addEditor');
-    component.showHighlightedArray({ annotationConfig: { Tags: [] }, _uiManager: { setSelected: () => { } }, showEdit: false });
+    component.showHighlightedArray({
+      annotationConfig: { Tags: [] },
+      _uiManager: { setSelected: () => {} },
+      showEdit: false,
+    });
     expect(spy).toHaveBeenCalled();
   });
-
-
-
 });

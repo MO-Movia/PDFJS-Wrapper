@@ -1,24 +1,19 @@
 <div class="tag-popover">
   <div class="popContainter">
     <div class="d-flex flex-column">
-      <div  class="tag-header">
-        <h5 id="modal-title" class="modal-title">
-          Tags
-        </h5>
+      <div class="tag-header">
+        <h5 id="modal-title" class="modal-title">Tags</h5>
         <span class="m-1"></span>
-        
+
         <button
-        type="button"
-        class="btn close-button close-svg"
-        tabindex="-1"
-        (click)="closeTag()"
-        (keyup)="closeTag()"
-      >
-      <fa-icon
-      class="mx-auto my-auto"
-      [icon]="I.faTimes"
-    />
-      </button>
+          type="button"
+          class="btn close-button close-svg"
+          tabindex="-1"
+          (click)="closeTag()"
+          (keyup)="closeTag()"
+        >
+          <fa-icon class="mx-auto my-auto" [icon]="I.faTimes" />
+        </button>
       </div>
 
       <div>
@@ -27,7 +22,7 @@
             <div class="ps-2 align-self-center">
               <span class="filter">Filter:</span>
             </div>
-            <div  class="ps-2">
+            <div class="ps-2">
               <input
                 #filterInput
                 (keyup)="tagSearch(filterInput.value)"
@@ -57,13 +52,13 @@
               <span class="tag-name">{{ filteredTags[i].name }}</span>
               <input
                 type="checkbox"
-                class="black-tick checkbox" 
+                class="black-tick checkbox"
                 #checkbox
                 [(ngModel)]="tag.isChecked"
                 (change)="checkedTag(tag)"
                 (keydown)="handleKeydown($event, i)"
                 tabindex="0"
-				 id="checkbox" 
+                id="checkbox"
               />
               <span class="checkmark"></span>
             </label>

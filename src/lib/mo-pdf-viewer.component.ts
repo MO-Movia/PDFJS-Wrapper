@@ -10,7 +10,6 @@ import {
   OnInit,
   Output,
   EventEmitter,
-  ComponentRef,
 } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { provideAnimations } from '@angular/platform-browser/animations';
@@ -35,7 +34,7 @@ import {
   faTag,
   faTrash,
   faHighlighter,
-  faMessage
+  faMessage,
 } from '@fortawesome/free-solid-svg-icons';
 import { TagModel, UtilService, TagListModel } from './util.service';
 
@@ -52,7 +51,6 @@ import { Subscription } from 'rxjs';
     NgbTooltipModule,
     NgxExtendedPdfViewerModule,
     NgbModule,
-    // BrowserAnimationsModule,
     FormsModule,
   ],
   providers: [provideAnimations(), UtilService],
@@ -97,7 +95,8 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     pdfViewerElement.addEventListener('scroll', this.onPdfViewerScroll);
   }
 
-  private popoverRef: ComponentRef<TagPopoverComponent | CommentPopoverComponent> | null = null;  public previousScrollTop = 0;
+  private popoverRef: any;
+  public previousScrollTop = 0;
   public previousScrollLeft = 0;
   public highlightList: highlightEditor[] = [];
   public dropdownVisible: any = {};
@@ -168,7 +167,8 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     if (data.type === AnnotationActionType.comment) {
       this.showCommentPopover(editor);
 
-      const commentPopoverInstance = this.popoverRef?.instance as CommentPopoverComponent;
+      const commentPopoverInstance = this.popoverRef
+        .instance as CommentPopoverComponent;
       commentPopoverInstance.comment = editor.annotationConfig.comment;
       commentPopoverInstance.submitComment.subscribe(() => {
         editor.updateParams(AnnotationEditorParamsType.HIGHLIGHT_COLOR,
@@ -181,7 +181,8 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       });
     } else if (data.type === AnnotationActionType.tag) {
       this.showTagPopover(editor);
-      const tagPopoverInstance = this.popoverRef?.instance as TagPopoverComponent;
+      const tagPopoverInstance = this.popoverRef
+        .instance as TagPopoverComponent;
 
       tagPopoverInstance.tagSelected.subscribe((activeEditor) => {
         editor.annotationConfig.Tags = activeEditor.annotationConfig.Tags;
@@ -213,11 +214,11 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     this.closeCommentPopover();
     this.isOpenTag = true;
 
-    this.popoverRef = this.viewContainerRef.createComponent(TagPopoverComponent);
+    this.popoverRef =
+      this.viewContainerRef.createComponent(TagPopoverComponent);
     this.popoverRef.instance.editor = editor;
 
-    const popoverElement = (this.popoverRef.hostView)
-      .rootNodes[0] as HTMLElement;
+    const popoverElement = this.popoverRef.hostView.rootNodes[0] as HTMLElement;
     popoverElement.style.display = 'block';
 
     const selectedText = document.querySelector('.highlightEditor.selectedEditor') as HTMLElement;
@@ -252,9 +253,8 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   public showCommentPopover(editor: highlightEditor): void {
     this.closeCommentPopover();
     this.isOpenComment = true;
-    this.popoverRef =this.viewContainerRef.createComponent(CommentPopoverComponent);
-    const popoverElement = (this.popoverRef.hostView)
-      .rootNodes[0] as HTMLElement;
+    this.popoverRef = this.viewContainerRef.createComponent(CommentPopoverComponent);
+    const popoverElement = this.popoverRef.hostView.rootNodes[0] as HTMLElement;
     popoverElement.style.display = 'block';
 
     const selectedText = document.querySelector('.highlightEditor.selectedEditor') as HTMLElement;

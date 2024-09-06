@@ -121,7 +121,6 @@
   }
 }
 
-
 .selectedTag-btn {
   margin-top: -6px;
   margin-bottom: 2px;
@@ -160,7 +159,7 @@
 }
 .selectedDiv {
   position: relative;
-    top: 6px;
+  top: 6px;
 }
 hr {
   margin: 0px;
@@ -179,13 +178,13 @@ hr {
   display: grid;
   grid-template-columns: 18px 0fr;
   align-items: center;
-  gap:0px;
+  gap: 0px;
 }
 
 .sel-checkbox {
-  grid-column: 1; 
+  grid-column: 1;
 }
 
 .tag-name {
-  grid-column: 2; 
+  grid-column: 2;
 }

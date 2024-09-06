@@ -15,7 +15,6 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { highlightEditor } from 'ngx-extended-pdf-viewer';
 
-
 @Component({
   selector: 'mo-app-tag-popover',
   templateUrl: './tag-popover.component.html',
@@ -31,14 +30,11 @@ export class TagPopoverComponent implements AfterViewInit, OnInit {
   public allTags: TagModel[] = [];
   private currentIndex: number = 0;
   public I = {
-    faTimes
+    faTimes,
   };
 
   @Output() public submitTag = new EventEmitter<string>();
   @Output() public tagSelected = new EventEmitter<highlightEditor>();
-
-  // @ViewChild(MoPdfViewerComponent)
-  // public pdfViewer!: MoPdfViewerComponent;
 
   @ViewChildren('checkbox')
   private checkboxes!: QueryList<ElementRef<HTMLInputElement>>;

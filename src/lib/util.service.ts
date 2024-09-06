@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { AnnotationActionType, AnnotationItem, highlightEditor } from 'ngx-extended-pdf-viewer';
 
-
 export interface TagModel {
   id: number;
   name: string;
@@ -67,16 +66,6 @@ export class UtilService {
   public getAnnotationConfigs(): AnnotationItem[] {
     return this.annotations.map((a) => a.annotationConfig);
   }
-
-  // public getTagListPrivate(): TagModel[] {
-  //   const tags = this.getAnnotatedTags();
-  //   return tags.filter((tag) => tag.isPrivate);
-  // }
-
-  // public getTagListPublic(): TagModel[] {
-  //   const tags = this.getAnnotatedTags();
-  //   return tags.filter((tag) => !tag.isPrivate);
-  // }
 
   public getTagList(): TagListModel[] {
     const matchingTags: TagListModel[] = [];

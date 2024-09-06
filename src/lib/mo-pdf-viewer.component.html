@@ -49,9 +49,7 @@
           </div>
         </div>
         <div class="row flex-grow-1 highlight-container">
-          <div
-            class="highlightlist"
-          >
+          <div class="highlightlist">
             <ng-container
               *ngFor="let highlight of highlightList; let i = index"
             >
@@ -63,15 +61,15 @@
                 <ul class="col">
                   <li class="highlights-list">
                     <div class="highlightList">
-                        <div
-                          class="highlight-span"
-                          (click)="scrollToElement(highlight)"
-                          (keydown)="scrollToElement(highlight)"
-                          tabindex="-1"
-                        >
-                          {{ highlight?.text }}
+                      <div
+                        class="highlight-span"
+                        (click)="scrollToElement(highlight)"
+                        (keydown)="scrollToElement(highlight)"
+                        tabindex="-1"
+                      >
+                        {{ highlight?.text }}
                       </div>
-                     
+
                       <div
                         tabindex="-1"
                         class="highlight-close"
@@ -100,10 +98,15 @@
         </div>
         <ul ngbNav #nav="ngbNav" class="nav-tabs taglist-tab">
           <li [ngbNavItem]="1">
-            <button ngbNavLink type="button" class="tab-private" role="tab">Private Tag</button>
-            
+            <button ngbNavLink type="button" class="tab-private" role="tab">
+              Private Tag
+            </button>
+
             <ng-template ngbNavContent>
-              <div *ngFor="let tag of tagListPrivate; let i = index" class="privateList">
+              <div
+                *ngFor="let tag of tagListPrivate; let i = index"
+                class="privateList"
+              >
                 <div>
                   <svg
                     class="collapse-svg"
@@ -121,43 +124,50 @@
                   <div class="tag-private-count">{{ tag.editors.length }}</div>
                 </div>
                 <ul class="col tag-col">
-                
-                  <div class="private-span" >
-                    <ng-container *ngFor="let editor of tag.editors; let j = index">
+                  <div class="private-span">
+                    <ng-container
+                      *ngFor="let editor of tag.editors; let j = index"
+                    >
                       <li *ngIf="privateListVisible[i]">
-                      <div *ngIf="privateListVisible[i]" class="tag-item-container">
-                       
                         <div
-                          class="tag-private-list"
-                          (click)="scrollToElement(editor)"
-                          (keydown)="scrollToElement(editor)"
-                          tabindex="-1"
+                          *ngIf="privateListVisible[i]"
+                          class="tag-item-container"
                         >
-                          {{ editor.text }}
-                      </div>
-                   
-                        <p
-                          tabindex="-1"
-                          class="private-item-close"
-                          (keydown)="removeTag(editor,tag)"
-                          (click)="removeTag(editor,tag)"
-                        >
-                          X
-                        </p>
-                      </div>
-                    </li>
+                          <div
+                            class="tag-private-list"
+                            (click)="scrollToElement(editor)"
+                            (keydown)="scrollToElement(editor)"
+                            tabindex="-1"
+                          >
+                            {{ editor.text }}
+                          </div>
+
+                          <p
+                            tabindex="-1"
+                            class="private-item-close"
+                            (keydown)="removeTag(editor, tag)"
+                            (click)="removeTag(editor, tag)"
+                          >
+                            X
+                          </p>
+                        </div>
+                      </li>
                     </ng-container>
                   </div>
-                
                 </ul>
               </div>
-            </ng-template> 
+            </ng-template>
           </li>
           <li [ngbNavItem]="2">
-            <button ngbNavLink type="button" class="tab-public" role="tab">Public Tag</button>
-            
+            <button ngbNavLink type="button" class="tab-public" role="tab">
+              Public Tag
+            </button>
+
             <ng-template ngbNavContent>
-              <div *ngFor="let tag of tagListPublic; let i = index" class="publicList">
+              <div
+                *ngFor="let tag of tagListPublic; let i = index"
+                class="publicList"
+              >
                 <div>
                   <svg
                     class="collapse-svg"
@@ -178,23 +188,28 @@
                 </div>
                 <ul class="col tag-col">
                   <span class="public-span">
-                    <ng-container *ngFor="let editor of tag.editors; let j = index">
-                      <div *ngIf="publicListVisible[i]" class="tag-item-container">
+                    <ng-container
+                      *ngFor="let editor of tag.editors; let j = index"
+                    >
+                      <div
+                        *ngIf="publicListVisible[i]"
+                        class="tag-item-container"
+                      >
                         <li>
-                        <div
-                          class="tag-public-list"
-                          (click)="scrollToElement(editor)"
-                          (keydown)="scrollToElement(editor)"
-                          tabindex="-1"
-                        >
-                          {{ editor.text }}
-                      </div>
-                    </li>
+                          <div
+                            class="tag-public-list"
+                            (click)="scrollToElement(editor)"
+                            (keydown)="scrollToElement(editor)"
+                            tabindex="-1"
+                          >
+                            {{ editor.text }}
+                          </div>
+                        </li>
                         <p
                           tabindex="-1"
                           class="public-item-close"
-                          (click)="removeTag(editor,tag)"
-                          (keydown)="removeTag(editor,tag)"
+                          (click)="removeTag(editor, tag)"
+                          (keydown)="removeTag(editor, tag)"
                         >
                           X
                         </p>
@@ -204,15 +219,11 @@
                 </ul>
               </div>
             </ng-template>
-            
           </li>
-        </ul> 
+        </ul>
         <div [ngbNavOutlet]="nav" class="mt-2"></div>
       </div>
-      <div
-        class="search-category"
-        *ngIf="selectedSearchCategory === 'Notes'"
-      >
+      <div class="search-category" *ngIf="selectedSearchCategory === 'Notes'">
         <div class="row">
           <div class="col">
             <h3 class="right-panel-title">Notes:</h3>
@@ -235,9 +246,7 @@
                     (click)="scrollToElement(comment)"
                     (keydown)="scrollToElement(comment)"
                   >
-                    {{
-                      comment?.annotationConfig?.comment
-                    }}
+                    {{ comment?.annotationConfig?.comment }}
                   </div>
                   <span class="icon-span">
                     <div class="svg-icon">
@@ -250,9 +259,7 @@
                         viewBox="0 0 16 16"
                         id="comment-dropdown"
                         #commentDropdown
-                        (click)="
-                          commntDropdownVisible(commentDropdown)
-                        "
+                        (click)="commntDropdownVisible(commentDropdown)"
                         (keyup)="commntDropdownVisible(commentDropdown)"
                       >
                         <path

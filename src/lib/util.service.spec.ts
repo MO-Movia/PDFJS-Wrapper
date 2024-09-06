@@ -25,34 +25,51 @@ describe('UtilService', () => {
     expect(service.getCommentList()).toBeDefined();
   });
   it('should handle addEditor', () => {
-    service.annotations = [{ annotationConfig: { type: 'highlight', Tags: [1, 2] } }];
-    const editor = { annotationConfig: { Tags: [{}] }, _uiManager: { setSelected: (): void => { } } };
+    service.annotations = [
+      { annotationConfig: { type: 'highlight', Tags: [1, 2] } },
+    ];
+    const editor = {
+      annotationConfig: { Tags: [{}] },
+      _uiManager: { setSelected: (): void => {} },
+    };
     const spy = spyOn(service, 'annotationDataUpdated');
     service.addEditor(editor);
     expect(spy).toHaveBeenCalled();
   });
   it('should handle getEditor', () => {
-    service.annotations = [{ annotationConfig: { type: 'highlight' }, id: 'id' }];
-    expect(service.getEditor('id')).toEqual({ annotationConfig: { type: 'highlight' }, id: 'id' });
+    service.annotations = [
+      { annotationConfig: { type: 'highlight' }, id: 'id' },
+    ];
+    expect(service.getEditor('id')).toEqual({
+      annotationConfig: { type: 'highlight' },
+      id: 'id',
+    });
   });
   it('should handle updateEditorType', () => {
     const spy = spyOn(service, 'annotationDataUpdated');
-    service.annotations = [{ annotationConfig: { type: 'highlight' }, id: 'id' }];
-    const editor = { id: 'id', annotationConfig: { Tags: [{}] }, _uiManager: { setSelected: (): void => { } } };
+    service.annotations = [
+      { annotationConfig: { type: 'highlight' }, id: 'id' },
+    ];
+    const editor = {
+      id: 'id',
+      annotationConfig: { Tags: [{}] },
+      _uiManager: { setSelected: (): void => {} },
+    };
     service.updateEditorType(editor);
     expect(spy).toHaveBeenCalled();
   });
   it('should handle removeAnnotation', () => {
-    service.annotations = [{ annotationConfig: { type: 'highlight', Tags: [1, 2] } }];
+    service.annotations = [
+      { annotationConfig: { type: 'highlight', Tags: [1, 2] } },
+    ];
     const spy = spyOn(service, 'annotationDataUpdated');
     service.removeAnnotation('id');
     expect(spy).toHaveBeenCalled();
   });
   it('should handle getAnnotationConfigs', () => {
-    service.annotations = [{ annotationConfig: { type: 'highlight' }, id: 'id' }];
+    service.annotations = [
+      { annotationConfig: { type: 'highlight' }, id: 'id' },
+    ];
     expect(service.getAnnotationConfigs()).toBeDefined();
   });
-
-
-
 });
