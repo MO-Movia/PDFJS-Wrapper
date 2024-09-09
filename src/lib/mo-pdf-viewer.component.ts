@@ -35,7 +35,7 @@ import {
   faTag,
   faTrash,
   faHighlighter,
-  faMessage
+  faMessage,
 } from '@fortawesome/free-solid-svg-icons';
 import { TagModel, UtilService, TagListModel } from './util.service';
 
@@ -96,7 +96,9 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     pdfViewerElement.addEventListener('scroll', this.onPdfViewerScroll);
   }
 
-  private popoverRef: ComponentRef<CommentPopoverComponent | TagPopoverComponent> | null = null;
+  private popoverRef: ComponentRef<
+    CommentPopoverComponent | TagPopoverComponent
+  > | null = null;
   public previousScrollTop = 0;
   public previousScrollLeft = 0;
   public highlightList: highlightEditor[] = [];
@@ -162,12 +164,12 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   }
 
   public commentTagPopover(data: ShowCommentTagPopoverDetails): void {
-    console.log('commentTagPopover called with data:', data);
     const editor = this.utilService.getEditor(data.id);
     if (data.type === AnnotationActionType.comment) {
       this.showCommentPopover(editor);
 
-      const commentPopoverInstance = this.popoverRef?.instance as CommentPopoverComponent;
+      const commentPopoverInstance = this.popoverRef
+        ?.instance as CommentPopoverComponent;
       commentPopoverInstance.comment = editor.annotationConfig.comment;
       commentPopoverInstance.submitComment.subscribe(() => {
         editor.updateParams(AnnotationEditorParamsType.HIGHLIGHT_COLOR,
@@ -176,15 +178,16 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
         editor.annotationConfig.type = AnnotationActionType.comment;
         editor.annotationConfig.comment = commentPopoverInstance.comment;
         editor.annotationConfig.color = '#80EBFF';
+        editor.annotationConfig.Tags = [];
         this.utilService.updateEditorType(editor);
       });
     } else if (data.type === AnnotationActionType.tag) {
       this.showTagPopover(editor);
-      const tagPopoverInstance = this.popoverRef?.instance as TagPopoverComponent;
-
+      const tagPopoverInstance = this.popoverRef
+        ?.instance as TagPopoverComponent;
       tagPopoverInstance.tagSelected.subscribe((activeEditor) => {
         editor.annotationConfig.Tags = activeEditor.annotationConfig.Tags;
-
+        editor.annotationConfig.comment = '';
         this.updateTagProps(editor);
       });
     }
@@ -212,10 +215,12 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     this.closeCommentPopover();
     this.isOpenTag = true;
 
-    this.popoverRef = this.viewContainerRef.createComponent(TagPopoverComponent);
+    this.popoverRef =
+      this.viewContainerRef.createComponent(TagPopoverComponent);
     (this.popoverRef.instance as TagPopoverComponent).editor = editor;
 
-    const popoverElement = this.popoverRef.location.nativeElement as HTMLElement;
+    const popoverElement = this.popoverRef.location
+      .nativeElement as HTMLElement;
     popoverElement.style.display = 'block';
 
     const selectedText = document.querySelector('.highlightEditor.selectedEditor') as HTMLElement;
@@ -251,7 +256,8 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     this.closeCommentPopover();
     this.isOpenComment = true;
     this.popoverRef = this.viewContainerRef.createComponent(CommentPopoverComponent);
-    const popoverElement = this.popoverRef.location.nativeElement as HTMLElement;
+    const popoverElement = this.popoverRef.location
+      .nativeElement as HTMLElement;
     popoverElement.style.display = 'block';
 
     const selectedText = document.querySelector('.highlightEditor.selectedEditor') as HTMLElement;
@@ -319,9 +325,9 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
 
   public onDocumentClickTag = (event: MouseEvent): void => {
     if (this.popoverRef?.hostView) {
-      const clickedInsidePopover =
-
-        (this.popoverRef.location.nativeElement as HTMLElement).contains(event.target as Node);
+      const clickedInsidePopover = (
+        this.popoverRef.location.nativeElement as HTMLElement
+      ).contains(event.target as Node);
 
       const tagElements = document.querySelectorAll('.tag');
       let clickedInsideTag = false;
@@ -343,8 +349,9 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   };
   public onDocumentClickComment = (event: MouseEvent): void => {
     if (this.popoverRef?.hostView) {
-      const clickedInsidePopover =
-        (this.popoverRef.location.nativeElement as HTMLElement).contains(event.target as Node);
+      const clickedInsidePopover = (
+        this.popoverRef.location.nativeElement as HTMLElement
+      ).contains(event.target as Node);
 
       const commentElements = document.querySelectorAll('.comment');
       let clickedInsidecomment = false;
