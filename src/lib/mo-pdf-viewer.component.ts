@@ -35,7 +35,7 @@ import {
   faTag,
   faTrash,
   faHighlighter,
-  faMessage,
+  faMessage
 } from '@fortawesome/free-solid-svg-icons';
 import { TagModel, UtilService, TagListModel } from './util.service';
 
