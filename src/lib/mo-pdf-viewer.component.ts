@@ -37,10 +37,9 @@ import {
   faHighlighter,
   faMessage
 } from '@fortawesome/free-solid-svg-icons';
-import { TagModel, UtilService, TagListModel } from './util.service';
+import { UtilService, TagListModel } from './util.service';
 
 import { FormsModule } from '@angular/forms';
-import { Subscription } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
@@ -120,7 +119,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       this.createPDFObject();
       this.annotationUpdated.emit(this.utilService.getAnnotationConfigs());
     });
-    this.utilService.tags$.subscribe((tags) => {
+    this.utilService.tags$.pipe(takeUntilDestroyed()).subscribe((tags) => {
       this.tagListPublic = tags.filter((tag) => !tag.isPrivate);
       this.tagListPrivate = tags.filter((tag) => tag.isPrivate);
     });
@@ -171,7 +170,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       const commentPopoverInstance = this.popoverRef
         ?.instance as CommentPopoverComponent;
       commentPopoverInstance.comment = editor.annotationConfig.comment;
-      commentPopoverInstance.submitComment.subscribe(() => {
+      commentPopoverInstance.submitComment.pipe(takeUntilDestroyed()).subscribe(() => {
         editor.updateParams(AnnotationEditorParamsType.HIGHLIGHT_COLOR,
           '#80EBFF');
         editor.type = AnnotationActionType.comment;
@@ -185,7 +184,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       this.showTagPopover(editor);
       const tagPopoverInstance = this.popoverRef
         ?.instance as TagPopoverComponent;
-      tagPopoverInstance.tagSelected.subscribe((activeEditor) => {
+      tagPopoverInstance.tagSelected.pipe(takeUntilDestroyed()).subscribe((activeEditor) => {
         editor.annotationConfig.Tags = activeEditor.annotationConfig.Tags;
         editor.annotationConfig.comment = '';
         this.updateTagProps(editor);
