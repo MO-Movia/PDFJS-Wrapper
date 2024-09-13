@@ -41,6 +41,7 @@ import { TagModel, UtilService, TagListModel } from './util.service';
 
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   standalone: true,
@@ -80,9 +81,8 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   public isOpenComment: boolean = false;
   public publicListVisible: boolean[] = [];
   public privateListVisible: boolean[] = [];
-  public isHovered: boolean = false;
-  public tags: TagModel[] = [];
-  private notRenderedPages: number[] = [];
+
+
   public subscription: Subscription | undefined;
   private requestedPages: number[] = [];
   @ViewChild(NgxExtendedPdfViewerComponent)
@@ -116,7 +116,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   ) {
     this.privateListVisible = new Array(this.tagListPrivate.length).fill(false);
 
-    this.utilService.annotationUpdated$.subscribe(() => {
+    this.utilService.annotationUpdated$.pipe(takeUntilDestroyed()).subscribe(() => {
       this.createPDFObject();
       this.annotationUpdated.emit(this.utilService.getAnnotationConfigs());
     });

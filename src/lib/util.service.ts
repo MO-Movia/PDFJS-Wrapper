@@ -15,8 +15,8 @@ export interface TagListModel extends TagModel {
   providedIn: 'root',
 })
 export class UtilService {
-  public annotations: highlightEditor[] = [];
-  public tags = new BehaviorSubject<TagListModel[]>([]);
+  private annotations: highlightEditor[] = [];
+  private tags = new BehaviorSubject<TagListModel[]>([]);
   public tags$ = this.tags.asObservable();
   private annotationUpdated = new Subject<void>();
   public annotationUpdated$ = this.annotationUpdated.asObservable();
