@@ -1,6 +1,9 @@
 <div class="container-fluid h-100">
   <as-split direction="horizontal">
     <as-split-area [size]="70" style="scrollbar-width: none">
+      <button class="btn btn-primary mt-2" (click)="captureVisibleArea()">
+        Capture Visible Area
+      </button>
       <div class="row h-100">
         <div class="row flex-grow-1">
           <div class="col h-100">
@@ -11,6 +14,7 @@
               [minifiedJSLibraries]="false"
               [customToolbar]="additionalButtons"
               [src]="pdfSrc"
+              [handTool]="false" 
               [textLayer]="true"
               (pageRendered)="onPageRendered($event)"
               (textLayerRendered)="onTextLayerRendered($event)"
@@ -301,7 +305,7 @@
                         Edit
                         <button
                           type="button"
-                          title="Edit Comment"
+                          title="Edit Note"
                           class="btn btn-primary btn-sm ms-1"
                           id="edit_button_comment"
                         >
@@ -392,3 +396,10 @@
     </as-split-area>
   </as-split>
 </div>
+
+<div class="visible-area-container">
+  <h3>Captured View:</h3>
+  <div id="pdf-visible-area"></div>
+</div>
+
+

@@ -35,7 +35,7 @@ import {
   faTag,
   faTrash,
   faHighlighter,
-  faMessage
+  faMessage,
 } from '@fortawesome/free-solid-svg-icons';
 import { UtilService, TagListModel } from './util.service';
 
@@ -82,7 +82,8 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   public privateListVisible: boolean[] = [];
 
 
-  public subscription: Subscription | undefined;
+  private notRenderedPages: number[] = [];
+ 
   private requestedPages: number[] = [];
   @ViewChild(NgxExtendedPdfViewerComponent)
   public pdfComponent!: NgxExtendedPdfViewerComponent;
@@ -91,7 +92,9 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   public tagPopoverComponent!: TagPopoverComponent;
 
   public ngOnInit(): void {
-    const pdfViewerElement = this.elementRef.nativeElement.querySelector('ngx-extended-pdf-viewer');
+    const pdfViewerElement = this.elementRef.nativeElement.querySelector(
+      'ngx-extended-pdf-viewer'
+    );
     pdfViewerElement.addEventListener('scroll', this.onPdfViewerScroll);
   }
 
@@ -162,6 +165,104 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     this.utilService.addEditor(editor);
   }
 
+  captureVisibleArea() {
+    // Query all canvas elements inside the pdfViewer class
+    const canvases: NodeListOf<HTMLCanvasElement> = document.querySelectorAll('.pdfViewer .page canvas');
+  
+    if (!canvases.length) {
+      console.error('No canvases found in the PDF viewer.');
+      return;
+    }
+  
+    // Convert the NodeList into an array for easier manipulation
+    const canvasArray: HTMLCanvasElement[] = Array.from(canvases);
+  
+    // Create a new canvas to store the combined visible portions
+    const combinedCanvas = document.createElement('canvas');
+    const combinedCtx = combinedCanvas.getContext('2d');
+  
+    if (!combinedCtx) {
+      console.error('Failed to create 2D context on the new canvas.');
+      return;
+    }
+  
+    let totalHeight = 0; // To track the total height for the combined canvas
+    let maxWidth = 0; // To track the maximum width
+    let visiblePortions: { canvas: HTMLCanvasElement, visibleStartY: number, visibleHeight: number }[] = [];
+  
+    // First, calculate the total height and maximum width of the visible areas
+    for (const canvas of canvasArray) {
+      const rect = canvas.getBoundingClientRect();
+  
+      // Check if the canvas is within the visible viewport
+      if (rect.bottom > 0 && rect.top < window.innerHeight) {
+        // Handle the case where only part of the canvas is visible at the top
+        const visibleStartY = Math.max(0, window.scrollY - rect.top); // Only capture the visible part
+  
+        // Calculate the visible height correctly
+        let visibleHeight: number;
+        if (rect.top < 0) {
+          // Top part of canvas is out of view
+          visibleHeight = Math.min(rect.height, window.innerHeight - rect.bottom);
+        } else if (rect.bottom > window.innerHeight) {
+          // Bottom part of canvas is out of view
+          visibleHeight = Math.min(rect.height, window.innerHeight + rect.top);
+        } else {
+          // Fully visible canvas
+          visibleHeight = rect.height;
+        }
+  
+        visiblePortions.push({ canvas, visibleStartY, visibleHeight }); // Store the visible portion for later use
+  
+        totalHeight += visibleHeight; // Accumulate the height of visible areas
+        maxWidth = Math.max(maxWidth, canvas.width); // Track max width
+      }
+    }
+  
+    // Set the size of the combined canvas
+    combinedCanvas.width = maxWidth;
+    combinedCanvas.height = totalHeight;
+  
+    // Variable to track the current Y position while drawing
+    let currentY = 0;
+  
+    // Now, draw each visible portion onto the combined canvas
+    for (const { canvas, visibleStartY, visibleHeight } of visiblePortions) {
+      combinedCtx.drawImage(
+        canvas,
+        0, visibleStartY, // Source X, Y on the original canvas
+        canvas.width, visibleHeight, // Source width, height on the original canvas
+        0, currentY, // Destination X, Y on the combined canvas
+        canvas.width, visibleHeight // Destination width, height
+      );
+  
+      // Update the current Y position for the next canvas portion
+      currentY += visibleHeight;
+    }
+  
+    // Convert the combined canvas area into a JPEG image
+    const compressedJPEG = combinedCanvas.toDataURL('image/jpeg', 0.7);
+    console.log('Captured visible area as JPEG:', compressedJPEG);
+  
+    // Find the target div where the captured image will be displayed
+    const displayDiv = document.getElementById('pdf-visible-area');
+  
+    if (!displayDiv) {
+      console.error('Target div to display the captured area was not found.');
+      return;
+    }
+  
+    // Clear the div before appending new content (if you want to overwrite old captures)
+    displayDiv.innerHTML = '';
+  
+    // Create an image element and set its source to the compressed JPEG
+    const img = document.createElement('img');
+    img.src = compressedJPEG;
+    img.alt = 'Captured visible area';
+  
+    // Append the image to the target div
+    displayDiv.appendChild(img);
+  }
   public commentTagPopover(data: ShowCommentTagPopoverDetails): void {
     const editor = this.utilService.getEditor(data.id);
     if (data.type === AnnotationActionType.comment) {
