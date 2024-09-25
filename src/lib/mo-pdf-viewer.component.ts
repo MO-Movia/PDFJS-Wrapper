@@ -16,7 +16,11 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { CommonModule } from '@angular/common';
 import { AngularSplitModule } from 'angular-split';
-import { NgbNavModule, NgbTooltipModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import {
+  NgbNavModule,
+  NgbTooltipModule,
+  NgbModule,
+} from '@ng-bootstrap/ng-bootstrap';
 import {
   NgxExtendedPdfViewerModule,
   NgxExtendedPdfViewerComponent,
@@ -81,9 +85,8 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   public publicListVisible: boolean[] = [];
   public privateListVisible: boolean[] = [];
 
-
   private notRenderedPages: number[] = [];
- 
+
   private requestedPages: number[] = [];
   @ViewChild(NgxExtendedPdfViewerComponent)
   public pdfComponent!: NgxExtendedPdfViewerComponent;
@@ -118,10 +121,12 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   ) {
     this.privateListVisible = new Array(this.tagListPrivate.length).fill(false);
 
-    this.utilService.annotationUpdated$.pipe(takeUntilDestroyed()).subscribe(() => {
-      this.createPDFObject();
-      this.annotationUpdated.emit(this.utilService.getAnnotationConfigs());
-    });
+    this.utilService.annotationUpdated$
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => {
+        this.createPDFObject();
+        this.annotationUpdated.emit(this.utilService.getAnnotationConfigs());
+      });
     this.utilService.tags$.pipe(takeUntilDestroyed()).subscribe((tags) => {
       this.tagListPublic = tags.filter((tag) => !tag.isPrivate);
       this.tagListPrivate = tags.filter((tag) => tag.isPrivate);
@@ -167,99 +172,108 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
 
   captureVisibleArea() {
     // Query all canvas elements inside the pdfViewer class
-    const canvases: NodeListOf<HTMLCanvasElement> = document.querySelectorAll('.pdfViewer .page canvas');
-  
+    const canvases: NodeListOf<HTMLCanvasElement> = document.querySelectorAll(
+      '.pdfViewer .page canvas'
+    );
+
     if (!canvases.length) {
       console.error('No canvases found in the PDF viewer.');
       return;
     }
-  
+
     // Convert the NodeList into an array for easier manipulation
     const canvasArray: HTMLCanvasElement[] = Array.from(canvases);
-  
+
     // Create a new canvas to store the combined visible portions
     const combinedCanvas = document.createElement('canvas');
     const combinedCtx = combinedCanvas.getContext('2d');
-  
+
     if (!combinedCtx) {
       console.error('Failed to create 2D context on the new canvas.');
       return;
     }
-  
+
     let totalHeight = 0; // To track the total height for the combined canvas
     let maxWidth = 0; // To track the maximum width
-    let visiblePortions: { canvas: HTMLCanvasElement, visibleStartY: number, visibleHeight: number }[] = [];
-  
+    let visiblePortions: {
+      canvas: HTMLCanvasElement;
+      visibleStartY: number;
+      visibleHeight: number;
+    }[] = [];
+
     // First, calculate the total height and maximum width of the visible areas
     for (const canvas of canvasArray) {
       const rect = canvas.getBoundingClientRect();
-  
       // Check if the canvas is within the visible viewport
       if (rect.bottom > 0 && rect.top < window.innerHeight) {
         // Handle the case where only part of the canvas is visible at the top
         const visibleStartY = Math.max(0, window.scrollY - rect.top); // Only capture the visible part
-  
+
         // Calculate the visible height correctly
         let visibleHeight: number;
         if (rect.top < 0) {
           // Top part of canvas is out of view
-          visibleHeight = Math.min(rect.height, window.innerHeight - rect.bottom);
+          visibleHeight = rect.height + rect.top; //Math.min(rect.height, window.innerHeight + rect.top);
         } else if (rect.bottom > window.innerHeight) {
           // Bottom part of canvas is out of view
-          visibleHeight = Math.min(rect.height, window.innerHeight + rect.top);
+          visibleHeight =window.innerHeight - rect.top; //rect.height - rect.top; //Math.min(rect.height, window.innerHeight - rect.bottom);
         } else {
           // Fully visible canvas
           visibleHeight = rect.height;
         }
-  
+
         visiblePortions.push({ canvas, visibleStartY, visibleHeight }); // Store the visible portion for later use
-  
+
         totalHeight += visibleHeight; // Accumulate the height of visible areas
         maxWidth = Math.max(maxWidth, canvas.width); // Track max width
       }
     }
-  
+
     // Set the size of the combined canvas
     combinedCanvas.width = maxWidth;
     combinedCanvas.height = totalHeight;
-  
+
     // Variable to track the current Y position while drawing
     let currentY = 0;
-  
+
     // Now, draw each visible portion onto the combined canvas
     for (const { canvas, visibleStartY, visibleHeight } of visiblePortions) {
       combinedCtx.drawImage(
         canvas,
-        0, visibleStartY, // Source X, Y on the original canvas
-        canvas.width, visibleHeight, // Source width, height on the original canvas
-        0, currentY, // Destination X, Y on the combined canvas
-        canvas.width, visibleHeight // Destination width, height
+        0,
+        visibleStartY, // Source X, Y on the original canvas
+        canvas.width,
+        visibleHeight, // Source width, height on the original canvas
+        0,
+        currentY, // Destination X, Y on the combined canvas
+        canvas.width,
+        visibleHeight // Destination width, height
       );
-  
+
       // Update the current Y position for the next canvas portion
       currentY += visibleHeight;
     }
-  
+
     // Convert the combined canvas area into a JPEG image
     const compressedJPEG = combinedCanvas.toDataURL('image/jpeg', 0.7);
     console.log('Captured visible area as JPEG:', compressedJPEG);
-  
+
     // Find the target div where the captured image will be displayed
     const displayDiv = document.getElementById('pdf-visible-area');
-  
+
     if (!displayDiv) {
       console.error('Target div to display the captured area was not found.');
       return;
     }
-  
+
     // Clear the div before appending new content (if you want to overwrite old captures)
     displayDiv.innerHTML = '';
-  
+
     // Create an image element and set its source to the compressed JPEG
     const img = document.createElement('img');
     img.src = compressedJPEG;
     img.alt = 'Captured visible area';
-  
+
     // Append the image to the target div
     displayDiv.appendChild(img);
   }
@@ -271,39 +285,49 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       const commentPopoverInstance = this.popoverRef
         ?.instance as CommentPopoverComponent;
       commentPopoverInstance.comment = editor.annotationConfig.comment;
-      commentPopoverInstance.submitComment.pipe(takeUntilDestroyed()).subscribe(() => {
-        editor.updateParams(AnnotationEditorParamsType.HIGHLIGHT_COLOR,
-          '#80EBFF');
-        editor.type = AnnotationActionType.comment;
-        editor.annotationConfig.type = AnnotationActionType.comment;
-        editor.annotationConfig.comment = commentPopoverInstance.comment;
-        editor.annotationConfig.color = '#80EBFF';
-        editor.annotationConfig.Tags = [];
-        this.utilService.updateEditorType(editor);
-      });
+      commentPopoverInstance.submitComment
+        .pipe(takeUntilDestroyed())
+        .subscribe(() => {
+          editor.updateParams(
+            AnnotationEditorParamsType.HIGHLIGHT_COLOR,
+            '#80EBFF'
+          );
+          editor.type = AnnotationActionType.comment;
+          editor.annotationConfig.type = AnnotationActionType.comment;
+          editor.annotationConfig.comment = commentPopoverInstance.comment;
+          editor.annotationConfig.color = '#80EBFF';
+          editor.annotationConfig.Tags = [];
+          this.utilService.updateEditorType(editor);
+        });
     } else if (data.type === AnnotationActionType.tag) {
       this.showTagPopover(editor);
       const tagPopoverInstance = this.popoverRef
         ?.instance as TagPopoverComponent;
-      tagPopoverInstance.tagSelected.pipe(takeUntilDestroyed()).subscribe((activeEditor) => {
-        editor.annotationConfig.Tags = activeEditor.annotationConfig.Tags;
-        editor.annotationConfig.comment = '';
-        this.updateTagProps(editor);
-      });
+      tagPopoverInstance.tagSelected
+        .pipe(takeUntilDestroyed())
+        .subscribe((activeEditor) => {
+          editor.annotationConfig.Tags = activeEditor.annotationConfig.Tags;
+          editor.annotationConfig.comment = '';
+          this.updateTagProps(editor);
+        });
     }
   }
 
   public updateTagProps(editor: highlightEditor): void {
     if (editor.annotationConfig.Tags.length > 0) {
-      editor.updateParams(AnnotationEditorParamsType.HIGHLIGHT_COLOR,
-        '#53FFBC');
+      editor.updateParams(
+        AnnotationEditorParamsType.HIGHLIGHT_COLOR,
+        '#53FFBC'
+      );
       editor.type = AnnotationActionType.tag;
       editor.annotationConfig.color = '#53FFBC';
       editor.annotationConfig.type = AnnotationActionType.tag;
       this.utilService.updateEditorType(editor);
     } else {
-      editor.updateParams(AnnotationEditorParamsType.HIGHLIGHT_COLOR,
-        '#FFFF98');
+      editor.updateParams(
+        AnnotationEditorParamsType.HIGHLIGHT_COLOR,
+        '#FFFF98'
+      );
       editor.type = AnnotationActionType.highlight;
       editor.annotationConfig.color = '#FFFF98';
       editor.annotationConfig.type = AnnotationActionType.highlight;
@@ -323,7 +347,9 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       .nativeElement as HTMLElement;
     popoverElement.style.display = 'block';
 
-    const selectedText = document.querySelector('.highlightEditor.selectedEditor') as HTMLElement;
+    const selectedText = document.querySelector(
+      '.highlightEditor.selectedEditor'
+    ) as HTMLElement;
     selectedText.appendChild(popoverElement);
     const selectedTextRect = selectedText.getBoundingClientRect();
     const targetPageIndex = editor.pageIndex;
@@ -344,23 +370,27 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
         popoverElement.style.left = '-60px';
       }
     }
-    const pdfViewerElement = this.elementRef.nativeElement.querySelector('ngx-extended-pdf-viewer');
+    const pdfViewerElement = this.elementRef.nativeElement.querySelector(
+      'ngx-extended-pdf-viewer'
+    );
     pdfViewerElement.removeEventListener('scroll', this.onPdfViewerScroll);
     pdfViewerElement.addEventListener('scroll', this.onPdfViewerScroll);
-    this.renderer.listen(
-      'document', 'click', this.onDocumentClickTag
-    );
+    this.renderer.listen('document', 'click', this.onDocumentClickTag);
   }
 
   public showCommentPopover(editor: highlightEditor): void {
     this.closeCommentPopover();
     this.isOpenComment = true;
-    this.popoverRef = this.viewContainerRef.createComponent(CommentPopoverComponent);
+    this.popoverRef = this.viewContainerRef.createComponent(
+      CommentPopoverComponent
+    );
     const popoverElement = this.popoverRef.location
       .nativeElement as HTMLElement;
     popoverElement.style.display = 'block';
 
-    const selectedText = document.querySelector('.highlightEditor.selectedEditor') as HTMLElement;
+    const selectedText = document.querySelector(
+      '.highlightEditor.selectedEditor'
+    ) as HTMLElement;
     selectedText.appendChild(popoverElement);
     const selectedTextRect = selectedText.getBoundingClientRect();
     const targetPageIndex = editor.pageIndex;
@@ -380,18 +410,20 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
         popoverElement.style.left = '-60px';
       }
     }
-    const pdfViewerElement = this.elementRef.nativeElement.querySelector('ngx-extended-pdf-viewer');
+    const pdfViewerElement = this.elementRef.nativeElement.querySelector(
+      'ngx-extended-pdf-viewer'
+    );
     pdfViewerElement.removeEventListener('scroll', this.onPdfViewerScroll);
     pdfViewerElement.addEventListener('scroll', this.onPdfViewerScroll);
-    this.renderer.listen(
-      'document', 'click', this.onDocumentClickComment
-    );
+    this.renderer.listen('document', 'click', this.onDocumentClickComment);
   }
 
   public onTextLayerRendered(event: PageRenderEvent): void {
     this.savedAnnotations.sort((a, b) => a.pageNumber - b.pageNumber);
     setTimeout(() => {
-      this.notRenderedPages = this.notRenderedPages.filter((p) => p !== event.pageNumber);
+      this.notRenderedPages = this.notRenderedPages.filter(
+        (p) => p !== event.pageNumber
+      );
       this.pdfService.setAnnotation(this.savedAnnotations);
       if (
         this.notRenderedPages.length === 0 &&
@@ -406,7 +438,9 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     }, 500);
   }
   public onPageRendered(event: PageRenderEvent): void {
-    this.requestedPages = this.requestedPages.filter((d) => d !== event.pageNumber);
+    this.requestedPages = this.requestedPages.filter(
+      (d) => d !== event.pageNumber
+    );
     this.savedAnnotations.sort((a, b) => a.pageNumber - b.pageNumber);
 
     if (this.pdfService.isRenderQueueEmpty()) {
@@ -416,7 +450,9 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     }
   }
   public removeTag(editor: highlightEditor, tag: TagListModel): void {
-    editor.annotationConfig.Tags = editor.annotationConfig.Tags.filter((t: number) => t !== tag.id);
+    editor.annotationConfig.Tags = editor.annotationConfig.Tags.filter(
+      (t: number) => t !== tag.id
+    );
     this.utilService.updateEditorType(editor);
     if (editor.annotationConfig.Tags.length === 0) {
       this.updateTagProps(editor);
@@ -463,7 +499,9 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       });
 
       if (!clickedInsidePopover && !clickedInsidecomment) {
-        const popover = document.querySelector('.comment-popover-content') as HTMLElement;
+        const popover = document.querySelector(
+          '.comment-popover-content'
+        ) as HTMLElement;
 
         if (this.isOpenComment && popover) {
           popover.style.display = 'none';
@@ -484,7 +522,9 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
 
   public onPdfViewerScroll = (): void => {
     if (this.popoverRef) {
-      const pdfViewerElement = this.elementRef.nativeElement.querySelector('ngx-extended-pdf-viewer');
+      const pdfViewerElement = this.elementRef.nativeElement.querySelector(
+        'ngx-extended-pdf-viewer'
+      );
       this.previousScrollTop = pdfViewerElement.scrollTop;
       this.previousScrollLeft = pdfViewerElement.scrollLeft;
     }
@@ -495,7 +535,9 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       this.appRef.detachView(this.popoverRef.hostView);
       this.popoverRef.destroy();
       this.popoverRef = null;
-      const pdfViewerElement = this.elementRef.nativeElement.querySelector('ngx-extended-pdf-viewer');
+      const pdfViewerElement = this.elementRef.nativeElement.querySelector(
+        'ngx-extended-pdf-viewer'
+      );
       pdfViewerElement.removeEventListener('scroll', this.onPdfViewerScroll);
     }
   }
@@ -507,7 +549,9 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     });
     const parentSpan = element.closest('.icon-span');
     if (parentSpan) {
-      const dropdownContent = parentSpan.querySelector('.dropdown-content') as HTMLElement;
+      const dropdownContent = parentSpan.querySelector(
+        '.dropdown-content'
+      ) as HTMLElement;
       if (dropdownContent) {
         dropdownContent.style.display = 'block';
         const hideDropdown = (event: MouseEvent): void => {
@@ -523,8 +567,10 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     }
   }
 
-  public enableSubmitButton(comment: string,
-    submitButton: HTMLButtonElement): void {
+  public enableSubmitButton(
+    comment: string,
+    submitButton: HTMLButtonElement
+  ): void {
     const textAreaValue = comment && comment.trim().length > 0;
     if (submitButton) {
       if (textAreaValue) {
@@ -563,8 +609,10 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     this.privateListVisible[index] = !this.privateListVisible[index];
   }
 
-  public onMouseEnter(list: 'private' | 'public' | 'highlight',
-    index: number): void {
+  public onMouseEnter(
+    list: 'private' | 'public' | 'highlight',
+    index: number
+  ): void {
     this.hoveredIndex = index;
     this.hoveredList = list;
   }
