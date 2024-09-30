@@ -47,7 +47,6 @@
     "zone.js": "~0.14.0"
   },
   "dependencies": {
-    "@modusoperandi/pdf-viewer": "file:",
     "tslib": "^2.3.0"
   },
   "devDependencies": {

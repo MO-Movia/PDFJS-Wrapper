@@ -127,7 +127,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
         this.createPDFObject();
         this.annotationUpdated.emit(this.utilService.getAnnotationConfigs());
       });
-    this.utilService.tags$.pipe(takeUntilDestroyed()).subscribe((tags) => {
+    this.utilService.tags$.subscribe((tags) => {
       this.tagListPublic = tags.filter((tag) => !tag.isPrivate);
       this.tagListPrivate = tags.filter((tag) => tag.isPrivate);
     });
@@ -285,31 +285,25 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       const commentPopoverInstance = this.popoverRef
         ?.instance as CommentPopoverComponent;
       commentPopoverInstance.comment = editor.annotationConfig.comment;
-      commentPopoverInstance.submitComment
-        .pipe(takeUntilDestroyed())
-        .subscribe(() => {
-          editor.updateParams(
-            AnnotationEditorParamsType.HIGHLIGHT_COLOR,
-            '#80EBFF'
-          );
-          editor.type = AnnotationActionType.comment;
-          editor.annotationConfig.type = AnnotationActionType.comment;
-          editor.annotationConfig.comment = commentPopoverInstance.comment;
-          editor.annotationConfig.color = '#80EBFF';
-          editor.annotationConfig.Tags = [];
-          this.utilService.updateEditorType(editor);
-        });
+      commentPopoverInstance.submitComment.subscribe(() => {
+        editor.updateParams(AnnotationEditorParamsType.HIGHLIGHT_COLOR,
+          '#80EBFF');
+        editor.type = AnnotationActionType.comment;
+        editor.annotationConfig.type = AnnotationActionType.comment;
+        editor.annotationConfig.comment = commentPopoverInstance.comment;
+        editor.annotationConfig.color = '#80EBFF';
+        editor.annotationConfig.Tags = [];
+        this.utilService.updateEditorType(editor);
+      });
     } else if (data.type === AnnotationActionType.tag) {
       this.showTagPopover(editor);
       const tagPopoverInstance = this.popoverRef
         ?.instance as TagPopoverComponent;
-      tagPopoverInstance.tagSelected
-        .pipe(takeUntilDestroyed())
-        .subscribe((activeEditor) => {
-          editor.annotationConfig.Tags = activeEditor.annotationConfig.Tags;
-          editor.annotationConfig.comment = '';
-          this.updateTagProps(editor);
-        });
+      tagPopoverInstance.tagSelected.subscribe((activeEditor) => {
+        editor.annotationConfig.Tags = activeEditor.annotationConfig.Tags;
+        editor.annotationConfig.comment = '';
+        this.updateTagProps(editor);
+      });
     }
   }
 
