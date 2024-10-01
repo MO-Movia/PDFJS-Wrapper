@@ -20,8 +20,8 @@
     placeholder="Enter your note"
     style="height: 144px"
     class="comment-textarea"
-    (keydown)="handleKeydown($event)"
-    (keydown)="$event.stopPropagation()"
+    (keydown.control.enter)="onSubmit()"
+    (keydown.escape)="closeComment()"
   ></textarea>
   <div class="button-container">
     <button
