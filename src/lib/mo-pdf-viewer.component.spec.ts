@@ -65,7 +65,7 @@ describe('MoPdfViewerComponent', () => {
     component = fixture.componentInstance;
 
     component.utilService = {
-      annotationUpdated$: of({}),
+      savedAnnotationsChange$: of({}),
       getAnnotationConfigs: () => {
         return [{}] as unknown as AnnotationItem[];
       },

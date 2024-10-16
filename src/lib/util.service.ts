@@ -18,11 +18,11 @@ export class UtilService {
   private annotations: highlightEditor[] = [];
   private tags = new BehaviorSubject<TagListModel[]>([]);
   public tags$ = this.tags.asObservable();
-  private annotationUpdated = new Subject<void>();
-  public annotationUpdated$ = this.annotationUpdated.asObservable();
+  private savedAnnotationsChange = new Subject<void>();
+  public savedAnnotationsChange$ = this.savedAnnotationsChange.asObservable();
 
   public annotationDataUpdated(): void {
-    this.annotationUpdated.next();
+    this.savedAnnotationsChange.next();
   }
 
   public gethighlightText(): highlightEditor[] {

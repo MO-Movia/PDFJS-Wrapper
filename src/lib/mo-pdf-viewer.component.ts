@@ -76,7 +76,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     }
   }
   @Input() public savedAnnotations: AnnotationItem[] = [];
-  @Output() public annotationUpdated = new EventEmitter<AnnotationItem[]>();
+  @Output() public savedAnnotationsChange = new EventEmitter<AnnotationItem[]>();
   public tagListPublic: TagListModel[] = [];
   public tagListPrivate: TagListModel[] = [];
   public commentList: highlightEditor[] = [];
@@ -120,11 +120,11 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     private pdfService: NgxExtendedPdfViewerService
   ) {
     this.privateListVisible = new Array(this.tagListPrivate.length).fill(false);
-    this.utilService.annotationUpdated$
+    this.utilService.savedAnnotationsChange$
       .pipe(takeUntilDestroyed())
       .subscribe(() => {
         this.createPDFObject();
-        this.annotationUpdated.emit(this.utilService.getAnnotationConfigs());
+        this.savedAnnotationsChange.emit(this.utilService.getAnnotationConfigs());
       });
     this.utilService.tags$.pipe(takeUntilDestroyed()).subscribe((tags) => {
       this.tagListPublic = tags.filter((tag) => !tag.isPrivate);
