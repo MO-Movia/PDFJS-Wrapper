@@ -1,0 +1,85 @@
+<div class="tag-popover">
+  <div class="popContainter">
+    <div class="d-flex flex-column">
+      <div class="tag-header">
+        <h5 id="modal-title" class="modal-title">Tags</h5>
+        <span class="m-1"></span>
+
+        <button
+          type="button"
+          class="btn close-button close-svg"
+          tabindex="-1"
+          (click)="closeTag()"
+          (keyup)="closeTag()"
+        >
+          <fa-icon class="mx-auto my-auto" [icon]="I.faTimes" />
+        </button>
+      </div>
+
+      <div>
+        <div class="col-12 d-flex pt-2 pb-3">
+          <div class="col-8 d-flex pt-2">
+            <div class="ps-2 align-self-center">
+              <span class="filter">Filter:</span>
+            </div>
+            <div class="ps-2">
+              <input
+                #filterInput
+                (keyup)="tagSearch(filterInput.value)"
+                placeholder="Enter text"
+                class="input-field"
+                style="
+                  max-width: 106px;
+                  height: 20px;
+                  position: relative;
+                  right: 8px;
+                "
+              />
+            </div>
+          </div>
+          <div
+            id="addTagSection"
+            class="col-4 text-end align-self-center"
+            style="position: relative"
+          ></div>
+        </div>
+        <div class="col-12 tag-list pb-2">
+          <div class="d-flex flex scrollable-div flex">
+            <label
+              class="mo-check-label"
+              *ngFor="let tag of filteredTags; let i = index"
+            >
+              <span class="tag-name">{{ filteredTags[i].name }}</span>
+              <input
+                type="checkbox"
+                class="black-tick checkbox"
+                #checkbox
+                [(ngModel)]="tag.isChecked"
+                (change)="checkedTag(tag)"
+                (keydown)="handleKeydown($event, i)"
+                tabindex="0"
+                id="checkbox"
+              />
+              <span class="checkmark"></span>
+            </label>
+          </div>
+
+          <hr />
+        </div>
+
+        <div class="selectedDiv">
+          <label class="selected-label">
+            <span class="seltag-text">Show selected tags only </span>
+            <input
+              (click)="showSelectedTags($event)"
+              (keyup)="showSelectedTags($event)"
+              type="checkbox"
+              id="selectedTags"
+              class="sel-checkbox ng-untouched ng-pristine ng-valid selectedtag-checkmark"
+            />
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

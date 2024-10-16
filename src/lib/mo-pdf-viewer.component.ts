@@ -1,102 +1,149 @@
 import {
   Component,
-  ComponentRef,
-  ElementRef,
-  EventEmitter,
   Input,
-  Output,
   ViewChild,
   ViewContainerRef,
+  ApplicationRef,
+  ElementRef,
+  OnDestroy,
+  Renderer2,
+  OnInit,
+  Output,
+  EventEmitter,
+  ComponentRef,
 } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { CommonModule } from '@angular/common';
+import { AngularSplitModule } from 'angular-split';
 import {
-  faFile,
-  faUser,
-  faMessage,
-  faThumbsUp,
-} from '@fortawesome/free-regular-svg-icons';
+  NgbNavModule,
+  NgbTooltipModule,
+  NgbModule,
+} from '@ng-bootstrap/ng-bootstrap';
 import {
-  faSliders,
-  faBookOpenReader,
-  faQuoteRight,
-  faArrowTrendUp,
+  NgxExtendedPdfViewerModule,
+  NgxExtendedPdfViewerComponent,
+  AnnotationEditorParamsType,
+  NgxExtendedPdfViewerService,
+  PageRenderEvent,
+  AnnotationActionType,
+  ShowCommentTagPopoverDetails,
+  AnnotationDeleteEvent,
+  AnnotationItem,
+  highlightEditor,
+} from 'ngx-extended-pdf-viewer';
+import { CommentPopoverComponent } from './comment-popover/comment-popover.component';
+import { TagPopoverComponent } from './tag-popover/tag-popover.component';
+import {
   faTag,
   faTrash,
   faHighlighter,
+  faMessage,
 } from '@fortawesome/free-solid-svg-icons';
-import { PdfViewerComponent, PdfViewerModule } from 'ng2-pdf-viewer';
-import { TextOptionsComponent } from './components/text-options/text-options.component';
-import { CommentSelection } from './models/comment-selection.model';
-import { SpanLocation } from './models/span-location.model';
-import { HighlightSelection } from './models/highlight.model';
-import { TagSelection } from './models/tag-selection.model';
-import { HighlightPipe } from './pipes/highlight.pipe';
-import { Nullable } from './types/types';
-import { RIGHT_PANE_NAV } from './models/view.model';
-import { v4 as uuidv4 } from 'uuid';
-import { CommonModule } from '@angular/common';
+import { UtilService, TagListModel } from './util.service';
+
 import { FormsModule } from '@angular/forms';
-import { AngularSplitModule } from 'angular-split';
-import { NgbNavModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
 @Component({
   standalone: true,
   imports: [
     CommonModule,
-    PdfViewerModule,
     FontAwesomeModule,
-    FormsModule,
     AngularSplitModule,
     NgbNavModule,
     NgbTooltipModule,
+    NgxExtendedPdfViewerModule,
+    NgbModule,
+    FormsModule,
   ],
+  providers: [provideAnimations(), UtilService],
   selector: 'mo-pdf-viewer',
   templateUrl: './mo-pdf-viewer.component.html',
   styleUrls: ['./mo-pdf-viewer.component.scss'],
 })
-export class MoPdfViewerComponent {
+export class MoPdfViewerComponent implements OnDestroy, OnInit {
   @Input({ required: true }) public pdfSrc: string | Uint8Array = '';
-  @Input() public documentTitle = '';
-  @Input() public documentClassification = 'Unclassified';
-  @Input() public documentAuthor = '';
-  @Input() public minimalView = false;
-  @ViewChild(PdfViewerComponent) public pdfComponent!: PdfViewerComponent;
-  public currentSearchIndex: number = 1;
-  public totalMatchesCount: number = 0;
+  @Input() public set annotations(savedAnnotations: AnnotationItem[]) {
+    if (savedAnnotations && savedAnnotations.length > 0) {
+      this.savedAnnotations = savedAnnotations;
+      this.notRenderedPages = [
+        ...new Set(this.savedAnnotations.map((a) => a.pageNumber)),
+      ];
+
+      this.requestedPages = [...this.notRenderedPages];
+    }
+  }
+  @Input() public savedAnnotations: AnnotationItem[] = [];
+  @Output() public savedAnnotationsChange = new EventEmitter<AnnotationItem[]>();
+  public tagListPublic: TagListModel[] = [];
+  public tagListPrivate: TagListModel[] = [];
+  public commentList: highlightEditor[] = [];
+  public isOpenTag: boolean = false;
+  public isOpenComment: boolean = false;
+  public publicListVisible: boolean[] = [];
+  public privateListVisible: boolean[] = [];
+
+  private notRenderedPages: number[] = [];
+
+  private requestedPages: number[] = [];
+  @ViewChild(NgxExtendedPdfViewerComponent)
+  public pdfComponent!: NgxExtendedPdfViewerComponent;
+
+  @ViewChild(TagPopoverComponent)
+  public tagPopoverComponent!: TagPopoverComponent;
+
+  public ngOnInit(): void {
+    const pdfViewerElement = this.elementRef.nativeElement.querySelector(
+      'ngx-extended-pdf-viewer'
+    );
+    pdfViewerElement.addEventListener('scroll', this.onPdfViewerScroll);
+  }
+
+  private popoverRef: ComponentRef<
+    CommentPopoverComponent | TagPopoverComponent
+  > | null = null;
+  public previousScrollTop = 0;
+  public previousScrollLeft = 0;
+  public highlightList: highlightEditor[] = [];
+  public hoveredList: 'private' | 'public' | null | 'highlight' = null;
+  public hoveredIndex: number | null = null;
+  private callExecuted: boolean = false;
+
+  constructor(
+    private viewContainerRef: ViewContainerRef,
+    private appRef: ApplicationRef,
+    private elementRef: ElementRef,
+    public utilService: UtilService,
+    public renderer: Renderer2,
+    private pdfService: NgxExtendedPdfViewerService
+  ) {
+    this.privateListVisible = new Array(this.tagListPrivate.length).fill(false);
+    this.utilService.savedAnnotationsChange$
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => {
+        this.createPDFObject();
+        this.savedAnnotationsChange.emit(this.utilService.getAnnotationConfigs());
+      });
+    this.utilService.tags$.pipe(takeUntilDestroyed()).subscribe((tags) => {
+      this.tagListPublic = tags.filter((tag) => !tag.isPrivate);
+      this.tagListPrivate = tags.filter((tag) => tag.isPrivate);
+    });
+  }
+
+  public createPDFObject(): void {
+    this.highlightList = this.utilService.gethighlightText();
+    this.commentList = this.utilService.getCommentList();
+  }
+
   public I = {
-    faFile,
-    faUser,
-    faSliders,
-    faBookOpenReader,
     faMessage,
-    faQuoteRight,
-    faArrowTrendUp,
-    faThumbsUp,
     faTag,
     faTrash,
     faHighlighter,
   };
-  public searchText = '';
-  public results = [
-    {
-      label: 'Source Name And Results',
-    },
-    {
-      label: 'Source Name And Results',
-    },
-    {
-      label: 'Source Name And Results',
-    },
-    {
-      label: 'Source Name And Results',
-    },
-  ];
-  public comments: CommentSelection[] = [];
-  public spanCommentsMap = new Map<Element, Set<string>>();
-  public highlights: HighlightSelection[] = [];
-  public spanHighlightsMap = new Map<Element, Set<string>>();
-  public tags: TagSelection[] = [];
-  public spanTagMap = new Map<Element, Set<string>>();
+
   public searchCategories = [
     {
       label: 'Highlights',
@@ -107,624 +154,279 @@ export class MoPdfViewerComponent {
       icon: faTag,
     },
     {
-      label: 'Comments',
+      label: 'Notes',
       icon: faMessage,
     },
   ];
-  public navs = Object.values(RIGHT_PANE_NAV);
-  @Input()
-  public activeNav = this.navs[0];
-  @Output()
-  public closePane = new EventEmitter();
-  @Output()
-  public activeNavChange = new EventEmitter<string>();
-  public selectedSearchCategory = 'Highlights';
-  public page = 1;
-  public highlightPipe = new HighlightPipe();
-  public componentRefs: ComponentRef<TextOptionsComponent>[] = [];
-  public dropdownVisible: { [key: string]: boolean } = {};
-  constructor(
-    private readonly router: Router,
-    private readonly route: ActivatedRoute,
-    private readonly viewContainerRef: ViewContainerRef,
-    public elementRef: ElementRef
-  ) {}
 
-  public afterLoadComplete(): void {
-    const queryParams = this.route.snapshot.queryParams;
-    if (queryParams['page']) {
-      this.page = queryParams['page'];
-    }
-  }
+  public selectedSearchCategory = 'Highlights';
 
   public selectSearchCategory(category: string): void {
     this.selectedSearchCategory = category;
   }
 
-  public onKeyUp(event: KeyboardEvent): void {
-    if (event.key === 'Enter') {
-      this.searchDown(this.searchText);
-    } else {
-      this.search(this.searchText);
+  public showHighlightedArray(editor: highlightEditor): void {
+    this.utilService.addEditor(editor);
+  }
+  
+  public commentTagPopover(data: ShowCommentTagPopoverDetails): void {
+    const editor = this.utilService.getEditor(data.id);
+    if (data.type === AnnotationActionType.comment) {
+      this.showCommentPopover(editor);
+
+      const commentPopoverInstance = this.popoverRef
+        ?.instance as CommentPopoverComponent;
+      commentPopoverInstance.comment = editor.annotationConfig.comment;
+      commentPopoverInstance.submitComment.subscribe(() => {
+        editor.updateParams(
+          AnnotationEditorParamsType.HIGHLIGHT_COLOR,
+          '#80EBFF'
+        );
+        editor.type = AnnotationActionType.comment;
+        editor.annotationConfig.type = AnnotationActionType.comment;
+        editor.annotationConfig.comment = commentPopoverInstance.comment;
+        editor.annotationConfig.color = '#80EBFF';
+        editor.annotationConfig.Tags = [];
+        this.utilService.updateEditorType(editor);
+      });
+    } else if (data.type === AnnotationActionType.tag) {
+      this.showTagPopover(editor);
+      const tagPopoverInstance = this.popoverRef
+        ?.instance as TagPopoverComponent;
+      tagPopoverInstance.tagSelected.subscribe((activeEditor) => {
+        editor.annotationConfig.Tags = activeEditor.annotationConfig.Tags;
+        editor.annotationConfig.comment = '';
+        this.updateTagProps(editor);
+      });
     }
   }
 
-  public search(stringToSearch: string): void {
-    this.currentSearchIndex = 1;
-    if (this.currentSearchIndex > 1) {
-      this.currentSearchIndex--;
+  public updateTagProps(editor: highlightEditor): void {
+    if (editor.annotationConfig.Tags.length > 0) {
+      editor.updateParams(
+        AnnotationEditorParamsType.HIGHLIGHT_COLOR,
+        '#53FFBC'
+      );
+      editor.type = AnnotationActionType.tag;
+      editor.annotationConfig.color = '#53FFBC';
+      editor.annotationConfig.type = AnnotationActionType.tag;
+      this.utilService.updateEditorType(editor);
+    } else {
+      editor.updateParams(
+        AnnotationEditorParamsType.HIGHLIGHT_COLOR,
+        '#FFFF98'
+      );
+      editor.type = AnnotationActionType.highlight;
+      editor.annotationConfig.color = '#FFFF98';
+      editor.annotationConfig.type = AnnotationActionType.highlight;
+      this.utilService.updateEditorType(editor);
     }
-    this.pdfComponent.eventBus.dispatch('find', {
-      query: stringToSearch,
-      type: 'again',
-      caseSensitive: false,
-      findPrevious: false,
-      highlightAll: true,
-      phraseSearch: true,
-    });
-    this.pdfComponent.eventBus.on('updatefindmatchescount',
-      (event: {
-        matchesCount: { current: number; total: number };
-        currentSearchIndex: number;
-      }) => {
-        this.totalMatchesCount = event.matchesCount.total;
-        const searchResultsDiv = document.getElementById('my-auto_count');
-        if (searchResultsDiv) {
-          searchResultsDiv.innerText = `${this.currentSearchIndex}/${this.totalMatchesCount}`;
+  }
+
+  public showTagPopover(editor: highlightEditor): void {
+    this.closeCommentPopover();
+    this.isOpenTag = true;
+
+    this.popoverRef =
+      this.viewContainerRef.createComponent(TagPopoverComponent);
+    (this.popoverRef.instance as TagPopoverComponent).editor = editor;
+
+    const popoverElement = this.popoverRef.location
+      .nativeElement as HTMLElement;
+    popoverElement.style.display = 'block';
+
+    const selectedText = document.querySelector(
+      '.highlightEditor.selectedEditor'
+    ) as HTMLElement;
+    selectedText.appendChild(popoverElement);
+    const selectedTextRect = selectedText.getBoundingClientRect();
+    const targetPageIndex = editor.pageIndex;
+    const pageElement =
+      document.getElementsByClassName('textLayer')[targetPageIndex];
+    if (pageElement) {
+      const pageRect = pageElement.getBoundingClientRect();
+      popoverElement.style.position = 'absolute';
+      if (selectedTextRect.bottom > pageRect.bottom - 260) {
+        popoverElement.style.top = 'calc(100% - 264px)';
+      } else {
+        popoverElement.style.top = '60px';
+      }
+
+      if (selectedTextRect.left > pageRect.left - 173) {
+        popoverElement.style.left = 'calc(100% - 80px)';
+      } else {
+        popoverElement.style.left = '-60px';
+      }
+    }
+    const pdfViewerElement = this.elementRef.nativeElement.querySelector(
+      'ngx-extended-pdf-viewer'
+    );
+    pdfViewerElement.removeEventListener('scroll', this.onPdfViewerScroll);
+    pdfViewerElement.addEventListener('scroll', this.onPdfViewerScroll);
+    this.renderer.listen('document', 'click', this.onDocumentClickTag);
+  }
+
+  public showCommentPopover(editor: highlightEditor): void {
+    this.closeCommentPopover();
+    this.isOpenComment = true;
+    this.popoverRef = this.viewContainerRef.createComponent(
+      CommentPopoverComponent
+    );
+    const popoverElement = this.popoverRef.location
+      .nativeElement as HTMLElement;
+    popoverElement.style.display = 'block';
+
+    const selectedText = document.querySelector(
+      '.highlightEditor.selectedEditor'
+    ) as HTMLElement;
+    selectedText.appendChild(popoverElement);
+    const selectedTextRect = selectedText.getBoundingClientRect();
+    const targetPageIndex = editor.pageIndex;
+    const pageElement =
+      document.getElementsByClassName('textLayer')[targetPageIndex];
+    if (pageElement) {
+      const pageRect = pageElement.getBoundingClientRect();
+      popoverElement.style.position = 'absolute';
+      if (selectedTextRect.bottom > pageRect.bottom - 270) {
+        popoverElement.style.top = 'calc(100% - 264px)';
+      } else {
+        popoverElement.style.top = '60px';
+      }
+      if (selectedTextRect.left > pageRect.left - 173) {
+        popoverElement.style.left = 'calc(100% - 80px)';
+      } else {
+        popoverElement.style.left = '-60px';
+      }
+    }
+    const pdfViewerElement = this.elementRef.nativeElement.querySelector(
+      'ngx-extended-pdf-viewer'
+    );
+    pdfViewerElement.removeEventListener('scroll', this.onPdfViewerScroll);
+    pdfViewerElement.addEventListener('scroll', this.onPdfViewerScroll);
+    this.renderer.listen('document', 'click', this.onDocumentClickComment);
+  }
+
+  public onTextLayerRendered(event: PageRenderEvent): void {
+    this.savedAnnotations.sort((a, b) => a.pageNumber - b.pageNumber);
+    setTimeout(() => {
+      this.notRenderedPages = this.notRenderedPages.filter(
+        (p) => p !== event.pageNumber
+      );
+      this.pdfService.setAnnotation(this.savedAnnotations);
+      if (
+        this.notRenderedPages.length === 0 &&
+        this.savedAnnotations.length > 0 &&
+        !this.callExecuted
+      ) {
+        setTimeout(() => {
+          this.pdfService.scrollPageIntoView(1);
+          this.callExecuted = true;
+        }, 200);
+      }
+    }, 500);
+  }
+  public onPageRendered(event: PageRenderEvent): void {
+    this.requestedPages = this.requestedPages.filter(
+      (d) => d !== event.pageNumber
+    );
+    this.savedAnnotations.sort((a, b) => a.pageNumber - b.pageNumber);
+
+    if (this.pdfService.isRenderQueueEmpty()) {
+      this.requestedPages.forEach((d) => {
+        this.pdfService.addPageToRenderQueue(d - 1);
+      });
+    }
+  }
+  public removeTag(editor: highlightEditor, tag: TagListModel): void {
+    editor.annotationConfig.Tags = editor.annotationConfig.Tags.filter(
+      (t: number) => t !== tag.id
+    );
+    this.utilService.updateEditorType(editor);
+    if (editor.annotationConfig.Tags.length === 0) {
+      this.updateTagProps(editor);
+    }
+  }
+
+  public onDocumentClickTag = (event: MouseEvent): void => {
+    if (this.popoverRef?.hostView) {
+      const clickedInsidePopover = (
+        this.popoverRef.location.nativeElement as HTMLElement
+      ).contains(event.target as Node);
+
+      const tagElements = document.querySelectorAll('.tag');
+      let clickedInsideTag = false;
+
+      tagElements.forEach((tagElement) => {
+        if (tagElement.contains(event.target as Node)) {
+          clickedInsideTag = true;
         }
       });
-  }
+      if (!clickedInsidePopover && !clickedInsideTag) {
+        const popover = document.querySelector('.tag-popover') as HTMLElement;
 
-  public searchUp(stringToSearch: string): void {
-    if (this.currentSearchIndex > 1) {
-      this.currentSearchIndex--;
-    } else if (this.currentSearchIndex === 1) {
-      this.currentSearchIndex = this.totalMatchesCount;
-    }
-    this.updateSearch(stringToSearch, true);
-    const searchResultsDiv = document.getElementById('my-auto_count');
-    if (searchResultsDiv) {
-      searchResultsDiv.innerText = `${this.currentSearchIndex}/${this.totalMatchesCount}`;
-    }
-  }
-
-  public searchDown(stringToSearch: string): void {
-    if (this.currentSearchIndex < this.totalMatchesCount) {
-      this.currentSearchIndex++;
-    } else if (this.currentSearchIndex === this.totalMatchesCount) {
-      this.currentSearchIndex = 1;
-    }
-    this.updateSearch(stringToSearch, false);
-    const searchResultsDiv = document.getElementById('my-auto_count');
-    if (searchResultsDiv) {
-      searchResultsDiv.innerText = `${this.currentSearchIndex}/${this.totalMatchesCount}`;
-    }
-  }
-
-  public updateSearch(stringToSearch: string, findPrevious: boolean): void {
-    this.pdfComponent.eventBus.dispatch('find', {
-      query: stringToSearch,
-      type: 'again',
-      caseSensitive: false,
-      findPrevious: findPrevious,
-      highlightAll: true,
-      phraseSearch: true,
-    });
-  }
-
-  public submitComment(comment: CommentSelection,
-    submitButton: HTMLButtonElement): void {
-    comment.editMode = false;
-    submitButton.setAttribute('disabled', 'true');
-  }
-
-  public enableSubmitButton(comment: CommentSelection,
-    submitButton: HTMLButtonElement): void {
-    const textAreaValue = comment.comment && comment.comment.trim().length > 0;
-    if (submitButton) {
-      if (textAreaValue) {
-        submitButton.removeAttribute('disabled');
-        submitButton.style.background = '#545050';
-      } else {
-        submitButton.setAttribute('disabled', 'true');
-      }
-    }
-  }
-
-  public editComment(comment: CommentSelection): void {
-    comment.editMode = true;
-  }
-
-  public closeSource(): void {
-    this.router.navigate(['sources']);
-  }
-
-  public showOptions(event: MouseEvent): void {
-    if (
-      event.composedPath().find((e) => {
-        return this.componentRefs.find((e2) => e === e2.location.nativeElement);
-      })
-    ) {
-      return;
-    }
-    this.deleteAllComponentRef();
-    const target = event.target as Element;
-    if (!this.minimalView) {
-      const page = target.parentElement as HTMLElement;
-      const left = event.clientX - page.getBoundingClientRect().left;
-      const top = event.clientY - page.getBoundingClientRect().top;
-      const dynamicComponent =
-        this.viewContainerRef.createComponent(TextOptionsComponent);
-      dynamicComponent.location.nativeElement.style.top = `${top}px`;
-      dynamicComponent.location.nativeElement.style.left = `${left}px`;
-      dynamicComponent.location.nativeElement.classList.add('position-absolute');
-      target.parentElement?.parentElement?.insertAdjacentElement('beforeend',
-        dynamicComponent.location.nativeElement);
-      this.componentRefs.push(dynamicComponent);
-      dynamicComponent.instance.highlightClicked.subscribe(this.setClassesForHighlights.bind(this));
-      dynamicComponent.instance.tagClicked.subscribe(this.setClassesForTags.bind(this));
-      dynamicComponent.instance.privateTagClicked.subscribe(this.setClassesForTags.bind(this));
-      dynamicComponent.instance.commentClicked.subscribe(this.setClassesForComments.bind(this));
-      dynamicComponent.instance.removeRequested.subscribe(this.deleteAllComponentRef.bind(this));
-    }
-  }
-
-  public setClassesForComments(): void {
-    const selection = window?.getSelection();
-    if (!selection) {
-      return;
-    }
-    const text = selection?.toString();
-    const comment = {
-      id: uuidv4(),
-      spanLocations: [],
-      comment: '',
-      text,
-      editMode: true,
-    };
-    this.setClassesForItem(
-      comment,
-      this.comments,
-      'match-comment',
-      this.spanCommentsMap,
-      selection
-    );
-  }
-
-  public setClassesForHighlights(): void {
-    const selection = window?.getSelection();
-    if (!selection) return;
-    const text = selection?.toString();
-    const highlight = {
-      id: uuidv4(),
-      spanLocations: [],
-      text,
-    };
-    this.setClassesForItem(
-      highlight,
-      this.highlights,
-      'match-highlight',
-      this.spanHighlightsMap,
-      selection
-    );
-  }
-
-  public setClassesForTags(): void {
-    const selection = window?.getSelection();
-    if (!selection) return;
-
-    const text = selection?.toString();
-    const tagSelection = {
-      id: uuidv4(),
-      spanLocations: [],
-      text,
-      tags: [],
-    };
-    this.setClassesForItem(
-      tagSelection,
-      this.tags,
-      'match-tag',
-      this.spanTagMap,
-      selection
-    );
-  }
-
-  public deleteAllComponentRef(): void {
-    this.componentRefs.forEach((ref) => {
-      ref.destroy();
-    });
-    this.componentRefs = [];
-  }
-
-  public findRangeSections(selection: Selection): SpanLocation[] {
-    const range = selection?.getRangeAt(0);
-    const rangeClone = range?.cloneRange();
-    let locations: SpanLocation[] = [];
-    if (rangeClone) {
-      const startLocation = this.getSpanLocation(rangeClone?.startContainer);
-      const endLocation = this.getSpanLocation(rangeClone?.endContainer);
-      locations = this.getInterveningLocations(startLocation, endLocation);
-      if (locations.length > 0) {
-        locations[0].startOffset = selection?.anchorOffset;
-        locations[locations.length - 1].endOffset = selection?.focusOffset;
-      }
-    }
-    return locations;
-  }
-
-  public getFirstPage(selection: {
-    spanLocations: SpanLocation[];
-  }): Nullable<number> {
-    return selection.spanLocations.length > 0
-      ? selection.spanLocations[0].pageNumber
-      : null;
-  }
-
-  public getFirstSpan(selection: {
-    spanLocations: SpanLocation[];
-  }): Nullable<number> {
-    return selection.spanLocations.length > 0
-      ? selection.spanLocations[0].spanIndex
-      : null;
-  }
-
-  public removeHighlight(highlight: HighlightSelection): void {
-    const index = this.highlights.findIndex((c) => c.id === highlight.id);
-    if (index > -1) {
-      this.highlights.splice(index, 1);
-    }
-    this.removeSelection(
-      highlight,
-      'match-highlight',
-      highlight.id,
-      this.spanHighlightsMap
-    );
-  }
-
-  public setClassesForItem(
-    item: { id: string; spanLocations: SpanLocation[] },
-    list: { id: string; spanLocations: SpanLocation[] }[],
-    htmlClass: string,
-    selectionMap: Map<Element, Set<string>>,
-    selection: Selection
-  ): void {
-    const locations = this.findRangeSections(selection);
-    if (locations.length < 1) {
-      return;
-    }
-    item.spanLocations.push(...locations);
-    list.push(item);
-    for (const location of locations) {
-      this.setSpanClassFromLocationMapped(
-        location,
-        htmlClass,
-        item.id,
-        selectionMap
-      );
-    }
-    list.sort(this.sortSelection.bind(this));
-  }
-
-  public sortSelection(a: { spanLocations: SpanLocation[] },
-    b: { spanLocations: SpanLocation[] }): number {
-    const res = (this.getFirstPage(a) ?? 0) - (this.getFirstPage(b) ?? 0);
-    if (res === 0) {
-      return (this.getFirstSpan(a) ?? 0) - (this.getFirstSpan(b) ?? 0);
-    }
-    return res;
-  }
-
-  public removeComment(comment: CommentSelection): void {
-    const index = this.comments.findIndex((c) => c.id === comment.id);
-    if (index > -1) {
-      this.comments.splice(index, 1);
-    }
-    this.removeSelection(
-      comment,
-      'match-comment',
-      comment.id,
-      this.spanCommentsMap
-    );
-  }
-
-  public goToSelection(selection: { spanLocations: SpanLocation[] }): void {
-    this.selectSelection(selection);
-    if (selection.spanLocations.length > 0) {
-      const span = this.getSpanFromLocation(selection.spanLocations[0]);
-      if (span) {
-        const scrollIntoViewOptions: ScrollIntoViewOptions = {
-          block: 'center',
-          inline: 'center',
-        };
-        span.scrollIntoView(scrollIntoViewOptions);
-      }
-    }
-  }
-
-  public selectSelection(selection: { spanLocations: SpanLocation[] }): void {
-    document.querySelectorAll('span.match-active').forEach((s) => {
-      s.classList.remove('match-active');
-    });
-    for (const location of selection.spanLocations) {
-      this.setSpanClassFromLocation(location, 'match-active');
-    }
-  }
-
-  public removeSelection(
-    selection: { spanLocations: SpanLocation[] },
-    htmlClass: string,
-    selectionId: string,
-    selectionMap: Map<Element, Set<string>>
-  ): void {
-    for (const location of selection.spanLocations) {
-      this.removeSpanClassFromLocation(
-        location,
-        htmlClass,
-        selectionId,
-        selectionMap
-      );
-    }
-  }
-
-  public removeTag(tag: TagSelection): void {
-    const index = this.tags.findIndex((c) => c.id === tag.id);
-    if (index > -1) {
-      this.tags.splice(index, 1);
-    }
-    this.removeSelection(
-      tag, 'match-tag', tag.id, this.spanTagMap
-    );
-  }
-
-  public getSpanFromLocation(location: SpanLocation): Nullable<Element> {
-    const textLayer = this.getTextLayerFromLocation(location.pageNumber);
-    if (textLayer && location.spanIndex > -1) {
-      const spans = Array.from(textLayer?.querySelectorAll('span:not(.inner-span)'));
-      return spans[location.spanIndex];
-    }
-    return null;
-  }
-
-  public setSpanClassFromLocationMapped(
-    location: SpanLocation,
-    htmlClass: string,
-    selectionId: string,
-    selectionMap: Map<Element, Set<string>>
-  ): void {
-    const textLayer = this.getTextLayerFromLocation(location.pageNumber);
-    if (textLayer && location.spanIndex > -1) {
-      const spans = Array.from(textLayer?.querySelectorAll('span:not(.inner-span)'));
-      const span = spans[location.spanIndex];
-      if (span) {
-        let spanSet = selectionMap.get(span);
-        if (!spanSet) {
-          spanSet = new Set<string>();
-          selectionMap.set(span, spanSet);
+        if (this.isOpenTag && popover) {
+          popover.style.display = 'none';
         }
-        spanSet.add(selectionId);
+        this.isOpenTag = false;
       }
-      span.classList.add(htmlClass);
     }
-  }
+  };
+  public onDocumentClickComment = (event: MouseEvent): void => {
+    if (this.popoverRef?.hostView) {
+      const clickedInsidePopover = (
+        this.popoverRef.location.nativeElement as HTMLElement
+      ).contains(event.target as Node);
 
-  public setSpanClassFromLocation(location: SpanLocation,
-    htmlClass: string): void {
-    const textLayer = this.getTextLayerFromLocation(location.pageNumber);
-    if (textLayer && location.spanIndex > -1) {
-      const spans = Array.from(textLayer?.querySelectorAll('span:not(.inner-span)'));
-      const span = spans[location.spanIndex] as HTMLElement;
-      span.classList.add(htmlClass);
-    }
-  }
+      const commentElements = document.querySelectorAll('.comment');
+      let clickedInsidecomment = false;
 
-  public removeSpanClassFromLocation(
-    location: SpanLocation,
-    htmlClass: string,
-    selectionId: string,
-    selectionMap: Map<Element, Set<string>>
-  ): void {
-    const textLayer = this.getTextLayerFromLocation(location.pageNumber);
-    if (textLayer && location.spanIndex > -1) {
-      const spans = Array.from(textLayer?.querySelectorAll('span:not(.inner-span)'));
-      const span = spans[location.spanIndex];
-      const spanSet = selectionMap.get(span);
-      if (spanSet) {
-        spanSet.delete(selectionId);
-        if (spanSet.size < 1) {
-          span.classList.remove(htmlClass);
-          document.querySelectorAll('span.match-active').forEach((s) => {
-            s.classList.remove('match-active');
-          });
-          selectionMap.delete(span);
+      commentElements.forEach((commentElement) => {
+        if (commentElement.contains(event.target as Node)) {
+          clickedInsidecomment = true;
         }
-      } else {
-        span.classList.remove(htmlClass);
-        document.querySelectorAll('span.match-active').forEach((s) => {
-          s.classList.remove('match-active');
-        });
+      });
+
+      if (!clickedInsidePopover && !clickedInsidecomment) {
+        const popover = document.querySelector(
+          '.comment-popover-content'
+        ) as HTMLElement;
+
+        if (this.isOpenComment && popover) {
+          popover.style.display = 'none';
+        }
+        this.isOpenComment = false;
       }
     }
+  };
+
+  public scrollToElement(editor: highlightEditor): void {
+    document.getElementById(`${editor.id}`)?.scrollIntoView({
+      block: 'center',
+      inline: 'center',
+    });
+
+    editor._uiManager.setSelected(editor);
   }
 
-  public getSpanLocation(startContainer: Node): SpanLocation {
-    const startPage = this.getPageParent(startContainer);
-    const startSpan = this.getSpan(startContainer);
-    const location: { pageNumber: number; spanIndex: number } = {
-      pageNumber: -1,
-      spanIndex: -1,
-    };
-    if (startPage && startSpan) {
-      const startPageNumberAttr =
-        startPage.attributes.getNamedItem('data-page-number');
-      const pageNumber = startPageNumberAttr?.value;
-      if (pageNumber) {
-        location.pageNumber = +pageNumber;
-      }
-      const textLayer = startPage.querySelector('div.textLayer');
-      if (textLayer) {
-        const spans = Array.from(textLayer.querySelectorAll('span:not(.inner-span)'));
-        const spanIndex = spans.findIndex((s) => s == startSpan);
-        location.spanIndex = spanIndex;
-      }
+  public onPdfViewerScroll = (): void => {
+    if (this.popoverRef) {
+      const pdfViewerElement = this.elementRef.nativeElement.querySelector(
+        'ngx-extended-pdf-viewer'
+      );
+      this.previousScrollTop = pdfViewerElement.scrollTop;
+      this.previousScrollLeft = pdfViewerElement.scrollLeft;
     }
-    return location;
-  }
+  };
 
-  public getInterveningTextLayers(startPage: number,
-    endPage: number): Element[] {
-    const pages: Element[] = [];
-    for (let p = startPage + 1; p < endPage; p++) {
-      const page = this.getTextLayerFromLocation(p);
-      if (page) {
-        pages.push(page);
-      }
-    }
-    return pages;
-  }
-
-  public getInterveningLocations(startLocation: SpanLocation,
-    endLocation: SpanLocation): SpanLocation[] {
-    const locations: SpanLocation[] = [];
-    if (startLocation.pageNumber === endLocation.pageNumber) {
-      if (startLocation.spanIndex === endLocation.spanIndex) {
-        locations.push(startLocation);
-      } else {
-        locations.push(...this.getSamePageLocations(startLocation, endLocation));
-      }
-    } else {
-      locations.push(...this.getAllNonSamePageLocations(startLocation, endLocation));
-    }
-    return locations;
-  }
-
-  public getAllNonSamePageLocations(startLocation: SpanLocation,
-    endLocation: SpanLocation): SpanLocation[] {
-    const locations: SpanLocation[] = [];
-    locations.push(...this.getStartPageLocations(startLocation));
-    if (startLocation.pageNumber && endLocation.pageNumber) {
-      for (
-        let p = startLocation.pageNumber + 1;
-        p < endLocation.pageNumber;
-        p++
-      ) {
-        locations.push(...this.getAllLocationsOnPage(p));
-      }
-    }
-    locations.push(...this.getEndPageLocations(endLocation));
-    return locations;
-  }
-
-  public getStartPageLocations(startLocation: SpanLocation): SpanLocation[] {
-    const textLayer = this.getTextLayerFromLocation(startLocation.pageNumber);
-    const locations: SpanLocation[] = [];
-    if (textLayer && startLocation.spanIndex > -1 && startLocation.pageNumber) {
-      const allSpans = Array.from(textLayer.querySelectorAll('span:not(.inner-span)'));
-      for (let s = startLocation.spanIndex; s < allSpans.length; s++) {
-        locations.push({
-          pageNumber: startLocation.pageNumber,
-          spanIndex: s,
-        });
-      }
-    }
-    return locations;
-  }
-
-  public getAllLocationsOnPage(pageNumber: number): SpanLocation[] {
-    const textLayer = this.getTextLayerFromLocation(pageNumber);
-    const locations: SpanLocation[] = [];
-    if (textLayer) {
-      const allSpans = Array.from(textLayer.querySelectorAll('span:not(.inner-span)'));
-      for (let s = 0; s < allSpans.length; s++) {
-        locations.push({
-          pageNumber,
-          spanIndex: s,
-        });
-      }
-    }
-    return locations;
-  }
-
-  public getEndPageLocations(endLocation: SpanLocation): SpanLocation[] {
-    const locations: SpanLocation[] = [];
-    if (endLocation.spanIndex > -1 && endLocation.pageNumber) {
-      for (let s = 0; s <= endLocation.spanIndex; s++) {
-        locations.push({
-          pageNumber: endLocation.pageNumber,
-          spanIndex: s,
-        });
-      }
-    }
-    return locations;
-  }
-
-  public getSamePageLocations(startLocation: SpanLocation,
-    endLocation: SpanLocation): SpanLocation[] {
-    const locations: SpanLocation[] = [];
-    locations.push(startLocation);
-    if (
-      startLocation.spanIndex > -1 &&
-      endLocation.spanIndex > -1 &&
-      startLocation.pageNumber
-    ) {
-      for (
-        let s = startLocation.spanIndex + 1;
-        s < endLocation.spanIndex;
-        s++
-      ) {
-        locations.push({
-          pageNumber: startLocation.pageNumber,
-          spanIndex: s,
-        });
-      }
-    }
-    locations.push(endLocation);
-    return locations;
-  }
-
-  public getTextLayerFromLocation(pageNumber: number): Nullable<Element> | undefined {
-    return this.pdfComponent.pdfViewerContainer.nativeElement
-      .querySelector(`[data-page-number="${pageNumber}"]`)
-      ?.querySelector('div.textLayer');
-  }
-
-  public getMiddlePages(startPage: HTMLElement | null,
-    endPage: HTMLElement | null): HTMLElement[] {
-    let siblingElement = startPage?.nextElementSibling as HTMLElement;
-    const pages: HTMLElement[] = [];
-    while (siblingElement && siblingElement !== endPage) {
-      if (
-        siblingElement.nodeName === 'DIV' &&
-        siblingElement.classList.contains('page')
-      ) {
-        pages.push(siblingElement);
-      }
-      siblingElement = siblingElement.nextElementSibling as HTMLElement;
-    }
-    return pages;
-  }
-
-  public getPageParent(node: Node): Nullable<HTMLElement> {
-    const parent = node.parentElement;
-    if (!parent) {
-      return null;
-    } else if (parent.nodeName === 'DIV') {
-      if (parent.classList.contains('page')) {
-        return parent;
-      } else {
-        return this.getPageParent(parent);
-      }
-    } else {
-      return this.getPageParent(parent);
-    }
-  }
-
-  public getSpan(node: Node): Nullable<HTMLElement> {
-    if (node.nodeName === '#text') {
-      return node.parentElement;
-    } else if (node.nodeName === 'SPAN') {
-      return node as HTMLElement;
-    } else {
-      return null;
+  public closeCommentPopover(): void {
+    if (this.popoverRef) {
+      this.appRef.detachView(this.popoverRef.hostView);
+      this.popoverRef.destroy();
+      this.popoverRef = null;
+      const pdfViewerElement = this.elementRef.nativeElement.querySelector(
+        'ngx-extended-pdf-viewer'
+      );
+      pdfViewerElement.removeEventListener('scroll', this.onPdfViewerScroll);
     }
   }
 
@@ -735,7 +437,9 @@ export class MoPdfViewerComponent {
     });
     const parentSpan = element.closest('.icon-span');
     if (parentSpan) {
-      const dropdownContent = parentSpan.querySelector('.dropdown-content') as HTMLElement;
+      const dropdownContent = parentSpan.querySelector(
+        '.dropdown-content'
+      ) as HTMLElement;
       if (dropdownContent) {
         dropdownContent.style.display = 'block';
         const hideDropdown = (event: MouseEvent): void => {
@@ -749,5 +453,65 @@ export class MoPdfViewerComponent {
         }, 0);
       }
     }
+  }
+
+  public enableSubmitButton(
+    comment: string,
+    submitButton: HTMLButtonElement
+  ): void {
+    const textAreaValue = comment && comment.trim().length > 0;
+    if (submitButton) {
+      if (textAreaValue) {
+        submitButton.removeAttribute('disabled');
+        submitButton.style.background = '#545050';
+      } else {
+        submitButton.setAttribute('disabled', 'true');
+      }
+    }
+  }
+
+  public annotationDeleted(event: AnnotationDeleteEvent): void {
+    this.utilService.removeAnnotation(event.id);
+  }
+
+  public submitComment(editor: highlightEditor): void {
+    editor.annotationConfig.comment = editor.tempComment;
+    editor.showEdit = false;
+  }
+
+  public editComment(editor: highlightEditor): void {
+    this.commentList.forEach((c) => (c.showEdit = false));
+    editor.tempComment = editor.annotationConfig.comment;
+    editor.showEdit = true;
+  }
+
+  public removeAnnotation(editor: highlightEditor): void {
+    editor.remove(editor);
+  }
+
+  public tagPublicVisibility(index: number): void {
+    this.publicListVisible[index] = !this.publicListVisible[index];
+  }
+
+  public tagPrivateVisibility(index: number): void {
+    this.privateListVisible[index] = !this.privateListVisible[index];
+  }
+
+  public onMouseEnter(
+    list: 'private' | 'public' | 'highlight',
+    index: number
+  ): void {
+    this.hoveredIndex = index;
+    this.hoveredList = list;
+  }
+
+  public onMouseLeave(): void {
+    this.hoveredIndex = null;
+    this.hoveredList = null;
+  }
+
+  public ngOnDestroy(): void {
+    this.closeCommentPopover();
+    this.elementRef.nativeElement.querySelector('ngx-extended-pdf-viewer');
   }
 }

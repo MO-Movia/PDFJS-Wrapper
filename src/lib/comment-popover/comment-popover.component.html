@@ -1,0 +1,36 @@
+<div class="comment-popover-content">
+  <div class="comment-header">
+    <h5>Add Note</h5>
+
+    <button
+      type="button"
+      class="btn close-comment close-svg"
+      tabindex="-1"
+      (click)="closeComment()"
+      (keyup)="closeComment()"
+    >
+      <fa-icon class="mx-auto my-auto" [icon]="I.faTimes" />
+    </button>
+  </div>
+  <div class="comment-border"></div>
+  <textarea
+    #commentInput
+    [(ngModel)]="comment"
+    rows="4"
+    placeholder="Enter your note"
+    style="height: 144px"
+    class="comment-textarea"
+    (keydown.control.enter)="onSubmit()"
+    (keydown.escape)="closeComment()"
+  ></textarea>
+  <div class="button-container">
+    <button
+      class="submit-button"
+      (click)="onSubmit()"
+      (keyup)="onSubmit()"
+      [disabled]="!comment || comment.trim().length === 0"
+    >
+      Submit
+    </button>
+  </div>
+</div>

@@ -1,5 +1,3 @@
-@import "https://fonts.googleapis.com/icon?family=Material+Icons";
-
 :host ::ng-deep .ng2-pdf-viewer-container {
   .match-comment {
     text-decoration: underline;
@@ -8,18 +6,15 @@
     color: black;
     opacity: 1;
   }
-
   .match-active {
     color: black;
     opacity: 0.5;
   }
-
   .match-highlight {
     background-color: yellow;
     color: black;
     opacity: 1;
   }
-
   .match-tag {
     text-decoration: underline;
     text-decoration-color: green;
@@ -27,7 +22,6 @@
     color: black;
     opacity: 2;
   }
-  
   .textLayer {
     opacity: 0.4;
   }
@@ -105,10 +99,6 @@
   background-color: rgb(90, 88, 88);
 }
 
-.nav-tabs {
-  min-width: 40px;
-}
-
 .outlet {
   width: calc(100% - 40px);
   height: 100%;
@@ -143,7 +133,6 @@
 .highlight-col {
   position: relative;
   padding-left: 0;
-  padding-right: 38px;
 }
 
 #search_svg_icon {
@@ -174,6 +163,37 @@
   color: #837a7a;
 }
 
+.close-comment {
+  background-color: rgb(84, 80, 80);
+}
+
+#search_box_pdf {
+  left: -305px;
+  width: 188px;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  border-bottom: 2px solid black;
+  top: 5px;
+}
+
+.header_bottom_bar {
+  width: 370px;
+  position: absolute;
+  top: 34px;
+  height: 1px;
+  left: -329px;
+  background: black;
+}
+
+.header_seperator {
+  height: 31px;
+  width: 1px;
+  background: black;
+  position: absolute;
+  left: -71px;
+}
+
 .down_btn {
   border: none;
   width: 24px;
@@ -187,9 +207,13 @@
   background: white;
 }
 
-.right-panel-title{
-  font-size: 23px;
-  margin-top: 16px;
+#close_button_header {
+  width: 40px;
+  font-size: 19px;
+  border: none;
+  height: 35px;
+  font-weight: 700;
+  margin-top: -3px;
 }
 
 #trash_button {
@@ -197,7 +221,7 @@
   top: 1px;
   width: 21px;
   height: 22px;
-  right:  27px;
+  right: 1px;
   z-index: 1;
   visibility: hidden;
 }
@@ -214,7 +238,7 @@
   top: 2px;
   width: 21px;
   height: 21px;
-  right: 19px;
+  right: 1px;
   z-index: 1;
   visibility: hidden;
 }
@@ -229,20 +253,6 @@
 
 .row_highlight {
   position: relative;
-  padding-bottom: 20px;
-  height: 100%;
-}
-
-.search-category{
-  width: 100%;
-}
-
-.tag-mx{
-  padding-bottom: 20px;
-}
-
-.row-tag {
-  height: 49px;
 }
 
 .row_highlight:hover #trash_button {
@@ -255,60 +265,36 @@
 
 #trash_button_comment {
   position: absolute;
-  top: 8px;
-  width: 19px;
-  height: 20px;
-  right: 10px;
+  top: 11px;
+  width: 20px;
+  height: 22px;
+  right: 3px;
   z-index: 1;
-}
-
-#comment-box:hover #trash_button_comment {
-  visibility: visible;
+  background-color: #6b6666;
+  border: none;
 }
 
 #trash_icon_comment {
+  position: absolute;
   top: -1px;
-  right: 2px;
-  position: absolute;
-}
-
-#edit_icon_comment {
-  position: absolute;
-  top: 7px;
-  right: -3px;
-  width: 37px;
-  height: 19px;
-  fill: white;
-  filter: drop-shadow(2px 4px 6px black);
+  right: 10px;
+  width: 5px;
+  height: 14px;
 }
 
 #comment-row {
   position: relative;
-  padding-bottom: 50px;
-  width: 100%;
-}
-
-.row_comments {
-  width: 100%;
-}
-
-.row_comments:hover #trash_button_comment {
-  visibility: visible;
-}
-
-.row_comments:hover #edit_button_comment {
-  visibility: visible;
+  margin-left: 19px;
+  margin-right: -3px;
 }
 
 #comments-textarea {
-  margin-left: 6px;
-  margin-top: 5px;
-  width: 80%;
+  margin-left: -16px;
 }
 
 #edit_button_comment {
   position: absolute;
-  top: 35px;
+  top: 36px;
   width: 25px;
   height: 22px;
   right: 3px;
@@ -318,18 +304,42 @@
 }
 
 .edit_comment_svg {
-  width: 24px;
+  width: 22px;
   height: 24px;
   position: absolute;
   top: 1px;
   right: -3px;
-  filter: contrast(0.5);
+  filter: contrast(0.6);
+  fill: white;
 }
 
-#comment-box {
+.comment-box {
+  position: relative;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  white-space: normal;
+  line-clamp: 2;
   cursor: pointer;
-  padding-right: 38px;
-  margin: 1px;
+  padding-right: 13px;
+}
+
+.comment-box:hover,
+.comment-box:hover + .icon-span {
+  background-color: #dbd5d5;
+}
+
+.container-icon:hover {
+  background-color: #dbd5d5;
+}
+.container-icon:hover .svg-icon {
+  display: block;
+}
+.svg-icon {
+  display: none;
 }
 
 #tag-box {
@@ -343,28 +353,22 @@
   padding-right: 38px;
 }
 
-.comment_submit {
-  position: relative;
-  left: 70%;
-  top: 0px;
-  margin: 6px;
-  border: none;
-  background: #b7b1b1;
-  padding: 6px;
-  border-radius: 6px;
+.flex-grow-1 {
+  display: block;
 }
 
-textarea:focus {
-  outline: none;
-}
-.material-icons {
+#comment-dropdown {
   margin-top: 2px;
   border-radius: 2px;
+  font-size: 25px;
+  color: rgb(22, 22, 22);
+  position: absolute;
+  top: 5px;
+  right: 0;
 }
 
-.material-icons:hover {
-  background: #aca6a6;
-  border-radius: 2px;
+.comment-container {
+  width: 100%;
 }
 
 .dropdown-content {
@@ -399,3 +403,240 @@ textarea:focus {
   line-height: 35px;
 }
 
+.search-category {
+  width: 90%;
+}
+
+.right-panel-title {
+  font-size: 23px;
+  width: 70%;
+  margin-top: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  padding-left: inherit;
+}
+
+.button {
+  margin: 10px;
+  border: none;
+}
+
+.tag-type {
+  margin-left: 30px;
+}
+
+.privateList {
+  margin: -2px 16px -8px 19px;
+  border-radius: 5px;
+}
+
+.publicList {
+  margin: -2px 16px -8px 19px;
+  border-radius: 5px;
+}
+
+.tag-list {
+  width: 100%;
+  margin: -25px 0 30px;
+  overflow: hidden;
+  white-space: nowrap;
+  padding-right: 15px;
+}
+
+.tag-list-ul {
+  margin-right: 17px;
+  margin-left: -28px;
+}
+
+.highlights-list {
+  list-style-type: none;
+}
+
+.highlightList:hover {
+  background-color: #dbd5d5;
+}
+
+.highlightList {
+  display: flex;
+  padding-right: 3px;
+}
+
+.highlight-container {
+  width: 100%;
+}
+
+.highlightlist {
+  white-space: nowrap;
+  overflow: hidden;
+  margin: 12px -1px 0px -8px;
+  padding-right: 2px;
+}
+
+.collapse-svg {
+  height: 20px;
+  width: 20px;
+  cursor: pointer;
+  rotate: 180deg;
+  fill: #686161;
+  position: relative;
+  top: 22px;
+}
+
+.publicList .public-item-close:hover {
+  color: #807d7d;
+}
+
+.privateList .private-item-close:hover {
+  color: #807d7d;
+}
+
+.private-item-close {
+  cursor: pointer;
+  text-align: center;
+  width: 23px;
+  margin-left: 100%;
+  margin-top: -25px;
+  font-weight: 600;
+  visibility: hidden;
+}
+
+.private-item-close.visible,
+.public-item-close.visible .highlight-close.visible {
+  visibility: visible;
+}
+.public-item-close {
+  cursor: pointer;
+  text-align: center;
+  width: 23px;
+  margin-left: 100%;
+  margin-top: -25px;
+  font-weight: 600;
+  visibility: hidden;
+}
+.highlight-close {
+  cursor: pointer;
+  visibility: hidden;
+}
+
+.tag-public-count {
+  position: relative;
+  left: 100%;
+  margin-left: -3%;
+  border-radius: 50%;
+  background: #c1c0be;
+  text-align: center;
+  width: 22px;
+  cursor: pointer;
+  bottom: 31px;
+}
+
+.tag-private-count {
+  position: relative;
+  margin-left: -3%;
+  left: 100%;
+  border-radius: 50%;
+  background: #c1c0be;
+  text-align: center;
+  width: 22px;
+  cursor: pointer;
+  bottom: 31px;
+}
+.highlight-span {
+  cursor: pointer;
+  text-overflow: ellipsis;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.comment-content {
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tag-public-div {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+  padding-right: 11px;
+}
+
+.tag-private-div {
+  padding-right: 23px;
+  width: 100%;
+}
+
+.nav-item {
+  width: 50%;
+}
+
+.tag-item-container:hover .public-item-close {
+  visibility: visible;
+}
+
+.tag-item-container:hover .private-item-close {
+  visibility: visible;
+}
+
+.tag-item-container:hover {
+  background-color: #dbd5d5;
+}
+.tag-item-container {
+  padding-right: 24px;
+}
+
+.tab-public {
+  width: 100%;
+  font-size: 14px;
+  padding: 20px;
+}
+
+.tab-private {
+  width: 100%;
+  font-size: 14px;
+  padding: 20px;
+}
+
+.nav-link.active {
+  background-color: #5a5858;
+  color: white;
+}
+
+.taglist-tab {
+  margin: 12px;
+}
+
+.tag-text {
+  width: 100%;
+}
+
+.tag-name {
+  margin-left: 28px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: larger;
+}
+
+.tag-private-list {
+  width: 100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.tag-public-list {
+  width: 100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.tag-col {
+  margin-top: -9px;
+}
