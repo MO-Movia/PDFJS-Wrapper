@@ -20,6 +20,8 @@ export class UtilService {
   public tags$ = this.tags.asObservable();
   private savedAnnotationsChange = new Subject<void>();
   public savedAnnotationsChange$ = this.savedAnnotationsChange.asObservable();
+  private pageChange = new Subject<void>();
+  public pageChange$ = this.pageChange.asObservable();
 
   public annotationDataUpdated(): void {
     this.savedAnnotationsChange.next();

@@ -40,6 +40,7 @@ import {
   faTrash,
   faHighlighter,
   faMessage,
+  faBars
 } from '@fortawesome/free-solid-svg-icons';
 import { UtilService, TagListModel } from './util.service';
 
@@ -75,8 +76,11 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
       this.requestedPages = [...this.notRenderedPages];
     }
   }
-  @Input() public savedAnnotations: AnnotationItem[] = [];
+  @Input() public activePageNumber : number = 1; 
+  @Output() public pageChange = new EventEmitter <number>(); 
   @Output() public savedAnnotationsChange = new EventEmitter<AnnotationItem[]>();
+  @Input() public scrollTop : number = 1;
+  public savedAnnotations: AnnotationItem[] = [];
   public tagListPublic: TagListModel[] = [];
   public tagListPrivate: TagListModel[] = [];
   public commentList: highlightEditor[] = [];
@@ -84,6 +88,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
   public isOpenComment: boolean = false;
   public publicListVisible: boolean[] = [];
   public privateListVisible: boolean[] = [];
+  public showRightPanel : boolean = true;
 
   private notRenderedPages: number[] = [];
 
@@ -142,6 +147,7 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     faTag,
     faTrash,
     faHighlighter,
+    faBars
   };
 
   public searchCategories = [
@@ -159,7 +165,15 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
     },
   ];
 
+  public toggleRightPanel(){
+    this.showRightPanel = !this.showRightPanel;
+  }
+
   public selectedSearchCategory = 'Highlights';
+
+  public onPageChange(pageNumber: number): void {
+    this.pageChange.emit(pageNumber);
+  }
 
   public selectSearchCategory(category: string): void {
     this.selectedSearchCategory = category;
@@ -308,20 +322,38 @@ export class MoPdfViewerComponent implements OnDestroy, OnInit {
 
   public onTextLayerRendered(event: PageRenderEvent): void {
     this.savedAnnotations.sort((a, b) => a.pageNumber - b.pageNumber);
+    const pdfContainer = document.querySelector('#viewerContainer');
     setTimeout(() => {
       this.notRenderedPages = this.notRenderedPages.filter(
         (p) => p !== event.pageNumber
       );
-      this.pdfService.setAnnotation(this.savedAnnotations);
+       this.pdfService.setAnnotation(this.savedAnnotations);
       if (
         this.notRenderedPages.length === 0 &&
         this.savedAnnotations.length > 0 &&
         !this.callExecuted
       ) {
         setTimeout(() => {
-          this.pdfService.scrollPageIntoView(1);
+          if (pdfContainer) {
+            pdfContainer.scrollTo({
+              top: this.scrollTop,
+              behavior: 'smooth', 
+            });
+          }  
           this.callExecuted = true;
-        }, 200);
+        }, 200); 
+      }
+
+      if(this.savedAnnotations.length === 0 && !this.callExecuted ){
+          setTimeout(() => {
+            if (pdfContainer) {
+              pdfContainer.scrollTo({
+                top: this.scrollTop,
+                behavior: 'smooth', 
+              });
+            }  
+            this.callExecuted = true;
+          }, 200);      
       }
     }, 500);
   }

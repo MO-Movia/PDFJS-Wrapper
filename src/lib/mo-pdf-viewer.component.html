@@ -16,7 +16,8 @@
               (pageRendered)="onPageRendered($event)"
               (textLayerRendered)="onTextLayerRendered($event)"
               (annotationRemovedEvent)="annotationDeleted($event)"
-            >
+              (pageChange)="onPageChange($event)"            
+              >
             </ngx-extended-pdf-viewer>
             <ng-template #additionalButtons>
               <div id="toolbarViewer">
@@ -39,7 +40,7 @@
         </div>
       </div>
     </as-split-area>
-    <as-split-area [size]="30" class="right-panel">
+      <as-split-area *ngIf="showRightPanel" [size]="30" class="right-panel">
       <div
         class="search-category"
         *ngIf="selectedSearchCategory === 'Highlights'"
